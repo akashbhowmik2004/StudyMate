@@ -40,8 +40,8 @@ server/
 ### Clone repository
 
 ```bash
-git clone https://github.com/yourusername/study-tracker.git
-cd study-tracker
+https://github.com/akashbhowmik2004/StudyMate.git
+cd StudyMate
 ```
 
 ### Backend Setup
