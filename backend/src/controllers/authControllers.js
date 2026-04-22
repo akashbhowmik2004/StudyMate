@@ -76,7 +76,7 @@ export const Login = async (req, res) => {
       httpOnly: true,
       maxAge: maxAge * 1000,
     });
-    res.status(201).json(user);
+    res.status(200).json(user);
   } catch (error) {
     console.error("Signup error:", error.message);
     const errors = handleErrors(error);

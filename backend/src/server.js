@@ -1,12 +1,14 @@
 import express from "express";
-import authRoutes from "./routers/authRoutes.js";
-import userRouter from "./routers/userRoutes.js"
 import connectDB from "./config/user.js";
 import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+
 import {checkAuth} from "./middleware/checkAuth.js"
+import authRoutes from "./routers/authRoutes.js";
+import userRouter from "./routers/userRoutes.js"
+import postRouter from "./routers/postRoutes.js"
 
 dotenv.config();
 
@@ -22,6 +24,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(authRoutes);
 app.use("/",userRouter);
+app.use("/api",postRouter);
 
 
 
