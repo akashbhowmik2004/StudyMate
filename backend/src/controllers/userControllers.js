@@ -15,3 +15,5 @@ export const getCommunityPage = (req,res)=>{
         user: req.user
     })
 }
+
+

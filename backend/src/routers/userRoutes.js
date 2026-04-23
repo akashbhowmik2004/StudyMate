@@ -5,6 +5,6 @@ import {getDashboard,getCommunityPage} from "../controllers/userControllers.js"
 const router = express.Router();
 
 router.get("/dashboard", checkAuth, getDashboard);
-router.get("/community",checkAuth,getCommunityPage);
+router.get("/:id/community",checkAuth,getCommunityPage);
 
 export default router;

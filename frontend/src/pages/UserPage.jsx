@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import api from "../lib/api.js";
 import {
   FaPlus,
   FaComment,
   FaThumbsUp,
   FaShare,
+  FaPaperPlane,
   FaUsers,
   FaHome,
   FaSearch,
@@ -13,7 +14,6 @@ import {
 } from "react-icons/fa";
 import UserPageNavbar from "../components/UserPageNavbar";
 import toast from "react-hot-toast";
-import { useParams } from "react-router";
 
 const UserPage = () => {
   const [activeTab, setActiveTab] = useState("feed");
@@ -21,34 +21,52 @@ const UserPage = () => {
   const [showCommunityModal, setShowCommunityModal] = useState(false);
   const [showComments, setShowComments] = useState({});
   const [tagInput, setTagInput] = useState("");
-  const [post, setPost] = useState({
+  const [posts, setPosts] = useState([]); // feed
+  const [postForm, setPostForm] = useState({
+    // form
     community: "",
     content: "",
     tags: [],
+    likes: [],
   });
+  const [commentsByPost, setCommentsByPost] = useState({});
+  const [commentInputs, setCommentInputs] = useState({});
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const { data } = await api.get("/api/post");
+        setPosts(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setPost((prev) => ({
+    setPostForm((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
-  
 
   const handlePost = async (e) => {
     e.preventDefault();
 
     try {
-      if (!post.community || !post.content) {
+      if (!postForm.community || !postForm.content) {
         return toast.error("Fill all fields");
       }
-      const res = await api.post("/api/post", post);
+      const res = await api.post("/api/post", postForm);
       console.log(res);
 
       toast.success("Doubt created successfully");
       setShowPostModal(false);
-      setPost({ community: "", content: "", tags: [] });
+      setPosts((prev) => [res.data, ...prev]);
+      setPostForm({ community: "", content: "", tags: [], likes: [] });
       setTagInput("");
     } catch (error) {
       console.log(error);
@@ -57,8 +75,8 @@ const UserPage = () => {
 
   const handleAddTag = () => {
     const trimmedTag = tagInput.trim().toLowerCase();
-    if (trimmedTag && !post.tags.includes(trimmedTag)) {
-      setPost((prev) => ({
+    if (trimmedTag && !postForm.tags.includes(trimmedTag)) {
+      setPostForm((prev) => ({
         ...prev,
         tags: [...prev.tags, trimmedTag],
       }));
@@ -67,50 +85,60 @@ const UserPage = () => {
   };
 
   const handleRemoveTag = (tagToRemove) => {
-    setPost((prev) => ({
+    setPostForm((prev) => ({
       ...prev,
       tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
-  const posts = [
-    {
-      id: 1,
-      author: "Alex Johnson",
-      avatar: "AJ",
-      time: "2 hours ago",
-      content:
-        "How do I solve complex integral problems? I struggle with substitution methods.",
-      likes: 24,
-      comments: 5,
-      community: "Mathematics",
-      tags: ["calculus", "integration", "substitution"],
-    },
-    {
-      id: 2,
-      author: "Sarah Chen",
-      avatar: "SC",
-      time: "4 hours ago",
-      content:
-        "Need help understanding quantum mechanics. Specifically the wave-particle duality concept.",
-      likes: 18,
-      comments: 8,
-      community: "Physics",
-      tags: ["quantum-mechanics", "wave-particle-duality", "physics"],
-    },
-    {
-      id: 3,
-      author: "Mike Davis",
-      avatar: "MD",
-      time: "6 hours ago",
-      content:
-        "What are the best resources for learning React? Currently working on a project.",
-      likes: 42,
-      comments: 12,
-      community: "Technology",
-      tags: ["react", "javascript", "web-development"],
-    },
-  ];
+  const handleComment = async (postId, e) => {
+    e.preventDefault();
+
+    const commentText = (commentInputs[postId] || "").trim();
+    if (!commentText) {
+      return toast.error("Comment cannot be empty");
+    }
+
+    try {
+      const commentss = await api.post(`/api/post/${postId}/comment`, {
+        comment: commentText,
+      });
+      console.log(commentss);
+
+      setCommentsByPost((prev) => ({
+        ...prev,
+        [postId]: [
+          ...(prev[postId] || []),
+          {
+            _id: Date.now().toString(),
+            user: { name: "You" },
+            comment: commentText,
+            time: "Just now",
+          },
+        ],
+      }));
+
+      setCommentInputs((prev) => ({
+        ...prev,
+        [postId]: "",
+      }));
+
+      setPosts((prev) =>
+        prev.map((singlePost) =>
+          (singlePost._id || singlePost.id) === postId
+            ? {
+                ...singlePost,
+                commentCount: (singlePost.commentCount || 0) + 1,
+              }
+            : singlePost
+        )
+      );
+
+      toast.success("Comment added");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const communities = [
     {
@@ -139,22 +167,6 @@ const UserPage = () => {
     },
   ];
 
-  const comments = [
-    {
-      id: 1,
-      author: "John Smith",
-      avatar: "JS",
-      text: "Try using partial fractions method!",
-      time: "1 hour ago",
-    },
-    {
-      id: 2,
-      author: "Emma Wilson",
-      avatar: "EW",
-      text: "This helped me too, great suggestion!",
-      time: "30 mins ago",
-    },
-  ];
 
   const toggleComments = (postId) => {
     setShowComments((prev) => ({
@@ -239,9 +251,13 @@ const UserPage = () => {
 
                 {/* Posts Feed */}
                 <div className="space-y-4">
-                  {posts.map((post) => (
+                  {posts.map((post) => {
+                    const postId = post._id || post.id;
+                    const postComments = commentsByPost[postId] || post.comments || [];
+
+                    return (
                     <div
-                      key={post.id}
+                      key={postId}
                       className="bg-white rounded-lg shadow p-4"
                     >
                       {/* Post Header */}
@@ -288,8 +304,8 @@ const UserPage = () => {
 
                       {/* Post Stats */}
                       <div className="flex gap-4 text-sm text-gray-600 mb-3 pb-3 border-b border-gray-200">
-                        <span>{post.likes} likes</span>
-                        <span>{post.comments} comments</span>
+                        <span>{Array.isArray(post.likes) ? post.likes.length : post.likes || 0} likes</span>
+                        <span>{post.commentCount || post.comments || postComments.length || 0} comments</span>
                       </div>
 
                       {/* Post Actions */}
@@ -299,7 +315,7 @@ const UserPage = () => {
                           Like
                         </button>
                         <button
-                          onClick={() => toggleComments(post.id)}
+                          onClick={() => toggleComments(postId)}
                           className="flex-1 flex items-center justify-center gap-2 py-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors font-medium"
                         >
                           <FaComment className="text-lg" />
@@ -312,27 +328,27 @@ const UserPage = () => {
                       </div>
 
                       {/* Comments Section */}
-                      {showComments[post.id] && (
+                      {showComments[postId] && (
                         <div className="mt-4 pt-4 border-t border-gray-200">
                           <div className="space-y-3 mb-4">
-                            {comments.map((comment) => (
-                              <div key={comment.id} className="flex gap-3">
+                            {postComments.map((comment) => (
+                              <div key={comment._id || comment.id} className="flex gap-3">
                                 <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-teal-500 rounded-full flex-shrink-0 flex items-center justify-center">
                                   <span className="text-white font-bold text-xs">
-                                    {comment.avatar}
+                                    {comment?.user?.name?.charAt(0)?.toUpperCase() || comment.avatar || "U"}
                                   </span>
                                 </div>
                                 <div className="flex-1 bg-gray-50 rounded-lg p-3">
                                   <div className="flex items-center justify-between">
                                     <h5 className="font-semibold text-sm text-gray-900">
-                                      {comment.author}
+                                      {comment?.user?.name || comment.user || "User"}
                                     </h5>
                                     <span className="text-xs text-gray-500">
-                                      {comment.time}
+                                      {comment.time || "Just now"}
                                     </span>
                                   </div>
                                   <p className="text-sm text-gray-700 mt-1">
-                                    {comment.text}
+                                    {comment.comment || comment.text}
                                   </p>
                                 </div>
                               </div>
@@ -348,14 +364,30 @@ const UserPage = () => {
                             </div>
                             <input
                               type="text"
+                              name="comment"
+                              value={commentInputs[postId] || ""}
+                              onChange={(e) =>
+                                setCommentInputs((prev) => ({
+                                  ...prev,
+                                  [postId]: e.target.value,
+                                }))
+                              }
                               placeholder="Write a comment..."
                               className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm border border-gray-200 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                             />
+                            <button
+                              type="button"
+                              onClick={(e) => handleComment(postId, e)}
+                              className="w-9 h-9 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                              aria-label="Send comment"
+                            >
+                              <FaPaperPlane className="text-sm" />
+                            </button>
                           </div>
                         </div>
                       )}
                     </div>
-                  ))}
+                  )})}
                 </div>
               </div>
             )}
@@ -456,7 +488,7 @@ const UserPage = () => {
               <button
                 onClick={() => {
                   setShowPostModal(false);
-                  setPost({ community: "", content: "", tags: [] });
+                  setPostForm({ community: "", content: "", tags: [] });
                   setTagInput("");
                 }}
                 className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -472,7 +504,7 @@ const UserPage = () => {
                 <select
                   name="community"
                   onChange={handleChange}
-                  value={post.community}
+                  value={postForm.community}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">Select Community</option>
@@ -488,7 +520,7 @@ const UserPage = () => {
                 </label>
                 <textarea
                   name="content"
-                  value={post.content}
+                  value={postForm.content}
                   onChange={handleChange}
                   placeholder="Describe your doubt clearly..."
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none h-32"
@@ -521,9 +553,9 @@ const UserPage = () => {
                     Add
                   </button>
                 </div>
-                {post.tags.length > 0 && (
+                {postForm.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
+                    {postForm.tags.map((tag) => (
                       <div
                         key={tag}
                         className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
@@ -545,7 +577,7 @@ const UserPage = () => {
                 <button
                   onClick={() => {
                     setShowPostModal(false);
-                    setPost({ community: "", content: "", tags: [] });
+                    setPostForm({ community: "", content: "", tags: [] });
                     setTagInput("");
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"

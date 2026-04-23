@@ -42,11 +42,11 @@ const DashboardNavbar = () => {
 
   return (
     <div className="glass-container border-b border-white/20 sticky top-0 z-40">
-      <div className="px-6 py-4 flex items-center justify-between gap-4">
+      <div className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
 
         {/* Left Section - Search */}
-        <div className="flex-1 flex items-center">
-          <div className="relative w-64">
+        <div className="hidden sm:flex flex-1 items-center">
+          <div className="relative w-full max-w-xs">
             <input
               type="text"
               placeholder="Search subjects, notes..."
@@ -56,8 +56,12 @@ const DashboardNavbar = () => {
           </div>
         </div>
 
+        <div className="sm:hidden text-white text-sm font-semibold truncate">
+          Study Dashboard
+        </div>
+
         {/* Right Section */}
-        <div className="flex items-center gap-4 flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
 
           {/* Notifications */}
           <div className="relative" ref={notifRef}>
@@ -78,7 +82,7 @@ const DashboardNavbar = () => {
 
             {/* Notifications Dropdown */}
             {showNotifications && (
-              <div className="glass-container absolute right-0 mt-2 w-80 border border-white/20 z-50">
+              <div className="glass-container absolute right-0 mt-2 w-[92vw] max-w-sm sm:w-80 border border-white/20 z-50">
                 <div className="p-4 border-b border-white/20">
                   <h3 className="font-semibold text-white">Notifications</h3>
                 </div>
@@ -91,7 +95,7 @@ const DashboardNavbar = () => {
                       }`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${notification.unread ? 'bg-blue-400' : 'bg-white/30'}`}></div>
+                        <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${notification.unread ? 'bg-blue-400' : 'bg-white/30'}`}></div>
                         <div className="flex-1">
                           <p className="text-sm text-white font-medium">{notification.message}</p>
                           <p className="text-xs text-white/50 mt-1">{notification.time}</p>
@@ -110,12 +114,12 @@ const DashboardNavbar = () => {
           </div>
 
           {/* Settings */}
-          <button className="p-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors">
+          <button className="hidden sm:block p-2 text-white/70 hover:bg-white/10 rounded-lg transition-colors">
             <FaCog className="text-lg" />
           </button>
 
           {/* Divider */}
-          <div className="w-px h-6 bg-white/20 flex-shrink-0"></div>
+          <div className="hidden sm:block w-px h-6 bg-white/20 shrink-0"></div>
 
           {/* User Menu */}
           <div className="relative" ref={userMenuRef}>
@@ -126,7 +130,7 @@ const DashboardNavbar = () => {
               }}
               className="flex items-center gap-2 px-3 py-2 hover:bg-white/10 rounded-lg transition-colors"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 bg-linear-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center shrink-0">
                 <FaUser className="text-white text-sm" />
               </div>
               <div className="text-left hidden sm:block">

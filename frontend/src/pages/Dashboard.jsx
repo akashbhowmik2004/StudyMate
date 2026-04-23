@@ -17,6 +17,7 @@ import DashboardNavbar from "../components/DashboardNavbar";
 const Dashboard = () => {
   const [activePage, setActivePage] = useState("home");
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const handleLogout = () => {
     // Logout logic here
@@ -25,10 +26,23 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500">
+    <div className="relative flex h-screen bg-linear-to-br from-blue-500 via-purple-500 to-pink-500">
+      {mobileSidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close sidebar"
+          onClick={() => setMobileSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/40 md:hidden"
+        />
+      )}
+
       {/* Sidebar */}
       <div
-        className={`${sidebarOpen ? "w-64" : "w-20"} glass-container border-r border-white/20 transition-all duration-300 flex flex-col`}
+        className={`fixed inset-y-0 left-0 z-50 w-64 md:static md:z-auto ${
+          sidebarOpen ? "md:w-64" : "md:w-20"
+        } glass-container border-r border-white/20 transition-all duration-300 flex flex-col ${
+          mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0`}
       >
         {/* Logo/Brand */}
         <div className="p-4 border-b border-white/20 flex items-center justify-between">
@@ -36,8 +50,14 @@ const Dashboard = () => {
             <h2 className="text-xl font-semibold text-white">StudyMate</h2>
           )}
           <button
+            onClick={() => setMobileSidebarOpen(false)}
+            className="md:hidden hover:bg-white/10 p-2 rounded transition-colors text-white"
+          >
+            <FaTimes size={20} />
+          </button>
+          <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="hover:bg-white/10 p-2 rounded transition-colors text-white"
+            className="hidden md:block hover:bg-white/10 p-2 rounded transition-colors text-white"
           >
             {sidebarOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
           </button>
@@ -47,7 +67,10 @@ const Dashboard = () => {
         <nav className="flex-1 p-4 space-y-1">
           {/* Home */}
           <button
-            onClick={() => setActivePage("home")}
+            onClick={() => {
+              setActivePage("home");
+              setMobileSidebarOpen(false);
+            }}
             className={`w-full flex items-center gap-3 px-4 py-2.5 rounded transition-colors ${
               activePage === "home"
                 ? "glass-button border-white/30 text-white"
@@ -60,7 +83,10 @@ const Dashboard = () => {
 
           {/* Account */}
           <button
-            onClick={() => setActivePage("account")}
+            onClick={() => {
+              setActivePage("account");
+              setMobileSidebarOpen(false);
+            }}
             className={`w-full flex items-center gap-3 px-4 py-2.5 rounded transition-colors ${
               activePage === "account"
                 ? "glass-button border-white/30 text-white"
@@ -72,7 +98,7 @@ const Dashboard = () => {
           </button>
 
           {/* Community */}
-          <Link to="/community">
+          <Link to="/community" onClick={() => setMobileSidebarOpen(false)}>
             <button
               className="w-full flex items-center gap-3 px-4 py-2.5 rounded text-white/70 hover:bg-white/10 transition-colors"
             >
@@ -97,6 +123,17 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-0">
+        <div className="md:hidden px-4 py-3 border-b border-white/20 bg-white/10 backdrop-blur-sm flex items-center justify-between">
+          <h2 className="text-white font-semibold">Dashboard</h2>
+          <button
+            type="button"
+            aria-label="Open sidebar"
+            onClick={() => setMobileSidebarOpen(true)}
+            className="text-white p-2 rounded hover:bg-white/10 transition-colors"
+          >
+            <FaBars size={18} />
+          </button>
+        </div>
         <DashboardNavbar />
         <div className="flex-1 overflow-y-auto">
           {activePage === "home" && <HomePage />}
@@ -110,10 +147,10 @@ const Dashboard = () => {
 // Home Page Component
 const HomePage = () => {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       {/* Welcome Section */}
-      <div className="bg-white border border-slate-200 p-8 rounded-lg">
-        <h1 className="text-3xl font-semibold text-slate-900 mb-2">Welcome Back!</h1>
+      <div className="bg-white border border-slate-200 p-5 sm:p-8 rounded-lg">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-slate-900 mb-2">Welcome Back!</h1>
         <p className="text-slate-600">
           Track your progress and achieve your learning goals
         </p>
@@ -241,7 +278,7 @@ const HomePage = () => {
           </h3>
           <div className="space-y-3">
             <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded">
-              <div className="w-2 h-2 bg-slate-700 rounded-full flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-slate-700 rounded-full shrink-0"></div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-900 truncate">
                   Completed Mathematics Chapter 5
@@ -250,7 +287,7 @@ const HomePage = () => {
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded">
-              <div className="w-2 h-2 bg-slate-700 rounded-full flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-slate-700 rounded-full shrink-0"></div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-900 truncate">
                   Started English Literature Course
@@ -259,7 +296,7 @@ const HomePage = () => {
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded">
-              <div className="w-2 h-2 bg-slate-700 rounded-full flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-slate-700 rounded-full shrink-0"></div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-900 truncate">
                   Earned Achievement Badge
@@ -268,7 +305,7 @@ const HomePage = () => {
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded">
-              <div className="w-2 h-2 bg-slate-700 rounded-full flex-shrink-0"></div>
+              <div className="w-2 h-2 bg-slate-700 rounded-full shrink-0"></div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-slate-900 truncate">
                   Attended Live Session on Physics
@@ -286,12 +323,12 @@ const HomePage = () => {
 // Account Page Component
 const AccountPage = () => {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       {/* Profile Header */}
       <div className="bg-white border border-slate-200 rounded-lg p-6">
         <div className="flex flex-col md:flex-row items-center gap-6">
           {/* Avatar */}
-          <div className="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center shrink-0">
             <FaUser className="text-3xl text-slate-600" />
           </div>
           {/* User Info */}
@@ -302,7 +339,7 @@ const AccountPage = () => {
               Member since January 2026
             </p>
           </div>
-          <button className="px-6 py-2 bg-slate-900 text-white font-medium rounded hover:bg-slate-800 transition-colors">
+          <button className="w-full md:w-auto px-6 py-2 bg-slate-900 text-white font-medium rounded hover:bg-slate-800 transition-colors">
             Edit Profile
           </button>
         </div>
@@ -386,7 +423,7 @@ const AccountPage = () => {
       <div className="bg-white border border-slate-200 rounded-lg p-6">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Preferences</h2>
         <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 border border-slate-200 rounded">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border border-slate-200 rounded">
             <div>
               <p className="font-medium text-slate-900">Email Notifications</p>
               <p className="text-sm text-slate-600">
@@ -399,7 +436,7 @@ const AccountPage = () => {
               className="w-5 h-5 cursor-pointer accent-slate-900"
             />
           </div>
-          <div className="flex items-center justify-between p-3 border border-slate-200 rounded">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border border-slate-200 rounded">
             <div>
               <p className="font-medium text-slate-900">Daily Reminders</p>
               <p className="text-sm text-slate-600">Get daily study reminders</p>
@@ -410,7 +447,7 @@ const AccountPage = () => {
               className="w-5 h-5 cursor-pointer accent-slate-900"
             />
           </div>
-          <div className="flex items-center justify-between p-3 border border-slate-200 rounded">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 border border-slate-200 rounded">
             <div>
               <p className="font-medium text-slate-900">Week Progress Report</p>
               <p className="text-sm text-slate-600">

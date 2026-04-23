@@ -1,10 +1,12 @@
 import express from "express";
-import { getAllPost,addPost } from "../controllers/postControllers.js";
+import { getAllPost,addPost,addComments } from "../controllers/postControllers.js";
 import {checkAuth }from "../middleware/checkAuth.js"
 
 const router = express.Router();
 
-router.get("/post",checkAuth,getAllPost);
-router.post("/post",checkAuth,addPost);
+router.get("/",checkAuth,getAllPost);
+router.post("/",checkAuth,addPost);
+
+router.post("/:id/comment",checkAuth,addComments);
 
 export default router;
