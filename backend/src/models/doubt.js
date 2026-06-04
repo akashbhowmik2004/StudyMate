@@ -18,6 +18,11 @@ const doubtSchema = new mongoose.Schema(
         tags: {
             type: Array,
             default: []
+        },
+
+        likes: {
+            type: Array,
+            default: []
         }
     },
     {timestamps:true}

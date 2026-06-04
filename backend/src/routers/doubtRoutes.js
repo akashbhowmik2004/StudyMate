@@ -1,11 +1,19 @@
 import {Router} from "express";
-import {deleteDoubt, editDoubt, getDoubt, postDoubts} from "../controllers/doubtControllers.js";
+import {
+    deleteDoubt,
+    editDoubt,
+    getDoubt,
+    likeAndDislikeDoubt,
+    postDoubts
+} from "../controllers/doubtControllers.js";
 
 const router = Router();
 
-router.get("/doubts/:id", getDoubt);
-router.post("/doubts", postDoubts);
-router.put("/doubts/:id", editDoubt)
-router.delete("/doubts/:id",deleteDoubt);
+router.get("/:id", getDoubt);
+router.post("/", postDoubts);
+router.put("/:id", editDoubt);
+router.put("/:id/like", likeAndDislikeDoubt);
+router.delete("/:id", deleteDoubt);
+
 
 export default router;

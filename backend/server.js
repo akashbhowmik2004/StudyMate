@@ -5,6 +5,7 @@ import doubtRoutes from "./src/routers/doubtRoutes.js";
 import requireAuth from "./src/middleware/authMiddleware.js";
 import cookieParser from "cookie-parser"
 import dotenv from "dotenv";
+import commentRoutes from "./src/routers/commentRoutes.js";
 
 const app = express();
 const port = 3000;
@@ -13,7 +14,8 @@ dotenv.config();
 app.use(express.json());
 app.use(cookieParser());
 app.use("/auth", authRoutes);
-app.use("/api",requireAuth, doubtRoutes);
+app.use("/api/doubts",requireAuth, doubtRoutes);
+app.use("/api/comment",requireAuth, commentRoutes);
 
 await mongoose.connect(process.env["MONGODB_URI"]).then(() => {
     console.log('MongoDB connected successfully');
