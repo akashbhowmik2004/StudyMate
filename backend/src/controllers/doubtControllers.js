@@ -1,5 +1,4 @@
 import Doubt from "../models/doubt.js";
-import {reject} from "bcrypt/promises.js";
 
 export const getDoubt = async (req, res) => {
     const {id} = req.params;
@@ -52,19 +51,23 @@ export const editDoubt = async (req,res) => {
         const doubt = await Doubt.findById(id);
 
         if(!doubt){
-            res.status(404).json({
+            return res.status(404).json({
                 status: false,
                 message: "Doubt not found"
             })
         }
 
-        if(doubt.userId !== req.user.id){
-            res.status(404).json({
+        if(doubt.userId.toString() !== req.user.id){
+            return res.status(403).json({
                 status: false,
                 message: "You are not allowed"
             })
         }
-        const updatedDoubt = await doubt.updateOne({$set: req.body});
+        const updatedDoubt = await Doubt.findByIdAndUpdate(
+            id,
+            { $set: req.body },
+            { returnDocument: 'after' }
+        );
         res.status(200).json({
             success: true,
             message: "Doubt updated successfully",
