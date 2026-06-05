@@ -19,7 +19,7 @@ const createToken = (id) => {
 // Handle Signup
 export const signup = async (req, res) => {
 
-    const {username, email, password} = req.body;
+    const {username, email, password, confirmPassword} = req.body;
 
     try {
         if (!email || !password || !username) {
@@ -27,6 +27,12 @@ export const signup = async (req, res) => {
                 success: false,
                 message: "fill up all fields"
             });
+        }
+        if(password !== confirmPassword){
+            return res.status(400).json({
+                success: false,
+                message: "Password didn't match"
+            })
         }
         const existingUser = await User.findOne({email});
         if (existingUser) {
