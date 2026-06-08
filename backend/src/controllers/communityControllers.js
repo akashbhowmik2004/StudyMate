@@ -137,8 +137,8 @@ export const leaveCommunity = async (req, res) => {
 };
 
 export const deleteCommunity = async (req, res) => {
-    const { id } = req.params;
-    
+  const { id } = req.params;
+
   try {
     const community = await Community.findById(id);
     if (!community) {
@@ -149,9 +149,9 @@ export const deleteCommunity = async (req, res) => {
     }
     await Community.findByIdAndDelete(id);
     res.status(200).json({
-        success: true,
-        message: "Community deleted successfully"
-    })
+      success: true,
+      message: "Community deleted successfully",
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({

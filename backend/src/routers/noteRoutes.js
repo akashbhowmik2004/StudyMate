@@ -1,0 +1,12 @@
+import { Router } from "express";
+import { createNotes, deleteNote, editNote, getNotes } from "../controllers/noteControllers.js";
+import { validateCreateNote, validateEditNote } from "../middleware/validateNotes.js";
+
+const router = Router();
+
+router.post("/",validateCreateNote, createNotes);
+router.get("/:id", getNotes);
+router.put("/:id",validateEditNote, editNote);
+router.delete("/:id", deleteNote);
+
+export default router;

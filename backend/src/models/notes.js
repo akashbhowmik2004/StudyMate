@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const doubtSchema = new mongoose.Schema(
+const noteSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -18,14 +18,9 @@ const doubtSchema = new mongoose.Schema(
     tags: {
       type: Array,
       default: [],
-    },
-
-    likes: {
-      type: Array,
-      default: [],
-    },
+    }
   },
   { timestamps: true },
 );
 
-export default mongoose.model("Doubt", doubtSchema);
+export default mongoose.model("Note", noteSchema);

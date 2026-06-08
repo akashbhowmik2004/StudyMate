@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import commentRoutes from "./src/routers/commentRoutes.js";
 import communityRoutes from "./src/routers/communityRoutes.js";
+import noteRoutes from "./src/routers/noteRoutes.js"
 import userRoutes from "./src/routers/userRoutes.js"
 import { limiter } from "./src/middleware/rateLimiter.js";
 
@@ -22,6 +23,7 @@ app.use("/api/users", requireAuth, userRoutes);
 app.use("/api/doubts", requireAuth, doubtRoutes);
 app.use("/api/comment", requireAuth, commentRoutes);
 app.use("/api/communities", requireAuth, communityRoutes);
+app.use("/api/notes", requireAuth, noteRoutes);
 
 await mongoose.connect(process.env["MONGODB_URI"]).then(() => {
   console.log("MongoDB connected successfully");

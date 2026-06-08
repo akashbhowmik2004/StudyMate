@@ -112,7 +112,7 @@ export const deleteProfile = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    
+
     res.status(500).json({
       success: false,
       message: "Something went wrong",
