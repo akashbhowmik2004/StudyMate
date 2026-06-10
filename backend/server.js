@@ -10,10 +10,17 @@ import communityRoutes from "./src/routers/communityRoutes.js";
 import noteRoutes from "./src/routers/noteRoutes.js"
 import userRoutes from "./src/routers/userRoutes.js"
 import { limiter } from "./src/middleware/rateLimiter.js";
+import cors from "cors";
 
 const app = express();
 const port = 3000;
 dotenv.config();
+
+app.use(
+    cors({
+      origin: "http://localhost:5173",
+    }),
+);
 
 app.use(express.json());
 app.use(cookieParser());

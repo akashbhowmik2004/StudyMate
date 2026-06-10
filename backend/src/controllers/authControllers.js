@@ -26,6 +26,7 @@ export const signup = async (req, res) => {
     if (password !== confirmPassword) {
       return res.status(400).json({
         success: false,
+        field: "confirmPassword",
         message: "Password didn't match",
       });
     }
@@ -33,6 +34,7 @@ export const signup = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
+        field: "username",
         message: "User already existed",
       });
     }
@@ -40,6 +42,7 @@ export const signup = async (req, res) => {
     if (password.length < 6) {
       return res.status(400).json({
         success: false,
+        field: "password",
         message: "Password must ne 6 character long",
       });
     }
@@ -63,7 +66,7 @@ export const signup = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "User created successfully",
+      message: "Signup successfully",
       token,
       newUser,
     });
@@ -111,7 +114,7 @@ export const login = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "User logged in successfully",
+      message: "Logged in successfully",
       token,
       otherDetails,
     });
