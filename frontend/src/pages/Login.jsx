@@ -74,6 +74,7 @@ const Login = () => {
                                     onChange={handleChange}
                                     type="email"
                                     placeholder="Enter your email"
+                                    autoComplete="email"
                                     className={`w-full rounded-2xl border bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 ${
                                         errors.email
                                             ? 'border-red-500 focus:border-red-400 focus:bg-slate-900'
@@ -101,6 +102,7 @@ const Login = () => {
                                     value={loginData.password}
                                     onChange={handleChange}
                                     type="password"
+                                    autoComplete= "current-password"
                                     placeholder="Enter your password"
                                     className={`w-full rounded-2xl border bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 ${
                                         errors.password
