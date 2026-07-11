@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react'
+import {useRef, useState} from 'react'
 import {auth} from "../lib/axois.js";
 import toast from "react-hot-toast";
 import {useNavigate} from "react-router";
@@ -46,15 +46,24 @@ const Login = () => {
     return (
         <>
             <RateLimiterCard ref={dialog}/>
-            <main className="min-h-screen bg-slate-950 px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
-                <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-md items-center">
+            <main className="relative min-h-screen overflow-hidden bg-[#07111f] px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
+                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.28),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(56,189,248,0.18),transparent_28%),linear-gradient(180deg,rgba(4,10,24,0.92),rgba(9,15,30,1))]" />
+                <div className="pointer-events-none absolute -left-24 top-16 h-64 w-64 rounded-full bg-cyan-400/15 blur-3xl" />
+                <div className="pointer-events-none absolute -right-20 bottom-10 h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl" />
+
+                <div className="relative mx-auto flex min-h-[calc(100vh-5rem)] max-w-md items-center">
                     <section
-                        className="w-full rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
-                        <div className="mb-6 text-center">
+                        className="w-full rounded-4xl border border-white/10 bg-white/8 p-6 shadow-[0_30px_80px_rgba(0,0,0,0.35)] backdrop-blur-2xl sm:p-8">
+                        <div className="mb-8 text-center">
+                            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-200/20 bg-white/10 text-cyan-200 shadow-inner shadow-white/5">
+                                <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 3v18m9-9H3" />
+                                </svg>
+                            </div>
                             <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
                                 Login
                             </h1>
-                            <p className="mt-2 text-sm leading-6 text-slate-400 sm:text-base">
+                            <p className="mt-3 text-sm leading-6 text-slate-300 sm:text-base">
                                 Welcome back to StudyMate.
                             </p>
                         </div>
@@ -75,10 +84,10 @@ const Login = () => {
                                     type="email"
                                     placeholder="Enter your email"
                                     autoComplete="email"
-                                    className={`w-full rounded-2xl border bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 ${
+                                    className={`w-full rounded-2xl border bg-slate-950/55 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 backdrop-blur-xl ${
                                         errors.email
                                             ? 'border-red-500 focus:border-red-400 focus:bg-slate-900'
-                                            : 'border-white/10 focus:border-cyan-400 focus:bg-slate-900'
+                                            : 'border-white/10 focus:border-cyan-300 focus:bg-slate-900/80'
                                     }`}
 
                                 />
@@ -104,10 +113,10 @@ const Login = () => {
                                     type="password"
                                     autoComplete= "current-password"
                                     placeholder="Enter your password"
-                                    className={`w-full rounded-2xl border bg-slate-900/70 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 ${
+                                    className={`w-full rounded-2xl border bg-slate-950/55 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 backdrop-blur-xl ${
                                         errors.password
                                             ? 'border-red-500 focus:border-red-400 focus:bg-slate-900'
-                                            : 'border-white/10 focus:border-cyan-400 focus:bg-slate-900'
+                                            : 'border-white/10 focus:border-cyan-300 focus:bg-slate-900/80'
                                     }`}
                                 />
                                 {errors.password && (
@@ -121,13 +130,13 @@ const Login = () => {
                                 <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        className="w-4 h-4 rounded border-white/10 bg-slate-900/70 text-cyan-400 cursor-pointer"
+                                        className="h-4 w-4 cursor-pointer rounded border-white/10 bg-slate-950/70 text-cyan-400"
                                     />
                                     Remember me
                                 </label>
                                 <a
                                     href="#"
-                                    className="text-sm text-cyan-400 hover:text-cyan-300 transition"
+                                    className="text-sm text-cyan-300 transition hover:text-cyan-200"
                                 >
                                     Forgot password?
                                 </a>
@@ -135,7 +144,7 @@ const Login = () => {
 
                             <button
                                 type="submit"
-                                className="w-full rounded-2xl bg-cyan-400 px-4 py-3.5 font-semibold text-slate-950 transition hover:bg-cyan-300 mt-2"
+                                className="mt-2 w-full rounded-2xl bg-white px-4 py-3.5 font-semibold text-slate-950 shadow-[0_20px_60px_rgba(255,255,255,0.14)] transition hover:-translate-y-0.5 hover:bg-cyan-50"
                             >
                                 Login
                             </button>
@@ -145,7 +154,7 @@ const Login = () => {
                             Don't have an account?{' '}
                             <a
                                 href="/signup"
-                                className="text-cyan-400 font-medium hover:text-cyan-300 transition"
+                                className="font-medium text-cyan-300 transition hover:text-cyan-200"
                             >
                                 Sign up
                             </a>
