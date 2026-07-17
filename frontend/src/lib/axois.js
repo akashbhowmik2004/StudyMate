@@ -1,7 +1,10 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000/auth";
-
 export const auth = axios.create({
-    baseURL: BASE_URL
+    baseURL: "http://localhost:3000/auth",
+    withCredentials: true
+})
+
+export const api = axios.create({
+    baseURL: "http://localhost:3000/api"
 })

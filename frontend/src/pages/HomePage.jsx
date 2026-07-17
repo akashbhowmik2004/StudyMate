@@ -4,6 +4,8 @@ import { Features } from "../lib/Features.js";
 import FeaturesCard from "../components/FeaturesCard.jsx";
 
 export default function HomePage() {
+
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#07111f] text-slate-100">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.35),transparent_32%),radial-gradient(circle_at_80%_20%,rgba(56,189,248,0.24),transparent_28%),linear-gradient(180deg,rgba(4,10,24,0.92),rgba(9,15,30,1))]" />

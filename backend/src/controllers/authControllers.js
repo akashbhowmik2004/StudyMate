@@ -104,7 +104,6 @@ export const login = async (req, res) => {
       });
     }
     const token = createToken(user._id);
-
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: maxAge * 1000,
@@ -142,3 +141,18 @@ export const logout = (req, res) => {
     });
   }
 };
+
+export const verifyUsers =  async (req, res) => {
+  try {
+    const userData = await User.findById(req.user.id).select("username email");;
+    res.status(200).json({
+      success: true,
+      user: userData
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+}

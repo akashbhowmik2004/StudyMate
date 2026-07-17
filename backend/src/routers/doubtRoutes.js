@@ -6,7 +6,7 @@ import {
   likeAndDislikeDoubt,
   postDoubts,
 } from "../controllers/doubtControllers.js";
-import { validateCreateDoubt } from "../middleware/validateDoubt.js";
+import { validateCreateDoubt } from "../middleware/validateDoubtInput.js";
 
 const router = Router();
 

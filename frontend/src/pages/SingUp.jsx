@@ -2,10 +2,13 @@ import {useRef, useState} from "react";
 import {auth} from "../lib/axois.js";
 import {useNavigate} from "react-router";
 import RateLimiterCard from "../components/RateLimiterCard.jsx";
+import {Link} from "react-router";
 import toast from "react-hot-toast";
+import {useAuth} from "../context/AuthContext.jsx";
 
 const SignUp = () => {
     const dialog = useRef();
+    const {setUser} = useAuth();
     const [signupData, setSignupData] = useState({
         username: '',
         email: '',
@@ -29,7 +32,8 @@ const SignUp = () => {
         e.preventDefault();
         try {
             const res = await auth.post("/signup", signupData);
-            navigate("/login");
+            setUser(res.data.otherDetails);
+            navigate("/");
             toast.success(res.data.message);
 
         } catch (err) {
@@ -226,6 +230,14 @@ const SignUp = () => {
                                 Create account
                             </button>
                         </form>
+                        <div className="mt-6 text-center text-sm text-slate-400">
+                            Already have an account?{' '}
+                            <Link
+                                to="/login"
+                                className="font-medium text-cyan-300 transition hover:text-cyan-200"    >
+                                Log in
+                            </Link>
+                        </div>
                     </section>
                 </div>
             </main>

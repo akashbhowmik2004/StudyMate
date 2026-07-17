@@ -3,9 +3,11 @@ import {auth} from "../lib/axois.js";
 import toast from "react-hot-toast";
 import {useNavigate} from "react-router";
 import RateLimiterCard from "../components/RateLimiterCard.jsx";
+import {useAuth} from "../context/AuthContext.jsx";
 
 const Login = () => {
     const dialog = useRef();
+    const {setUser} = useAuth();
     const [loginData, setLoginData] = useState({
         email: '',
         password: ''
@@ -26,7 +28,8 @@ const Login = () => {
         e.preventDefault();
         try {
             const res = await auth.post("/login", loginData);
-            navigate("/signup");
+            setUser(res.data.otherDetails);
+            navigate("/");
             toast.success(res.data.message);
         } catch (err) {
             const status = err.response.status;

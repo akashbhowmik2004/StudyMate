@@ -1,8 +1,11 @@
 
 import {FaBook} from "react-icons/fa";
 import NavAuthButton from "./NavAuthButton.jsx";
+import { useAuth } from "../context/AuthContext.jsx";
+import NavProfileButton from "./NavProfileButton.jsx";
 
 const Navbar = () => {
+  const { user } = useAuth();
   return (
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/55 backdrop-blur-2xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -42,7 +45,11 @@ const Navbar = () => {
             </a>
           </div>
 
-          <NavAuthButton />
+          {user ? (
+            <NavProfileButton userInfo = {user}/>
+          ) : (
+            <NavAuthButton />
+          )}
         </div>
       </div>
     </nav>

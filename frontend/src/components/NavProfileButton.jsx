@@ -1,11 +1,16 @@
-import {useState, useRef, useEffect} from 'react';
-import {UserCircle, LayoutDashboard, Users, Settings, LogOut} from 'lucide-react';
-import {menuItems} from "../lib/ProfileMenueItems.js";
+import { useState, useRef, useEffect } from 'react';
+import { ChevronDown, UserCircle } from 'lucide-react';
+import { menuItems } from "../lib/ProfileMenueItems.js";
+import { auth } from "../lib/axois.js";
+import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext.jsx";
 
-
-const Navbar = () => {
+const NavProfileButton = ({userInfo}) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
+    const navigate = useNavigate();
+    const { setUser } = useAuth();
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -15,72 +20,94 @@ const Navbar = () => {
             }
         }
 
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') setIsOpen(false);
+        }
+
         document.addEventListener('mousedown', handleClickOutside);
-        return () => document.removeEventListener('mousedown', handleClickOutside);
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
     }, []);
 
+    const handleLogout = async () => {
+        try {
+            await auth.post("/logout");
+            setIsOpen(false);
+            setUser(null);
+            navigate("/");
+            toast.success("Logged out");
+        }
+        catch (err) {
+            console.log(err);
+        }
+    };
 
     return (
-        <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Right side - User Menu or Auth Buttons */}
-                <div className="flex items-center gap-4" ref={dropdownRef}>
-                    {/* User Icon Dropdown */}
-                    <div className="relative">
-                        <button
-                            onClick={() => setIsOpen(!isOpen)}
-                            className="p-2 rounded-full hover:bg-slate-100 transition-colors duration-200 focus:outline-none"
-                            aria-label="User menu"
-                            aria-expanded={isOpen}
-                        >
-                            <UserCircle size={28} className="text-indigo-500"/>
-                        </button>
+        <div className="relative" ref={dropdownRef}>
+            <button
+                id="user-menu"
+                onClick={() => setIsOpen((open) => !open)}
+                aria-haspopup="menu"
+                aria-expanded={isOpen}
+                aria-label="User menu"
+                className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 pr-2 text-slate-200 backdrop-blur-xl transition hover:border-white/20 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-200/40"
+                type="button"
+            >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-200/20 bg-cyan-400/10 text-cyan-200">
+                    <UserCircle size={20} />
+                </span>
 
-                        {/* Dropdown Menu */}
-                        {isOpen && (
-                            <div
-                                className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50">
-                                <div className="px-4 py-3 border-b border-slate-100">
-                                    <p className="text-sm font-semibold text-slate-900">John Doe</p>
-                                    <p className="text-xs text-slate-500">john@example.com</p>
-                                </div>
+                <span className="hidden text-sm font-medium md:block">Account</span>
+                <ChevronDown size={16} className={`text-slate-400 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-                                <div className="py-2">
-                                    {menuItems.map((item) => {
-                                        const Icon = item.icon;
-                                        return (
-                                            <button
-                                                key={item.label}
-                                                onClick={() => setIsOpen(false)}
-                                                className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-600 flex items-center gap-3 transition-colors duration-150"
-                                            >
-                                                <Icon size={18} className="text-slate-600"/>
-                                                <span>{item.label}</span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                <div className="border-t border-slate-100 py-2">
-                                    <button
-                                        onClick={() => {
-                                            console.log('Logout clicked');
-                                            setIsOpen(false);
-                                        }}
-                                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors duration-150"
-                                    >
-                                        <LogOut size={18} className="text-red-600"/>
-                                        <span>Logout</span>
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+            {isOpen && (
+                <div
+                    className="absolute right-0 mt-3 w-64 origin-top-right rounded-2xl border border-white/10 bg-slate-950/95 p-1 shadow-2xl shadow-black/30 backdrop-blur-2xl"
+                    role="menu"
+                    aria-orientation="vertical"
+                    aria-labelledby="user-menu"
+                >
+                    <div className="rounded-xl border border-white/5 bg-white/5 px-4 py-3">
+                        <p className="text-sm font-semibold text-white">{userInfo.name}</p>
+                        <p className="text-xs text-slate-400">{userInfo.email}</p>
                     </div>
 
+                    <div className="py-1">
+                        {menuItems.map((item) => {
+                            const Icon = item.icon;
+                            return (
+                                <button
+                                    key={item.label}
+                                    onClick={() => setIsOpen(false)}
+                                    className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm text-slate-200 transition hover:bg-white/10 hover:text-white"
+                                    role="menuitem"
+                                    type="button"
+                                >
+                                    <Icon size={16} className="text-slate-400" />
+                                    <span>{item.label}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <div className="border-t border-white/10 pt-1">
+                        <button
+                            onClick={handleLogout}
+                            className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm text-red-300 transition hover:bg-red-500/10 hover:text-red-200"
+                            role="menuitem"
+                            type="button"
+                        >
+                            <span>Logout</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </nav>
+            )}
+        </div>
     );
 };
 
-export default Navbar;
+export default NavProfileButton;
