@@ -6,6 +6,7 @@ import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext.jsx";
 
+
 const NavProfileButton = ({userInfo}) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -45,6 +46,11 @@ const NavProfileButton = ({userInfo}) => {
         }
     };
 
+    const handleMenuItemClick = (path) => {
+        setIsOpen(false);
+        navigate(path);
+    }
+
     return (
         <div className="relative" ref={dropdownRef}>
             <button
@@ -82,7 +88,7 @@ const NavProfileButton = ({userInfo}) => {
                             return (
                                 <button
                                     key={item.label}
-                                    onClick={() => setIsOpen(false)}
+                                    onClick={() => handleMenuItemClick(item.path)}
                                     className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm text-slate-200 transition hover:bg-white/10 hover:text-white"
                                     role="menuitem"
                                     type="button"

@@ -1,15 +1,23 @@
-import {LuLayoutDashboard} from "react-icons/lu";
-import { FaUser } from "react-icons/fa";
+
+import { FaUser,FaStickyNote } from "react-icons/fa";
 import { IoIosSettings } from "react-icons/io";
+import { MdOutlineDashboard } from "react-icons/md";
 
 export const menuItems = [
     {
         label: 'Dashboard',
-        icon: LuLayoutDashboard
+        icon: MdOutlineDashboard,
+        path: "/dashboard"
     },
     {
         label: 'Community',
-        icon: FaUser
+        icon: FaUser,
+        path: "/community"
+    },
+    {
+        label: 'Notes',
+        icon: FaStickyNote,
+        path: "/notes"
     },
     {
         label: 'Settings',
