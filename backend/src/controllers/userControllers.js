@@ -32,13 +32,23 @@ export const getUser = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  const { newPassword, confirmNewPassword, username, email } = req.body;
+  const { oldPassword, newPassword, confirmNewPassword, username, email } = req.body;
 
   try {
     const updates = {};
 
     if (username) updates.username = username;
     if (email) updates.email = email;
+
+    const CurrentUser = await User.findById(req.user.id);
+    const comaprePassword = await bcrypt.compare(oldPassword,CurrentUser.password);
+
+    if(!comaprePassword){
+      return res.status(400).json({
+        success: false,
+        message: "Enter correct password"
+      })
+    }
 
     if (newPassword && confirmNewPassword) {
       if (newPassword !== confirmNewPassword) {

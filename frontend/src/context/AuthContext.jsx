@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
         } else {
           console.error(err);
         }
-      } finally {
+      } finally{
         setLoading(false);
       }
     };
@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
         user,
         setUser,
         loading,
+        setLoading,
       }}
     >
       {children}

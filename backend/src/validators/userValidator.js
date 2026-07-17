@@ -7,7 +7,6 @@ export const updatedProfileSchema = Joi.object({
     "string.max": "Username cannot exceed 30 characters",
   }),
 
-
   email: Joi.string()
     .email({
       minDomainSegments: 2,
@@ -18,6 +17,13 @@ export const updatedProfileSchema = Joi.object({
       "string.email": "Please enter a valid email address",
     }),
 
+  oldPassword: Joi.string()
+    .pattern(/^[a-zA-Z0-9]{6,30}$/)
+    .messages({
+      "string.empty": "Current password is required",
+      "string.pattern.base":
+        "Password can only contain letters and numbers and must be 6-30 characters long",
+    }),
   newPassword: Joi.string()
     .pattern(/^[a-zA-Z0-9]{6,30}$/)
     .messages({
@@ -26,10 +32,8 @@ export const updatedProfileSchema = Joi.object({
         "Password can only contain letters and numbers and must be 6-30 characters long",
     }),
 
-  confirmNewPassword: Joi.string()
-    .valid(Joi.ref("newPassword"))
-    .messages({
-      "any.only": "Passwords do not match",
-      "string.empty": "Please confirm your password",
-    }),
+  confirmNewPassword: Joi.string().valid(Joi.ref("newPassword")).messages({
+    "any.only": "Passwords do not match",
+    "string.empty": "Please confirm your password",
+  }),
 });

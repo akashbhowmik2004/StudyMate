@@ -12,6 +12,7 @@ const NavProfileButton = ({userInfo}) => {
     const dropdownRef = useRef(null);
     const navigate = useNavigate();
     const { setUser } = useAuth();
+    const account = userInfo ?? {};
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -66,7 +67,7 @@ const NavProfileButton = ({userInfo}) => {
                     <UserCircle size={20} />
                 </span>
 
-                <span className="hidden text-sm font-medium md:block">Account</span>
+                <span className="hidden text-sm font-medium md:block">{account.username}</span>
                 <ChevronDown size={16} className={`text-slate-400 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
@@ -78,8 +79,8 @@ const NavProfileButton = ({userInfo}) => {
                     aria-labelledby="user-menu"
                 >
                     <div className="rounded-xl border border-white/5 bg-white/5 px-4 py-3">
-                        <p className="text-sm font-semibold text-white">{userInfo.name}</p>
-                        <p className="text-xs text-slate-400">{userInfo.email}</p>
+                        <p className="text-sm font-semibold text-white">{account.username ?? "Account"}</p>
+                        {account.email && <p className="text-xs text-slate-400">{account.email}</p>}
                     </div>
 
                     <div className="py-1">

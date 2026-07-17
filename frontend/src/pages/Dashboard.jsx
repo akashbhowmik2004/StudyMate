@@ -13,6 +13,8 @@ import {
   FaUserFriends,
 } from "react-icons/fa";
 import { IoPeople } from "react-icons/io5";
+import StudyMateHeader from "../components/StudyMateHeader.jsx";
+import { Link } from "react-router";
 const statCards = [
   {
     title: "Study Streak",
@@ -79,12 +81,13 @@ const quickActions = [
 export default function Dashboard() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#081315] text-emerald-50">
+      <StudyMateHeader />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.18),transparent_28%),radial-gradient(circle_at_10%_10%,rgba(45,212,191,0.2),transparent_34%),linear-gradient(180deg,rgba(8,19,21,1),rgba(5,11,13,1))]" />
       <div className="pointer-events-none absolute -left-24 top-16 h-72 w-72 rounded-full bg-emerald-300/15 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 top-44 h-72 w-72 rounded-full bg-amber-300/15 blur-3xl" />
 
       <main className="relative mx-auto max-w-7xl px-4 pb-10 pt-8 sm:px-6 lg:px-8 lg:pt-10">
-        <section className="rounded-[2rem] border border-white/10 bg-white/6 p-5 backdrop-blur-2xl sm:p-7">
+        <section className="rounded-4xl border border-white/10 bg-white/6 p-5 backdrop-blur-2xl sm:p-7">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.22em] text-emerald-200/70">
@@ -100,14 +103,19 @@ export default function Dashboard() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
+              <Link to={"/community"}>
               <button className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-300 px-5 py-3 font-semibold text-slate-950 shadow-[0_14px_40px_rgba(251,191,36,0.26)] transition hover:-translate-y-0.5 hover:bg-amber-200">
                 <IoPeople className="text-2xl" />
                 Explore Community
               </button>
-              <button className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-5 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/15">
-                <FaBookOpen className="text-sm" />
+              </Link>
+
+              <Link to={"/notes"}>
+              <button className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-10 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/15">
+                <FaBookOpen className="text-2xl" />
                 Browse Notes
               </button>
+              </Link>
             </div>
           </div>
         </section>
@@ -132,7 +140,7 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <div
-                    className={`rounded-2xl border border-white/15 bg-gradient-to-br p-3 text-white shadow-[0_10px_30px_rgba(0,0,0,0.2)] ${card.accent}`}
+                    className={`rounded-2xl border border-white/15 bg-linear-to-br p-3 text-white shadow-[0_10px_30px_rgba(0,0,0,0.2)] ${card.accent}`}
                   >
                     <Icon className="text-lg" />
                   </div>
@@ -196,7 +204,7 @@ export default function Dashboard() {
               })}
             </div>
 
-            <div className="mt-6 rounded-2xl border border-emerald-200/15 bg-gradient-to-br from-emerald-300/15 to-transparent p-4">
+            <div className="mt-6 rounded-2xl border border-emerald-200/15 bg-linear-to-br from-emerald-300/15 to-transparent p-4">
               <p className="text-xs uppercase tracking-[0.18em] text-emerald-100/80">
                 Community Activity
               </p>
@@ -224,7 +232,7 @@ export default function Dashboard() {
                   </div>
                   <div className="h-2 rounded-full bg-slate-900/70">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-emerald-300 via-teal-300 to-amber-300"
+                      className="h-full rounded-full bg-linear-to-r from-emerald-300 via-teal-300 to-amber-300"
                       style={{ width: `${item.progress}%` }}
                     />
                   </div>

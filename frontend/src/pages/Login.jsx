@@ -7,13 +7,13 @@ import {useAuth} from "../context/AuthContext.jsx";
 
 const Login = () => {
     const dialog = useRef();
-    const {setUser} = useAuth();
+    const {setUser, setLoading} = useAuth();
     const [loginData, setLoginData] = useState({
         email: '',
         password: ''
     })
 
-    const [errors, setErrors] = useState({})
+    const [errors, setErrors, loading] = useState({})
 
     const navigate = useNavigate();
 
@@ -29,6 +29,7 @@ const Login = () => {
         try {
             const res = await auth.post("/login", loginData);
             setUser(res.data.otherDetails);
+            setLoading(false);
             navigate("/");
             toast.success(res.data.message);
         } catch (err) {
@@ -48,6 +49,7 @@ const Login = () => {
     console.log(errors)
     return (
         <>
+            {loading && <div>Loading...</div>}
             <RateLimiterCard ref={dialog}/>
             <main className="relative min-h-screen overflow-hidden bg-[#07111f] px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.28),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(56,189,248,0.18),transparent_28%),linear-gradient(180deg,rgba(4,10,24,0.92),rgba(9,15,30,1))]" />

@@ -21,6 +21,7 @@ export const menuItems = [
     },
     {
         label: 'Settings',
-        icon: IoIosSettings
+        icon: IoIosSettings,
+        path: "/settings"
     }
 ];

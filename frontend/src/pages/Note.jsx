@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FaBook, FaFilePdf, FaImage, FaPlus, FaTrash } from "react-icons/fa";
+import StudyMateHeader from "../components/StudyMateHeader.jsx";
 
 export default function Note() {
   const [subjectInput, setSubjectInput] = useState("");
@@ -160,12 +161,13 @@ export default function Note() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0b1219] text-slate-100">
+      <StudyMateHeader />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_8%,rgba(45,212,191,0.18),transparent_34%),radial-gradient(circle_at_90%_10%,rgba(251,191,36,0.18),transparent_30%),linear-gradient(180deg,rgba(11,18,25,1),rgba(7,11,17,1))]" />
       <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-teal-300/15 blur-3xl" />
       <div className="pointer-events-none absolute -right-24 top-56 h-80 w-80 rounded-full bg-amber-300/15 blur-3xl" />
 
       <main className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="mb-6 rounded-[2rem] border border-white/10 bg-white/6 p-5 backdrop-blur-2xl sm:p-7">
+        <section className="mb-6 rounded-4xl border border-white/10 bg-white/6 p-5 backdrop-blur-2xl sm:p-7">
           <p className="text-sm uppercase tracking-[0.22em] text-teal-200/70">
             Notes Space
           </p>

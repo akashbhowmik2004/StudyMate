@@ -1,21 +1,32 @@
-import Login from "./pages/Login"
-import SignUp from "./pages/SingUp"
-import { Routes,Route } from "react-router"
+import Login from "./pages/Login";
+import SignUp from "./pages/SingUp";
+import { Routes, Route } from "react-router";
 import HomePage from "./pages/HomePage.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Note from "./pages/Note.jsx";
-
+import ProtectedRoute from "./components/ProtectedRoutes.jsx";
+import Setting from "./pages/Setting.jsx";
 
 const App = () => {
-	return <div>
-		<Routes>
-			<Route path="/" element={<HomePage/>}/>
-			<Route path="/dashboard" element={<Dashboard/>}/>
-			<Route path="/notes" element={<Note/>}/>
-			<Route path="/signup" element={<SignUp/>}/>
-			<Route path="/login" element={<Login/>}/>
-		</Routes>
-	</div>
-}
+  return (
+    <div>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/notes" element={<ProtectedRoute><Note /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><Setting /></ProtectedRoute>} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/login" element={<Login />} />
+      </Routes>
+    </div>
+  );
+};
 
-export default App
+export default App;
