@@ -3,18 +3,21 @@ import { useState } from "react";
 import { api } from "../../lib/axois.js";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 const ChangePassword = () => {
   const navigate = useNavigate();
   const [passwordData, setPasswordData] = useState({
-    oldPassword: "",
+    currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
+
   const onChangePassword = async (e) => {
     e.preventDefault();
     try {
-        const { oldPassword, newPassword, confirmNewPassword } = passwordData;
-        if (!oldPassword || !newPassword || !confirmNewPassword) {
+        const { currentPassword, newPassword, confirmNewPassword } = passwordData;
+        if (!currentPassword || !newPassword || !confirmNewPassword) {
             toast.error("Please fill in all fields.");
             return;
         }
@@ -23,7 +26,7 @@ const ChangePassword = () => {
       console.log(response);
       toast.success("Password updated successfully!");
       setPasswordData({
-        oldPassword: "",
+        currentPassword: "",
         newPassword: "",
         confirmNewPassword: "",
       });
@@ -63,9 +66,9 @@ const ChangePassword = () => {
               Current password
             </span>
             <input
-              type="password"
-              name="oldPassword"
-              value={passwordData.oldPassword}
+              type={showPassword ? "text" : "password"}
+              name="currentPassword"
+              value={passwordData.currentPassword}
               onChange={handleChange}
               placeholder="Current password"
               className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
@@ -75,27 +78,45 @@ const ChangePassword = () => {
             <span className="text-sm font-medium text-slate-200">
               New password
             </span>
-            <input
-              type="password"
-              name="newPassword"
-              value={passwordData.newPassword}
-              onChange={handleChange}
-              placeholder="New password"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="newPassword"
+                value={passwordData.newPassword}
+                onChange={handleChange}
+                placeholder="New password"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-3 text-slate-400 hover:text-slate-200"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-200">
               Confirm password
             </span>
-            <input
-              type="password"
-              name="confirmNewPassword"
-              value={passwordData.confirmNewPassword}
-              onChange={handleChange}
-              placeholder="Enter password to confirm"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="confirmNewPassword"
+                value={passwordData.confirmNewPassword}
+                onChange={handleChange}
+                placeholder="Enter password to confirm"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-3 text-slate-400 hover:text-slate-200"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
           </label>
         </div>
 

@@ -4,16 +4,17 @@ import toast from "react-hot-toast";
 import {useNavigate} from "react-router";
 import RateLimiterCard from "../components/RateLimiterCard.jsx";
 import {useAuth} from "../context/AuthContext.jsx";
+import {BeatLoader} from "react-spinners";
 
 const Login = () => {
     const dialog = useRef();
-    const {setUser, setLoading} = useAuth();
+    const {setUser, setLoading, loading} = useAuth();
     const [loginData, setLoginData] = useState({
         email: '',
         password: ''
     })
 
-    const [errors, setErrors, loading] = useState({})
+    const [errors, setErrors] = useState({})
 
     const navigate = useNavigate();
 
@@ -49,7 +50,17 @@ const Login = () => {
     console.log(errors)
     return (
         <>
-            {loading && <div>Loading...</div>}
+
+            {loading && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+                    <BeatLoader
+                        cssOverride={{}}
+                        loading
+                        margin={5}
+                        speedMultiplier={1}
+                    />
+                </div>
+            )}
             <RateLimiterCard ref={dialog}/>
             <main className="relative min-h-screen overflow-hidden bg-[#07111f] px-4 py-10 text-slate-100 sm:px-6 lg:px-8">
                 <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.28),transparent_30%),radial-gradient(circle_at_80%_20%,rgba(56,189,248,0.18),transparent_28%),linear-gradient(180deg,rgba(4,10,24,0.92),rgba(9,15,30,1))]" />

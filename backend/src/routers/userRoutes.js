@@ -10,6 +10,6 @@ const router = Router();
 
 router.get("/:id", getUser);
 router.patch("/profile", validateProfile, updateProfile);
-router.delete("/", deleteProfile);
+router.delete("/deleteprofile", deleteProfile);
 
 export default router;

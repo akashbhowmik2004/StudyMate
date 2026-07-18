@@ -17,7 +17,17 @@ export const updatedProfileSchema = Joi.object({
       "string.email": "Please enter a valid email address",
     }),
 
-  oldPassword: Joi.string()
+    newEmail: Joi.string()
+        .email({
+            minDomainSegments: 2,
+            tlds: { allow: ["com", "net"] },
+        })
+        .messages({
+            "string.empty": "Email is required",
+            "string.email": "Please enter a valid email address",
+        }),
+
+  currentPassword: Joi.string()
     .pattern(/^[a-zA-Z0-9]{6,30}$/)
     .messages({
       "string.empty": "Current password is required",
@@ -27,7 +37,7 @@ export const updatedProfileSchema = Joi.object({
   newPassword: Joi.string()
     .pattern(/^[a-zA-Z0-9]{6,30}$/)
     .messages({
-      "string.empty": "Password is required",
+      "string.empty": "New password is required",
       "string.pattern.base":
         "Password can only contain letters and numbers and must be 6-30 characters long",
     }),

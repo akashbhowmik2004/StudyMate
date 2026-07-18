@@ -1,5 +1,41 @@
 import { FaArrowRight, FaUserSlash } from "react-icons/fa";
+import {useAuth} from "../../context/AuthContext.jsx";
+import {useState} from "react";
+import toast from "react-hot-toast";
+import {api} from "../../lib/axois.js";
+
+
 const DeleteProfile = () => {
+  const {setUser} = useAuth();
+
+  const [deleteProfile, setDeleteProfile] = useState({
+    username: "",
+    currentPassword: "",
+  });
+
+  const onDeleteUser = (e) => {
+    setDeleteProfile({
+      ...deleteProfile,
+      [e.target.name]: e.target.value,
+    });
+  }
+
+  const handleDeleteProfile = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.delete("/users/deleteprofile", {
+        data: deleteProfile,
+      });
+      setUser(null);
+      if(response){
+        toast.success("Profile deleted successfully");
+      }
+    }catch (err) {
+      console.log(err);
+      toast.error("Failed to delete profile");
+    }
+  }
+
   return (
         <article className="rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-300/20 to-teal-300/10 p-[1px] shadow-[0_24px_80px_rgba(0,0,0,0.18)]">
           <div className="h-full rounded-[1.45rem] border border-white/10 bg-slate-950/55 p-5 backdrop-blur-xl sm:p-6">
@@ -16,6 +52,23 @@ const DeleteProfile = () => {
                 </p>
               </div>
             </div>
+
+            <div className="mt-5 space-y-3">
+              <label className="block space-y-2">
+                <span className="text-sm font-medium text-slate-200">
+                  Username
+                </span>
+                <input
+                    type="text"
+                    name="username"
+                    onChange={onDeleteUser}
+                    value={deleteProfile.username}
+                    placeholder="Username"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
+                />
+              </label>
+
+            </div>
     
             <div className="mt-5 space-y-3">
               <label className="block space-y-2">
@@ -24,8 +77,10 @@ const DeleteProfile = () => {
                 </span>
                 <input
                   type="password"
-                  name="oldPassword"
+                  name="currentPassword"
                   placeholder="Current password"
+                  onChange={onDeleteUser}
+                  value={deleteProfile.currentPassword}
                   className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
                 />
               </label>
@@ -35,7 +90,7 @@ const DeleteProfile = () => {
             <button
               type="button"
               className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition bg-cyan-300 text-slate-900 hover:bg-cyan-200"
-              
+              onClick={handleDeleteProfile}
             >
               Delete Profile
               <FaArrowRight className="text-xs" />

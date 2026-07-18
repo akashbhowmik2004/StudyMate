@@ -63,12 +63,12 @@ export const signup = async (req, res) => {
       httpOnly: true,
       maxAge: maxAge * 1000,
     });
-
+    const { password: userPassword, ...otherDetails } = newUser._doc;
     res.status(201).json({
       success: true,
       message: "Signup successfully",
       token,
-      newUser,
+      otherDetails,
     });
   } catch (err) {
     console.log(err);
