@@ -7,6 +7,7 @@ import Note from "./pages/Note.jsx";
 import ProtectedRoute from "./components/ProtectedRoutes.jsx";
 import Setting from "./pages/Setting.jsx";
 import Community from "./pages/Community.jsx";
+import Schedule from "./pages/Schedule.jsx";
 
 const App = () => {
   return (
@@ -42,6 +43,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Community/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/schedule"
+          element={
+            <ProtectedRoute>
+              <Schedule/>
             </ProtectedRoute>
           }
         />
