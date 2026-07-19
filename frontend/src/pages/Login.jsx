@@ -9,12 +9,11 @@ import {BeatLoader} from "react-spinners";
 const Login = () => {
     const dialog = useRef();
     const {setUser, setLoading, loading} = useAuth();
+    const [errors, setErrors] = useState({});
     const [loginData, setLoginData] = useState({
         email: '',
         password: ''
     })
-
-    const [errors, setErrors] = useState({})
 
     const navigate = useNavigate();
 

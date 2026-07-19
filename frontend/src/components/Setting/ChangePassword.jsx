@@ -4,6 +4,7 @@ import { api } from "../../lib/axois.js";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+
 const ChangePassword = () => {
   const navigate = useNavigate();
   const [passwordData, setPasswordData] = useState({
@@ -12,15 +13,16 @@ const ChangePassword = () => {
     confirmNewPassword: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const onChangePassword = async (e) => {
     e.preventDefault();
     try {
-        const { currentPassword, newPassword, confirmNewPassword } = passwordData;
-        if (!currentPassword || !newPassword || !confirmNewPassword) {
-            toast.error("Please fill in all fields.");
-            return;
-        }
+      const { currentPassword, newPassword, confirmNewPassword } = passwordData;
+      if (!currentPassword || !newPassword || !confirmNewPassword) {
+        toast.error("Please fill in all fields.");
+        return;
+      }
       const response = await api.patch("/users/profile", passwordData);
 
       console.log(response);
@@ -30,10 +32,15 @@ const ChangePassword = () => {
         newPassword: "",
         confirmNewPassword: "",
       });
+      setErrors({});
       navigate("/settings");
     } catch (error) {
       console.log(error);
       toast.error("Failed to update password.");
+      setErrors({
+        [error.response.data.field]: error.response.data.message,
+        ErrorCode: error.response.status,
+      });
     }
   };
 
@@ -65,19 +72,29 @@ const ChangePassword = () => {
             <span className="text-sm font-medium text-slate-200">
               Current password
             </span>
+            {errors.currentPassword && (
+              <p className="mt-1.5 text-xs font-medium text-red-400">
+                {errors.currentPassword}
+              </p>
+            )}
             <input
               type={showPassword ? "text" : "password"}
               name="currentPassword"
               value={passwordData.currentPassword}
               onChange={handleChange}
               placeholder="Current password"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
+              className={`w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80 ${errors.currentPassword ? "border-red-500 focus:border-red-400 focus:bg-slate-900" : ""}`}
             />
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-200">
               New password
             </span>
+            {errors.newPassword && (
+              <p className="mt-1.5 text-xs font-medium text-red-400">
+                {errors.newPassword}
+              </p>
+            )}
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -85,7 +102,7 @@ const ChangePassword = () => {
                 value={passwordData.newPassword}
                 onChange={handleChange}
                 placeholder="New password"
-                className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
+                className={`w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80 ${errors.newPassword ? "border-red-500 focus:border-red-400 focus:bg-slate-900" : ""}`}
               />
               <button
                 type="button"
@@ -100,6 +117,11 @@ const ChangePassword = () => {
             <span className="text-sm font-medium text-slate-200">
               Confirm password
             </span>
+            {errors.confirmNewPassword && (
+              <p className="mt-1.5 text-xs font-medium text-red-400">
+                {errors.confirmNewPassword}
+              </p>
+            )}
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -107,7 +129,7 @@ const ChangePassword = () => {
                 value={passwordData.confirmNewPassword}
                 onChange={handleChange}
                 placeholder="Enter password to confirm"
-                className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
+                className={`w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80 ${errors.confirmNewPassword ? "border-red-500 focus:border-red-400 focus:bg-slate-900" : ""}`}
               />
               <button
                 type="button"

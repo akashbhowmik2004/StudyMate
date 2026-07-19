@@ -1,12 +1,13 @@
 import { FaArrowRight, FaEnvelope } from "react-icons/fa";
-import {useState} from "react";
-import {api} from "../../lib/axois.js";
-import {toast} from "react-hot-toast";
-import {useNavigate} from "react-router";
-import {useAuth} from "../../context/AuthContext.jsx";
+import { useState } from "react";
+import { api } from "../../lib/axois.js";
+import { toast } from "react-hot-toast";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 const ChangeEmail = () => {
-  const {setUser,user} = useAuth();
+  const { setUser } = useAuth();
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const [email, setEmail] = useState({
     newEmail: " ",
@@ -16,19 +17,19 @@ const ChangeEmail = () => {
   const handleChange = (e) => {
     setEmail({
       ...email,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
-  }
+  };
 
   const handleSetEmail = async (e) => {
     e.preventDefault();
     try {
-      const {newEmail, currentPassword} = email;
-      if(!newEmail || !currentPassword){
+      const { newEmail, currentPassword } = email;
+      if (!newEmail || !currentPassword) {
         toast.error("Please fill in all fields.");
         return;
       }
-      const response = await api.patch("/users/profile",email);
+      const response = await api.patch("/users/profile", email);
       console.log(response.data);
       setUser(response.data.user);
       console.log(response);
@@ -37,12 +38,16 @@ const ChangeEmail = () => {
         newEmail: "",
         currentPassword: "",
       });
+      setErrors({});
       navigate("/settings");
-    }catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong");
+    } catch (err) {
+      toast.error("Something went wrong");
+      setErrors({
+        [err.response.data.field]: err.response.data.message,
+        ErrorCode: err.response.status,
+      });
     }
-  }
-
+  };
 
   return (
     <article className="rounded-3xl border border-white/10 bg-gradient-to-br from-cyan-300/20 to-teal-300/10 p-[1px] shadow-[0_24px_80px_rgba(0,0,0,0.18)]">
@@ -67,37 +72,51 @@ const ChangeEmail = () => {
             <span className="text-sm font-medium text-slate-200">
               Current email
             </span>
+            {errors.email && (
+              <p className="mt-1.5 text-xs font-medium text-red-400">
+                {errors.email}
+              </p>
+            )}
             <input
+              id="email"
               type="email"
               name="email"
-
               placeholder="you@example.com"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
+              className={`w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80 ${errors.email ? "border-red-500 focus:border-red-400 focus:bg-slate-900" : ""}`}
             />
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-200">
               New email
             </span>
+            {errors.newEmail && (
+              <p className="mt-1.5 text-xs font-medium text-red-400">
+                {errors.newEmail}
+              </p>
+            )}
             <input
               type="email"
               name="newEmail"
               onChange={handleChange}
               value={email.newEmail}
               placeholder="new-email@example.com"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
+              className={`w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80 ${errors.newEmail ? "border-red-500 focus:border-red-400 focus:bg-slate-900" : ""}`}
             />
           </label>
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-200">Password</span>
+            {errors.currentPassword && (
+              <p className="mt-1.5 text-xs font-medium text-red-400">
+                {errors.currentPassword}
+              </p>
+            )}
             <input
               type="password"
               name="currentPassword"
               onChange={handleChange}
               value={email.currentPassword}
               placeholder="Enter password to confirm"
-              className="w-full rounded-2xl border border-white/10 bg-slate-95<PASSWORD> px-4 py=3 text-sm text-white outline-none transition placeholder:text-slate<KEY>"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80"
+              className={`w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-slate-900/80 ${errors.currentPassword ? "border-red-500 focus:border-red-400 focus:bg-slate-900" : ""}`}
             />
           </label>
         </div>

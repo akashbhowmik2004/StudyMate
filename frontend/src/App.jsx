@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Note from "./pages/Note.jsx";
 import ProtectedRoute from "./components/ProtectedRoutes.jsx";
 import Setting from "./pages/Setting.jsx";
+import Community from "./pages/Community.jsx";
 
 const App = () => {
   return (
@@ -20,8 +21,30 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/notes" element={<ProtectedRoute><Note /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><Setting /></ProtectedRoute>} />
+        <Route
+          path="/notes"
+          element={
+            <ProtectedRoute>
+              <Note />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Setting />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/community"
+          element={
+            <ProtectedRoute>
+              <Community/>
+            </ProtectedRoute>
+          }
+        />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
       </Routes>

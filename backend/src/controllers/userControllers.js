@@ -32,12 +32,28 @@ export const getUser = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-  const { currentPassword, newPassword, confirmNewPassword, username, newEmail } = req.body;
+  const {
+    currentPassword,
+    newPassword,
+    confirmNewPassword,
+    username,
+    newEmail,
+  } = req.body;
 
   try {
     const updates = {};
 
-    if (username) updates.username = username;
+    if (username) {
+      const compareUsername = await User.findOne({username});
+      if(!compareUsername){
+        return res.status(400).json({
+          success: false,
+          field: "username",
+          message: "Enter correct username",
+        });
+      }
+      updates.username = username
+    };
     if (newEmail) {
       const existingUser = await User.findOne({ email: newEmail });
 
@@ -52,13 +68,17 @@ export const updateProfile = async (req, res) => {
     }
 
     const CurrentUser = await User.findById(req.user.id);
-    const comaprePassword = await bcrypt.compare(currentPassword,CurrentUser.password);
+    const comaprePassword = await bcrypt.compare(
+      currentPassword,
+      CurrentUser.password,
+    );
 
-    if(!comaprePassword){
+    if (!comaprePassword) {
       return res.status(400).json({
         success: false,
-        message: "Enter correct password"
-      })
+        field: "currentPassword",
+        message: "Current password is incorrect",
+      });
     }
 
     if (newPassword && confirmNewPassword) {
@@ -103,25 +123,36 @@ export const updateProfile = async (req, res) => {
 export const deleteProfile = async (req, res) => {
   const { username, currentPassword } = req.body;
   try {
-    if(!username || !currentPassword){
+    if (!username || !currentPassword) {
       return res.status(400).json({
         success: false,
         message: "Username and password are required",
-      })
+      });
     }
     const existingUser = await User.findById(req.user.id);
-    const comparePassword = await bcrypt.compare(currentPassword, existingUser.password);
+    const comparePassword = await bcrypt.compare(
+      currentPassword,
+      existingUser.password,
+    );
+    const compareUsername = await User.findOne({username});
+    if(!compareUsername){
+      return res.status(400).json({
+        success: false,
+        field: "username",
+        message: "incorrect username",
+      });
+    }
     if (!comparePassword) {
       return res.status(400).json({
         success: false,
         message: "Incorrect password",
       });
     }
-    if(username !== existingUser.username){
+    if (username !== existingUser.username) {
       return res.status(400).json({
         success: false,
         message: "Username did not match",
-      })
+      });
     }
     const user = await User.findByIdAndDelete(req.user.id);
     if (!user) {
