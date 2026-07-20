@@ -24,13 +24,37 @@ export const getNotes = async (req, res) => {
   }
 };
 
+export const getAllNotes = async(req,res) =>{
+  try{
+    const allNotes = await notes.find({userId:req.user.id});
+    if(!allNotes){
+      return res.status(404).json({
+        success: false,
+        message: "No notes found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      allNotes
+    });
+  }catch(err){
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+}
+
 export const createNotes = async (req, res) => {
-  const { title, content } = req.body;
+  const { type,title, content, subjectId } = req.body;
 
   try {
     const newNote = new notes({
+      type,
       title,
       content,
+      subjectId,
       userId: req.user.id,
     });
     await newNote.save();

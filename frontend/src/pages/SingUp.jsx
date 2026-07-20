@@ -4,12 +4,13 @@ import { useNavigate } from "react-router";
 import RateLimiterCard from "../components/RateLimiterCard.jsx";
 import { Link } from "react-router";
 import toast from "react-hot-toast";
-import { useAuth } from "../context/AuthContext.jsx";
+import useAuth from "../context/useAuth.jsx";
 import {BeatLoader} from "react-spinners";
 
 const SignUp = () => {
   const dialog = useRef();
-  const {setUser, setLoading, loading} = useAuth();
+  const {setUser} = useAuth();
+  const [loading, setLoading] = useState(false);
   const [signupData, setSignupData] = useState({
     username: "",
     email: "",
@@ -34,7 +35,7 @@ const SignUp = () => {
     try {
       const res = await auth.post("/signup", signupData);
       setUser(res.data.otherDetails);
-      setLoading(false);
+      setLoading(true);
       navigate("/");
       toast.success(res.data.message);
     } catch (err) {
@@ -46,8 +47,17 @@ const SignUp = () => {
         [err.response.data.field]: err.response.data.message,
         ErrorCode: err.response.status,
       });
+    }finally{
+      setLoading(false);
     }
   };
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
+        <BeatLoader color="#06b6d4" size={18} />
+      </div>
+    );
+  }
   return (
     <>
       {loading && (

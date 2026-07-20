@@ -7,6 +7,11 @@ const noteSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    subjectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Subject",
+      required: true,
+    },
     title: {
       type: String,
       required: true,
@@ -18,6 +23,10 @@ const noteSchema = new mongoose.Schema(
     tags: {
       type: Array,
       default: [],
+    },
+    type: {
+      type: String,
+      required: true
     }
   },
   { timestamps: true },

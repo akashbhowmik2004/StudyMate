@@ -9,6 +9,7 @@ import commentRoutes from "./src/routers/commentRoutes.js";
 import communityRoutes from "./src/routers/communityRoutes.js";
 import noteRoutes from "./src/routers/noteRoutes.js"
 import userRoutes from "./src/routers/userRoutes.js"
+import subjectRoutes from "./src/routers/subjectRoutes.js"
 import { limiter } from "./src/middleware/rateLimiter.js";
 import cors from "cors";
 
@@ -32,6 +33,7 @@ app.use("/api/doubts", requireAuth, doubtRoutes);
 app.use("/api/comment", requireAuth, commentRoutes);
 app.use("/api/communities", requireAuth, communityRoutes);
 app.use("/api/notes", requireAuth, noteRoutes);
+app.use("/api/subjects", requireAuth, subjectRoutes);
 
 await mongoose.connect(process.env["MONGODB_URI"]).then(() => {
   console.log("MongoDB connected successfully");

@@ -1,5 +1,5 @@
 import { FaArrowRight, FaUserSlash } from "react-icons/fa";
-import { useAuth } from "../../context/AuthContext.jsx";
+import useAuth from "../../context/useAuth.jsx";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { api } from "../../lib/axois.js";

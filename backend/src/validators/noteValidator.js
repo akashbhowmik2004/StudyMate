@@ -2,6 +2,7 @@ import Joi from "joi";
 const noEmojiRegex =
   /^[^\p{Extended_Pictographic}\p{Emoji_Presentation}]+$/u;
 export const createNoteSchema = Joi.object({
+  type: Joi.string().valid("text", "image", "video").required(),
   title: Joi.string().required().pattern(noEmojiRegex).min(3).max(30).messages({
     "string.empty": "Title is required",
     "string.alphanum": "Title can only contain letters and numbers",
@@ -16,6 +17,7 @@ export const createNoteSchema = Joi.object({
     "string.max": "Content cannot exceed 30 characters",
     "string.pattern.base": "Emojis are not allowed in content",
   }),
+  subjectId: Joi.string().required(),
 });
 
 

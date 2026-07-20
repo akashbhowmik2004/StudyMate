@@ -1,13 +1,33 @@
+/**
+ * StudyMate Community — matches the "desk at night" identity used across
+ * Dashboard / Notes / Schedule / Settings: ink canvas, one warm lamp
+ * accent, paper-toned surfaces, Fraunces for headings.
+ *
+ * UI-only, same as before — no state, handlers, or data fetching, every
+ * value is static placeholder content just to show the layout. Logic
+ * (activeCommunity, the empty-state branch) is unchanged.
+ *
+ * No page-level padding needed — StudyMateHeader has a built-in spacer
+ * that automatically pushes this content clear of the fixed bar.
+ */
 import {
-  FaPlus,
-  FaUsers,
+  FaCircle,
   FaHashtag,
   FaPaperPlane,
-  FaSearch,
-  FaCircle,
+  FaPlus,
   FaQuestionCircle,
+  FaSearch,
+  FaUsers,
 } from "react-icons/fa";
 import StudyMateHeader from "../components/StudyMateHeader.jsx";
+
+const tint = {
+  coral: { badge: "bg-[#F2735B]/15 text-[#FF8B72]", ring: "border-[#F2735B]/30 bg-[#F2735B]/10", dot: "text-[#F2735B]" },
+  mint: { badge: "bg-[#6FCF97]/15 text-[#8FE0AE]", ring: "border-[#6FCF97]/30 bg-[#6FCF97]/10", dot: "text-[#6FCF97]" },
+  lav: { badge: "bg-[#A996D9]/15 text-[#C3B6EA]", ring: "border-[#A996D9]/30 bg-[#A996D9]/10", dot: "text-[#A996D9]" },
+  amber: { badge: "bg-[#E8A33D]/15 text-[#F2BE6D]", ring: "border-[#E8A33D]/30 bg-[#E8A33D]/10", dot: "text-[#E8A33D]" },
+  sky: { badge: "bg-[#6FA8DC]/15 text-[#9BC4E8]", ring: "border-[#6FA8DC]/30 bg-[#6FA8DC]/10", dot: "text-[#6FA8DC]" },
+};
 
 export default function Community() {
   // NOTE: UI-only. No state, handlers, or data fetching — every value
@@ -15,22 +35,22 @@ export default function Community() {
   const activeCommunity = "DSA Study Circle";
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0a0f16] text-slate-100">
+    <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA]">
       <StudyMateHeader />
 
-      {/* ambient background, consistent with the rest of the app */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_6%,rgba(45,212,191,0.16),transparent_36%),radial-gradient(circle_at_92%_12%,rgba(251,191,36,0.14),transparent_32%),linear-gradient(180deg,rgba(10,15,22,1),rgba(6,9,14,1))]" />
-      <div className="pointer-events-none absolute -left-28 top-24 h-72 w-72 rounded-full bg-teal-300/10 blur-3xl" />
-      <div className="pointer-events-none absolute -right-28 top-60 h-80 w-80 rounded-full bg-amber-300/10 blur-3xl" />
+      {/* lamp glow, matches the rest of the app */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_6%,rgba(232,163,61,0.14),transparent_36%),radial-gradient(circle_at_92%_12%,rgba(111,207,151,0.08),transparent_32%),linear-gradient(180deg,rgba(11,13,18,1),rgba(7,8,11,1))]" />
+      <div className="pointer-events-none absolute -left-28 top-24 h-72 w-72 rounded-full bg-[#E8A33D]/8 blur-3xl" />
+      <div className="pointer-events-none absolute -right-28 top-60 h-80 w-80 rounded-full bg-[#6FCF97]/8 blur-3xl" />
 
       <main className="relative flex min-h-[calc(100vh-4rem)]">
         {/* ---------------- Sidebar: communities ---------------- */}
         <aside className="flex w-full max-w-xs shrink-0 flex-col border-r border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl sm:max-w-sm">
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-300/15 text-teal-200">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8A33D]/15 text-[#E8A33D]">
               <FaUsers className="text-sm" />
             </span>
-            <h2 className="font-[Fraunces,serif] text-xl font-semibold tracking-tight text-white">
+            <h2 className="font-['Fraunces',_serif] text-xl font-medium tracking-tight text-white">
               Communities
             </h2>
           </div>
@@ -40,11 +60,11 @@ export default function Community() {
             <input
               type="text"
               placeholder="Create a community (e.g. NEET Aspirants)"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-teal-300/70 focus:bg-slate-900/80 focus:ring-2 focus:ring-teal-300/20"
+              className="w-full rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-[#E8A33D]/60 focus:bg-[#0B0D12]/80 focus:ring-2 focus:ring-[#E8A33D]/20"
             />
             <button
               type="submit"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-amber-300 px-4 py-3 text-sm font-semibold text-slate-950 shadow-[0_8px_24px_-8px_rgba(251,191,36,0.55)] transition hover:bg-amber-200 active:scale-[0.99]"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#E8A33D] px-4 py-3 text-sm font-semibold text-[#0B0D12] shadow-[0_8px_24px_-8px_rgba(232,163,61,0.5)] transition hover:bg-[#F2BE6D] active:scale-[0.99]"
             >
               <FaPlus className="text-xs" />
               Create Community
@@ -56,7 +76,7 @@ export default function Community() {
             <input
               type="text"
               placeholder="Join with a code or name"
-              className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-teal-300/70 focus:ring-2 focus:ring-teal-300/20"
+              className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-[#E8A33D]/60 focus:ring-2 focus:ring-[#E8A33D]/20"
             />
             <button
               type="submit"
@@ -68,80 +88,80 @@ export default function Community() {
 
           {/* search */}
           <div className="relative mt-6">
-            <FaSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-500" />
+            <FaSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-[#EDE7DA]/35" />
             <input
               type="text"
               placeholder="Search your communities"
-              className="w-full rounded-xl border border-white/10 bg-slate-950/40 py-2.5 pl-9 pr-3 text-xs text-white outline-none transition placeholder:text-slate-500 focus:border-teal-300/70"
+              className="w-full rounded-xl border border-white/10 bg-[#0B0D12]/40 py-2.5 pl-9 pr-3 text-xs text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-[#E8A33D]/60"
             />
           </div>
 
           {/* community list */}
           <div className="mt-4 flex-1 space-y-1.5 overflow-y-auto">
-            <p className="mb-1 px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+            <p className="mb-1 px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#EDE7DA]/40">
               Joined
             </p>
 
-            <button className="flex w-full items-center gap-3 rounded-2xl border border-teal-300/30 bg-teal-300/10 px-3.5 py-3 text-left transition">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-300/20 text-sm font-semibold text-teal-200">
+            <button className={`flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition ${tint.coral.ring}`}>
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ${tint.coral.badge}`}>
                 DS
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-white">
                   DSA Study Circle
                 </span>
-                <span className="block truncate text-xs text-slate-400">
+                <span className="block truncate text-xs text-[#EDE7DA]/45">
                   128 members &middot; 6 new
                 </span>
               </span>
-              <FaCircle className="text-[6px] text-teal-300" />
+              <FaCircle className={`text-[6px] ${tint.coral.dot}`} />
             </button>
 
             <button className="flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition hover:bg-white/[0.05]">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-300/15 text-sm font-semibold text-amber-200">
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ${tint.mint.badge}`}>
                 OC
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-white">
                   Organic Chemistry Help
                 </span>
-                <span className="block truncate text-xs text-slate-400">
+                <span className="block truncate text-xs text-[#EDE7DA]/45">
                   64 members
                 </span>
               </span>
             </button>
 
             <button className="flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition hover:bg-white/[0.05]">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-sm font-semibold text-slate-200">
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ${tint.lav.badge}`}>
                 UP
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-white">
                   UPSC Prelims Batch
                 </span>
-                <span className="block truncate text-xs text-slate-400">
+                <span className="block truncate text-xs text-[#EDE7DA]/45">
                   312 members
                 </span>
               </span>
             </button>
 
-            <p className="mb-1 mt-5 px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-500">
+            <p className="mb-1 mt-5 px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#EDE7DA]/40">
               Suggested
             </p>
 
             <button className="flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition hover:bg-white/[0.05]">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-sm font-semibold text-slate-200">
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ${tint.sky.badge}`}>
                 PH
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-medium text-white">
                   Physics Numericals
                 </span>
-                <span className="block truncate text-xs text-slate-400">
+                <span className="block truncate text-xs text-[#EDE7DA]/45">
                   89 members
                 </span>
               </span>
-              <span className="shrink-0 rounded-lg border border-white/15 px-2.5 py-1 text-[11px] font-medium text-slate-300">
+              <span className="shrink-0 rounded-lg border border-white/15 px-2.5 py-1 text-[11px] font-medium text-[#EDE7DA]/70">
                 Join
               </span>
             </button>
@@ -152,14 +172,14 @@ export default function Community() {
         <section className="flex flex-1 flex-col overflow-hidden">
           {!activeCommunity ? (
             <div className="flex h-full items-center justify-center p-10 text-center">
-              <div className="max-w-sm">
-                <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-300/10 text-teal-200">
+              <div className="max-w-sm rounded-3xl border border-dashed border-white/15 bg-[#0B0D12]/30 px-6 py-10">
+                <span className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[#EDE7DA]/50">
                   <FaUsers className="text-lg" />
                 </span>
-                <p className="font-[Fraunces,serif] text-xl font-semibold text-white">
+                <p className="font-['Fraunces',_serif] text-xl font-medium text-white">
                   Select a community
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                <p className="mt-2 text-sm leading-relaxed text-[#EDE7DA]/50">
                   Pick a community from the left, or create/join one to start
                   asking doubts and chatting.
                 </p>
@@ -170,14 +190,14 @@ export default function Community() {
               {/* community header */}
               <div className="flex items-center justify-between gap-4 border-b border-white/10 bg-white/[0.03] px-6 py-4 backdrop-blur-xl sm:px-8">
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-300/20 text-sm font-semibold text-teal-200">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ${tint.coral.badge}`}>
                     DS
                   </span>
                   <div className="min-w-0">
-                    <h2 className="truncate font-[Fraunces,serif] text-lg font-semibold text-white">
+                    <h2 className="truncate font-['Fraunces',_serif] text-lg font-medium text-white">
                       {activeCommunity}
                     </h2>
-                    <p className="flex items-center gap-1 truncate text-xs text-slate-400">
+                    <p className="flex items-center gap-1 truncate text-xs text-[#EDE7DA]/45">
                       <FaHashtag className="text-[10px]" />
                       general &middot; 128 members &middot; 14 online
                     </p>
@@ -192,14 +212,14 @@ export default function Community() {
               {/* messages / doubts feed */}
               <div className="flex-1 space-y-5 overflow-y-auto px-6 py-6 sm:px-8">
                 <div className="flex justify-center">
-                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-slate-400">
+                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-[#EDE7DA]/45">
                     Today
                   </span>
                 </div>
 
                 {/* regular message */}
                 <div className="flex items-start gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-300/15 text-xs font-semibold text-amber-200">
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${tint.amber.badge}`}>
                     RS
                   </span>
                   <div className="min-w-0">
@@ -207,11 +227,11 @@ export default function Community() {
                       <span className="text-sm font-medium text-white">
                         Riya S.
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[11px] text-[#EDE7DA]/35">
                         9:14 AM
                       </span>
                     </div>
-                    <p className="mt-1 max-w-md rounded-2xl rounded-tl-sm border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm leading-relaxed text-slate-200">
+                    <p className="mt-1 max-w-md rounded-2xl rounded-tl-sm border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm leading-relaxed text-[#EDE7DA]/85">
                       Anyone started today's problem set on graph traversal
                       yet? Sharing my notes once I'm done.
                     </p>
@@ -220,7 +240,7 @@ export default function Community() {
 
                 {/* doubt message */}
                 <div className="flex items-start gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-300/15 text-xs font-semibold text-teal-200">
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${tint.mint.badge}`}>
                     AK
                   </span>
                   <div className="min-w-0">
@@ -228,20 +248,20 @@ export default function Community() {
                       <span className="text-sm font-medium text-white">
                         Arjun K.
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-300/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[#E8A33D]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#F2BE6D]">
                         <FaQuestionCircle className="text-[9px]" />
                         Doubt
                       </span>
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[11px] text-[#EDE7DA]/35">
                         9:26 AM
                       </span>
                     </div>
-                    <p className="mt-1 max-w-md rounded-2xl rounded-tl-sm border border-amber-300/25 bg-amber-300/[0.06] px-4 py-2.5 text-sm leading-relaxed text-slate-200">
+                    <p className="mt-1 max-w-md rounded-2xl rounded-tl-sm border border-[#E8A33D]/25 bg-[#E8A33D]/[0.06] px-4 py-2.5 text-sm leading-relaxed text-[#EDE7DA]/85">
                       Why does BFS use a queue instead of a stack for shortest
                       path in an unweighted graph? Still confused on the
                       intuition.
                     </p>
-                    <button className="mt-1.5 text-xs font-medium text-teal-300 hover:text-teal-200">
+                    <button className="mt-1.5 text-xs font-medium text-[#F2BE6D] hover:text-[#F7CE85]">
                       3 replies
                     </button>
                   </div>
@@ -251,19 +271,19 @@ export default function Community() {
                 <div className="flex items-start justify-end gap-3">
                   <div className="min-w-0 text-right">
                     <div className="flex items-baseline justify-end gap-2">
-                      <span className="text-[11px] text-slate-500">
+                      <span className="text-[11px] text-[#EDE7DA]/35">
                         9:31 AM
                       </span>
                       <span className="text-sm font-medium text-white">
                         You
                       </span>
                     </div>
-                    <p className="mt-1 ml-auto max-w-md rounded-2xl rounded-tr-sm bg-teal-300/20 px-4 py-2.5 text-left text-sm leading-relaxed text-slate-100">
+                    <p className="mt-1 ml-auto max-w-md rounded-2xl rounded-tr-sm bg-[#E8A33D]/20 px-4 py-2.5 text-left text-sm leading-relaxed text-[#F3ECDD]">
                       Because BFS explores level by level, a queue keeps
                       earlier (shorter-path) nodes ahead of later ones.
                     </p>
                   </div>
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-300/25 text-xs font-semibold text-teal-100">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E8A33D]/30 text-xs font-semibold text-[#F2BE6D]">
                     Me
                   </span>
                 </div>
@@ -275,7 +295,7 @@ export default function Community() {
                   <button className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
                     Message
                   </button>
-                  <button className="inline-flex items-center gap-1 rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-slate-300 hover:bg-white/[0.06]">
+                  <button className="inline-flex items-center gap-1 rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-[#EDE7DA]/70 hover:bg-white/[0.06]">
                     <FaQuestionCircle className="text-[10px]" />
                     Ask a Doubt
                   </button>
@@ -284,11 +304,11 @@ export default function Community() {
                   <textarea
                     rows={1}
                     placeholder="Send a message or ask a doubt to the community..."
-                    className="max-h-32 min-h-[46px] flex-1 resize-none rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-teal-300/70 focus:ring-2 focus:ring-teal-300/20"
+                    className="max-h-32 min-h-[46px] flex-1 resize-none rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-[#E8A33D]/60 focus:ring-2 focus:ring-[#E8A33D]/20"
                   />
                   <button
                     type="submit"
-                    className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-2xl bg-amber-300 text-slate-950 shadow-[0_8px_24px_-8px_rgba(251,191,36,0.55)] transition hover:bg-amber-200 active:scale-[0.97]"
+                    className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-2xl bg-[#E8A33D] text-[#0B0D12] shadow-[0_8px_24px_-8px_rgba(232,163,61,0.5)] transition hover:bg-[#F2BE6D] active:scale-[0.97]"
                   >
                     <FaPaperPlane className="text-sm" />
                   </button>

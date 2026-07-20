@@ -4,7 +4,7 @@ import { menuItems } from "../lib/ProfileMenueItems.js";
 import { auth } from "../lib/axois.js";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
-import { useAuth } from "../context/AuthContext.jsx";
+import useAuth from "../context/useAuth.jsx";
 
 
 const NavProfileButton = ({userInfo}) => {

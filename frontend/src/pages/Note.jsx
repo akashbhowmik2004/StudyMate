@@ -1,21 +1,4 @@
-/**
- * StudyMate Notes — full redesign
- * --------------------------------
- * Same "desk at night" identity as the Dashboard (ink canvas, one lamp
- * accent, paper-toned cards) but rebuilt as a proper notes workspace:
- *
- *  - Left: a subject binder — add a subject, see per-subject note counts.
- *  - Right: the active subject's notes as a card wall, mixing three note
- *    kinds (text, image, PDF), each styled the way that material actually
- *    looks (a scrap of paper, a photo, a document sleeve).
- *  - Added, on top of what you asked for: a pinned-notes strip, type
- *    filter chips, and a "turn this into a review session" banner — felt
- *    like the natural next thing on a notes page, so I sketched it in.
- *
- * Everything is mock data / decorative state (no wiring, no handlers) —
- * swap the arrays and the `activeSubject`/`activeFilter` consts for real
- * state whenever you're ready to hook it up.
- */
+
 import {
   FaBook,
   FaChevronDown,
@@ -30,6 +13,8 @@ import {
   FaThumbtack,
 } from "react-icons/fa";
 import StudyMateHeader from "../components/StudyMateHeader.jsx";
+import { useState } from "react";
+import useAuth from "../context/useAuth.jsx"
 
 /* ---------------------------------- data --------------------------------- */
 
@@ -52,7 +37,7 @@ const subjects = [
 const activeSubject = subjects[0];
 
 const pinnedNotes = [
-  { type: "text", title: "Big-O cheat sheet", excerpt: "O(1) < O(log n) < O(n) < O(n log n) < O(n²) — with examples for each.", date: "3d ago" },
+  { type: "text", title: "Big-O cheat sheet", content: "O(1) < O(log n) < O(n) < O(n log n) < O(n²) — with examples for each.", date: "3d ago" },
   { type: "pdf", title: "Sorting_Algorithms_Summary.pdf", meta: "14 pages · 2.1 MB", date: "Yesterday" },
 ];
 
@@ -67,7 +52,7 @@ const notes = [
   {
     type: "text",
     title: "Binary Search Trees — rotation rules",
-    excerpt: "Left-heavy → right rotation. Right-heavy → left rotation. Balance factor must stay within [-1, 1] after every insert.",
+    content: "Left-heavy → right rotation. Right-heavy → left rotation. Balance factor must stay within [-1, 1] after every insert.",
     date: "2h ago",
     shared: "Logic League",
   },
@@ -85,7 +70,7 @@ const notes = [
   {
     type: "text",
     title: "Recursion vs. iteration — tradeoffs",
-    excerpt: "Recursion trades stack space for readability. Watch for stack overflow on deep trees without tail-call optimisation.",
+    content: "Recursion trades stack space for readability. Watch for stack overflow on deep trees without tail-call optimisation.",
     date: "6 days ago",
   },
   {
@@ -110,7 +95,25 @@ function NoteTypeIcon({ type, className }) {
   return <FaRegStickyNote className={className} />;
 }
 
-function NoteCard({ note }) {
+function NoteCard({note}) {
+  // const { user } = useAuth();
+  // //const [notes, setNotes] = useState([]);
+  // const [note, setNote] = useState({
+  //   userId: user.id,
+  //   type: "text",
+  //   title: "",
+  //   content: "",
+
+  // });
+
+
+  // const handleChange = (e) => {
+  //   setNote({
+  //     ...note,
+  //     [e.target.name]: e.target.value,
+  //   })
+  // }
+
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-[#EDE7DA]/12 bg-[#F3ECDD]/[0.05] p-4 transition hover:-translate-y-0.5 hover:bg-[#F3ECDD]/[0.09]">
       {/* folded corner, same detail as the Dashboard's note cards */}
@@ -144,9 +147,9 @@ function NoteCard({ note }) {
         <p className="text-sm font-semibold leading-snug text-[#F3ECDD]">{note.title}</p>
       </div>
 
-      {note.excerpt && (
+      {note.content && (
         <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-[#EDE7DA]/55">
-          {note.excerpt}
+          {note.content}
         </p>
       )}
 
@@ -190,6 +193,7 @@ export default function Note() {
           <form className="mt-5 space-y-3">
             <input
               type="text"
+              name="subject"
               placeholder="Add a subject (e.g. Physics)"
               className="w-full rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-[#E8A33D]/60 focus:bg-[#0B0D12]/80 focus:ring-2 focus:ring-[#E8A33D]/20"
             />

@@ -7,7 +7,7 @@ export default function HomePage() {
 
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#07111f] text-slate-100">
+    <div className="relative min-h-screen overflow-hidden bg-[#07111f] pt-18 text-slate-100">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(79,70,229,0.35),transparent_32%),radial-gradient(circle_at_80%_20%,rgba(56,189,248,0.24),transparent_28%),linear-gradient(180deg,rgba(4,10,24,0.92),rgba(9,15,30,1))]" />
       <div className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-cyan-400/20 blur-3xl" />
       <div className="pointer-events-none absolute -right-28 top-96 h-80 w-80 rounded-full bg-indigo-500/20 blur-3xl" />
@@ -18,10 +18,7 @@ export default function HomePage() {
       <section className="relative px-4 pb-20 pt-12 sm:px-6 lg:px-8 lg:pt-16">
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="space-y-8">
-            <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/8 px-4 py-2 text-sm text-slate-200 shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-xl">
-              <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_16px_rgba(103,232,249,0.9)]" />
-              Glassmorphism study space for notes, doubts, and collaboration
-            </div>
+            
 
             <div className="space-y-5">
               <h1 className="max-w-2xl text-5xl font-semibold leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">

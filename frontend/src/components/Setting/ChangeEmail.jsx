@@ -3,7 +3,7 @@ import { useState } from "react";
 import { api } from "../../lib/axois.js";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../context/AuthContext.jsx";
+import useAuth from "../../context/useAuth.jsx";
 
 const ChangeEmail = () => {
   const { setUser } = useAuth();
