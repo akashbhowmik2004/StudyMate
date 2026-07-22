@@ -1,7 +1,10 @@
 import { Router } from "express";
-import { getSubject, createSubject } from "../controllers/subjectControllers.js";
+import { getSubject, createSubject, getAllSubjects } from "../controllers/subjectControllers.js";
+import { limiter } from "../middleware/rateLimiter.js";
 const router = Router();
 
-router.get("/:id", getSubject);
-router.post("/", createSubject);
+router.get("/",limiter, getAllSubjects);
+router.get("/:id",limiter, getSubject);
+router.post("/", limiter, createSubject);
+
 export default router;

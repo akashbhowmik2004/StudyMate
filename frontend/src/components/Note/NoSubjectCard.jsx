@@ -1,7 +1,7 @@
 import { FaBook } from "react-icons/fa";
 const NoSubjectCard = () => {
   return (
-    <div className="flex h-full min-h-[60vh] items-center justify-center rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center">
+    <div className="mx-auto flex  max-w-2xl items-center justify-center rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-10 text-center">
       <div className="max-w-sm">
         <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-300/10 text-teal-200">
           <FaBook className="text-lg" />

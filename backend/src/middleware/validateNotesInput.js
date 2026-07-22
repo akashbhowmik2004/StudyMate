@@ -8,7 +8,10 @@ export const validateCreateNote = (req, res, next) => {
     console.log(error);
     return res.status(400).json({
       success: false,
-      message: error.details[0].message.replace(/"/g, ""),
+      field: error.details[0].path[0],
+      message: error.details.map((message) => {
+        return message.message;
+      }),
     });
   }
 
@@ -21,7 +24,10 @@ export const validateEditNote = (req, res, next) => {
     console.log(error);
     return res.status(400).json({
       success: false,
-      message: error.details[0].message.replace(/"/g, ""),
+      field: error.details[0].path[0],
+      message: error.details.map((message) => {
+        return message.message;
+      }),
     });
   }
 

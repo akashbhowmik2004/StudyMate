@@ -1,6 +1,6 @@
 /**
  * StudyMate Community — matches the "desk at night" identity used across
- * Dashboard / Notes / Schedule / Settings: ink canvas, one warm lamp
+ * Dashboard / Notes / Schedule / Settings: ink canvas, one cyan lamp
  * accent, paper-toned surfaces, Fraunces for headings.
  *
  * UI-only, same as before — no state, handlers, or data fetching, every
@@ -38,16 +38,16 @@ export default function Community() {
     <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA]">
       <StudyMateHeader />
 
-      {/* lamp glow, matches the rest of the app */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_6%,rgba(232,163,61,0.14),transparent_36%),radial-gradient(circle_at_92%_12%,rgba(111,207,151,0.08),transparent_32%),linear-gradient(180deg,rgba(11,13,18,1),rgba(7,8,11,1))]" />
-      <div className="pointer-events-none absolute -left-28 top-24 h-72 w-72 rounded-full bg-[#E8A33D]/8 blur-3xl" />
-      <div className="pointer-events-none absolute -right-28 top-60 h-80 w-80 rounded-full bg-[#6FCF97]/8 blur-3xl" />
+      {/* lamp glow — cyan tint to match Note/Dashboard's cyan accent */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_6%,rgba(34,211,238,0.12),transparent_36%),radial-gradient(circle_at_92%_12%,rgba(34,211,238,0.06),transparent_32%),linear-gradient(180deg,rgba(11,13,18,1),rgba(7,8,11,1))]" />
+      <div className="pointer-events-none absolute -left-28 top-24 h-72 w-72 rounded-full bg-cyan-400/8 blur-3xl" />
+      <div className="pointer-events-none absolute -right-28 top-60 h-80 w-80 rounded-full bg-cyan-300/8 blur-3xl" />
 
       <main className="relative flex min-h-[calc(100vh-4rem)]">
         {/* ---------------- Sidebar: communities ---------------- */}
         <aside className="flex w-full max-w-xs shrink-0 flex-col border-r border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl sm:max-w-sm">
           <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8A33D]/15 text-[#E8A33D]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-200/20 bg-cyan-400/10 text-cyan-200">
               <FaUsers className="text-sm" />
             </span>
             <h2 className="font-['Fraunces',_serif] text-xl font-medium tracking-tight text-white">
@@ -60,11 +60,11 @@ export default function Community() {
             <input
               type="text"
               placeholder="Create a community (e.g. NEET Aspirants)"
-              className="w-full rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-[#E8A33D]/60 focus:bg-[#0B0D12]/80 focus:ring-2 focus:ring-[#E8A33D]/20"
+              className="w-full rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-cyan-400/60 focus:bg-[#0B0D12]/80 focus:ring-2 focus:ring-cyan-400/20"
             />
             <button
               type="submit"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#E8A33D] px-4 py-3 text-sm font-semibold text-[#0B0D12] shadow-[0_8px_24px_-8px_rgba(232,163,61,0.5)] transition hover:bg-[#F2BE6D] active:scale-[0.99]"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-[#0B0D12] shadow-[0_8px_24px_-8px_rgba(34,211,238,0.5)] transition hover:bg-cyan-300 active:scale-[0.99]"
             >
               <FaPlus className="text-xs" />
               Create Community
@@ -76,7 +76,7 @@ export default function Community() {
             <input
               type="text"
               placeholder="Join with a code or name"
-              className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-[#E8A33D]/60 focus:ring-2 focus:ring-[#E8A33D]/20"
+              className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20"
             />
             <button
               type="submit"
@@ -92,7 +92,7 @@ export default function Community() {
             <input
               type="text"
               placeholder="Search your communities"
-              className="w-full rounded-xl border border-white/10 bg-[#0B0D12]/40 py-2.5 pl-9 pr-3 text-xs text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-[#E8A33D]/60"
+              className="w-full rounded-xl border border-white/10 bg-[#0B0D12]/40 py-2.5 pl-9 pr-3 text-xs text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-cyan-400/60"
             />
           </div>
 
@@ -248,7 +248,7 @@ export default function Community() {
                       <span className="text-sm font-medium text-white">
                         Arjun K.
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#E8A33D]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#F2BE6D]">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-cyan-400/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-cyan-200">
                         <FaQuestionCircle className="text-[9px]" />
                         Doubt
                       </span>
@@ -256,12 +256,12 @@ export default function Community() {
                         9:26 AM
                       </span>
                     </div>
-                    <p className="mt-1 max-w-md rounded-2xl rounded-tl-sm border border-[#E8A33D]/25 bg-[#E8A33D]/[0.06] px-4 py-2.5 text-sm leading-relaxed text-[#EDE7DA]/85">
+                    <p className="mt-1 max-w-md rounded-2xl rounded-tl-sm border border-cyan-400/25 bg-cyan-400/[0.06] px-4 py-2.5 text-sm leading-relaxed text-[#EDE7DA]/85">
                       Why does BFS use a queue instead of a stack for shortest
                       path in an unweighted graph? Still confused on the
                       intuition.
                     </p>
-                    <button className="mt-1.5 text-xs font-medium text-[#F2BE6D] hover:text-[#F7CE85]">
+                    <button className="mt-1.5 text-xs font-medium text-cyan-200 hover:text-cyan-100">
                       3 replies
                     </button>
                   </div>
@@ -278,12 +278,12 @@ export default function Community() {
                         You
                       </span>
                     </div>
-                    <p className="mt-1 ml-auto max-w-md rounded-2xl rounded-tr-sm bg-[#E8A33D]/20 px-4 py-2.5 text-left text-sm leading-relaxed text-[#F3ECDD]">
+                    <p className="mt-1 ml-auto max-w-md rounded-2xl rounded-tr-sm bg-cyan-400/20 px-4 py-2.5 text-left text-sm leading-relaxed text-[#EDE7DA]">
                       Because BFS explores level by level, a queue keeps
                       earlier (shorter-path) nodes ahead of later ones.
                     </p>
                   </div>
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#E8A33D]/30 text-xs font-semibold text-[#F2BE6D]">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-400/30 text-xs font-semibold text-cyan-200">
                     Me
                   </span>
                 </div>
@@ -304,11 +304,11 @@ export default function Community() {
                   <textarea
                     rows={1}
                     placeholder="Send a message or ask a doubt to the community..."
-                    className="max-h-32 min-h-[46px] flex-1 resize-none rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-[#E8A33D]/60 focus:ring-2 focus:ring-[#E8A33D]/20"
+                    className="max-h-32 min-h-[46px] flex-1 resize-none rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20"
                   />
                   <button
                     type="submit"
-                    className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-2xl bg-[#E8A33D] text-[#0B0D12] shadow-[0_8px_24px_-8px_rgba(232,163,61,0.5)] transition hover:bg-[#F2BE6D] active:scale-[0.97]"
+                    className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-2xl bg-cyan-400 text-[#0B0D12] shadow-[0_8px_24px_-8px_rgba(34,211,238,0.5)] transition hover:bg-cyan-300 active:scale-[0.97]"
                   >
                     <FaPaperPlane className="text-sm" />
                   </button>

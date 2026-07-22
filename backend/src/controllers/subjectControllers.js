@@ -1,4 +1,5 @@
 import Subject from "../models/subject.js";
+import Note from "../models/notes.js";
 
 export const getSubject = async (req, res) => {
   try {
@@ -22,24 +23,60 @@ export const getSubject = async (req, res) => {
   }
 };
 
-export const createSubject = async(req,res) => {
-    const { name } = req.body;
-    try{
-        const newSubject = new Subject({
-            name,
-            userId: req.user.id
-        });
-        await newSubject.save();
-        res.status(201).json({
-            success: true,
-            subject: newSubject,
-            message: "Subject created successfully"
-        });
-    }catch(err){
-        console.log(err);
-        res.status(500).json({
-            success: false,
-            message: "Something went wrong"
-        });
+export const getAllSubjects = async (req, res) => {
+  try {
+    const subjects = await Subject.find({ userId: req.user.id });
+    if (!subjects) {
+      return res.status(404).json({
+        success: false,
+        message: "No subjects found",
+      });
     }
-}
+    const subjectsWithCount = await Promise.all(
+      subjects.map(async (subject) => {
+        const count = await Note.countDocuments({
+          subjectId: subject._id,
+          userId: req.user.id,
+        });
+
+        return {
+          ...subject.toObject(),
+          count,
+        };
+      }),
+    );
+
+    res.status(200).json({
+      success: true,
+      subjects: subjectsWithCount,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const createSubject = async (req, res) => {
+  const { name } = req.body;
+  try {
+    const newSubject = new Subject({
+      name,
+      userId: req.user.id,
+    });
+    await newSubject.save();
+    res.status(201).json({
+      success: true,
+      subject: newSubject,
+      message: "Subject created successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};

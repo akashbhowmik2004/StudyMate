@@ -24,30 +24,90 @@ export const getNotes = async (req, res) => {
   }
 };
 
-export const getAllNotes = async(req,res) =>{
-  try{
-    const allNotes = await notes.find({userId:req.user.id});
-    if(!allNotes){
+export const getAllNotes = async (req, res) => {
+  const { subjectId, type } = req.query;
+  try {
+    console.log(req.query);
+    const filter = { userId: req.user.id };
+    if (subjectId) {
+      filter.subjectId = subjectId;
+    }
+    if (type && type !== "all") {
+      filter.type = type;
+    }
+    const allNotes = await notes.find(filter);
+    if (!allNotes) {
       return res.status(404).json({
         success: false,
         message: "No notes found",
       });
     }
+    const allCount = await notes.countDocuments({
+      userId: req.user.id,
+      subjectId,
+    });
+
+    const textCount = await notes.countDocuments({
+      userId: req.user.id,
+      subjectId,
+      type: "text",
+    });
+
+    const imageCount = await notes.countDocuments({
+      userId: req.user.id,
+      subjectId,
+      type: "image",
+    });
+
+    const pdfCount = await notes.countDocuments({
+      userId: req.user.id,
+      subjectId,
+      type: "pdf",
+    });
     res.status(200).json({
       success: true,
-      allNotes
+      notes: allNotes,
+      counts: {
+        all: allCount,
+        text: textCount,
+        image: imageCount,
+        pdf: pdfCount,
+      },
     });
-  }catch(err){
+  } catch (err) {
     console.log(err);
     res.status(500).json({
       success: false,
       message: "Something went wrong",
     });
   }
-}
+};
+
+export const getNotesBySubject = async (req, res) => {
+  const { subjectId } = req.params;
+  try {
+    const notesBySubject = await notes.find({ subjectId, userId: req.user.id });
+    if (!notesBySubject) {
+      return res.status(404).json({
+        success: false,
+        message: "No notes found for this subject",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      notes: notesBySubject,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
 
 export const createNotes = async (req, res) => {
-  const { type,title, content, subjectId } = req.body;
+  const { type, title, content, subjectId } = req.body;
 
   try {
     const newNote = new notes({
