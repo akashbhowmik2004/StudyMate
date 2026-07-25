@@ -7,25 +7,28 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import commentRoutes from "./src/routers/commentRoutes.js";
 import communityRoutes from "./src/routers/communityRoutes.js";
-import noteRoutes from "./src/routers/noteRoutes.js"
-import userRoutes from "./src/routers/userRoutes.js"
-import subjectRoutes from "./src/routers/subjectRoutes.js"
+import noteRoutes from "./src/routers/noteRoutes.js";
+import userRoutes from "./src/routers/userRoutes.js";
+import subjectRoutes from "./src/routers/subjectRoutes.js";
 import { limiter } from "./src/middleware/rateLimiter.js";
 import cors from "cors";
+import path from "path";
 
 const app = express();
 const port = 3000;
 dotenv.config();
 
 app.use(
-    cors({
-      origin: "http://localhost:5173",
-      credentials: true,
-    }),
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
 );
+app.use("/uploads", express.static(path.join(process.cwd(), "src/uploads")));
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
 app.use("/auth", authRoutes);
 app.use("/api/users", requireAuth, userRoutes);

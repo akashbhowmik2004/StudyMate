@@ -23,6 +23,7 @@ const filters = [
 const AddNoteCard = ({ activeSubject }) => {
   const [notes, setNotes] = useState([]);
   const [errors, setErrors] = useState({});
+  const [file, setFile] = useState(null);
   const [note, setNote] = useState({
     title: "",
     content: "",
@@ -72,18 +73,21 @@ const AddNoteCard = ({ activeSubject }) => {
 
   const handleAddNote = async (e) => {
     e.preventDefault();
+    const formData = new FormData();
+    formData.append("title", note.title);
+    formData.append("content", note.content);
+    formData.append("type", note.type);
+    formData.append("subjectId", activeSubject ? activeSubject._id : null);
     try {
-      if (!note.title || !note.content || !note.type) {
-        toast.error("Please fill all the fields");
+      if (file) {
+        formData.append("file", file);
       }
-      await api.post("/notes", {
-        title: note.title,
-        content: note.content,
-        type: note.type,
-        subjectId: activeSubject ? activeSubject._id : null,
-      });
+      console.log(file);
+      await api.post("/notes", formData);
       await fetchNotesBySubject();
+      setFile(null);
       setErrors({});
+      setActiveButton("text");
       toast.success("Note added successfully");
       setNote({
         title: "",
@@ -175,7 +179,11 @@ const AddNoteCard = ({ activeSubject }) => {
           </button>
         </div>
 
-        <form className="mt-4 space-y-3" onSubmit={handleAddNote}>
+        <form
+          className="mt-4 space-y-3"
+          onSubmit={handleAddNote}
+          encType="multipart/form-data"
+        >
           {errors.title && (
             <p className="text-xs font-medium text-red-400">{errors.title}</p>
           )}
@@ -198,7 +206,6 @@ const AddNoteCard = ({ activeSubject }) => {
             name="content"
             onChange={onNoteChange}
             value={note.content}
-            rows={3}
             placeholder="Write note content (optional if PDF/image is added)"
             className={`w-full resize-none rounded-xl border border-white/10 bg-[#0B0D12]/50 px-3.5 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20${
               errors.content
@@ -207,8 +214,12 @@ const AddNoteCard = ({ activeSubject }) => {
             }`}
           />
           <div className="flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
-            {note.type === "image" && <UploadButton type="image" />}
-            {note.type === "pdf" && <UploadButton type="pdf" />}
+            {note.type === "image" && (
+              <UploadButton type="image" setFile={setFile} />
+            )}
+            {note.type === "pdf" && (
+              <UploadButton type="pdf" setFile={setFile} />
+            )}
             <button
               type="submit"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-[#0B0D12] shadow-[0_8px_24px_-8px_rgba(34,211,238,0.5)] transition hover:bg-cyan-300 active:scale-[0.99]"
@@ -246,7 +257,11 @@ const AddNoteCard = ({ activeSubject }) => {
       {/* notes grid */}
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 items-start">
         {notes.map((note) => (
-          <NoteCard key={note._id} note={note} />
+          <NoteCard
+            key={note._id}
+            note={note}
+            fetchNotesBySubject={fetchNotesBySubject}
+          />
         ))}
       </div>
     </section>

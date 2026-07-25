@@ -47,6 +47,9 @@ const SignUp = () => {
         [err.response.data.field]: err.response.data.message,
         ErrorCode: err.response.status,
       });
+      if(errors.ErrorCode === 11000){
+        console.log("User already exists");
+      }
     }finally{
       setLoading(false);
     }

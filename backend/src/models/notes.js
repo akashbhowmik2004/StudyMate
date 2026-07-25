@@ -18,11 +18,12 @@ const noteSchema = new mongoose.Schema(
     },
     content: {
       type: String,
-      required: true,
     },
-    tags: {
-      type: Array,
-      default: [],
+    fileUrl: {
+      type: String,
+    },
+    publicId: {
+      type: String,
     },
     type: {
       type: String,

@@ -110,12 +110,14 @@ export const createNotes = async (req, res) => {
   const { type, title, content, subjectId } = req.body;
 
   try {
+    console.log(req.body);
     const newNote = new notes({
       type,
       title,
       content,
       subjectId,
       userId: req.user.id,
+      fileUrl: req.file ? req.file.filename : null,
     });
     await newNote.save();
     res.status(201).json({

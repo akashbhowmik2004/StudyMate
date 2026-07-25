@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoutes.jsx";
 import Setting from "./pages/Setting.jsx";
 import Community from "./pages/Community.jsx";
 import Schedule from "./pages/Schedule.jsx";
+import DoubtsFeed from "./pages/DoubtsFeed.jsx";
 
 const App = () => {
   return (
@@ -51,6 +52,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Schedule/>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doubts"
+          element={
+            <ProtectedRoute>
+              <DoubtsFeed/>
             </ProtectedRoute>
           }
         />

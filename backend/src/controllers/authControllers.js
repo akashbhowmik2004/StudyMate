@@ -75,6 +75,7 @@ export const signup = async (req, res) => {
     if (err.errorResponse.code === 11000) {
       return res.status(400).json({
         success: false,
+        field: "username",
         message: "Username already exists",
       });
     }
@@ -142,12 +143,12 @@ export const logout = (req, res) => {
   }
 };
 
-export const verifyUsers =  async (req, res) => {
+export const verifyUsers = async (req, res) => {
   try {
-    const userData = await User.findById(req.user.id).select("username email");;
+    const userData = await User.findById(req.user.id).select("username email");
     res.status(200).json({
       success: true,
-      user: userData
+      user: userData,
     });
   } catch (error) {
     res.status(500).json({
@@ -155,4 +156,4 @@ export const verifyUsers =  async (req, res) => {
       message: "Server Error",
     });
   }
-}
+};
