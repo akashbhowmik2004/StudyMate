@@ -1,5 +1,5 @@
 import notes from "../models/notes.js";
-
+import { unlink } from 'node:fs';
 export const getNotes = async (req, res) => {
   const { id } = req.params;
 
@@ -143,7 +143,7 @@ export const editNote = async (req, res) => {
       { returnDocument: "after" },
     );
     if (!updatedNote) {
-      res.status(404).json({
+      return res.status(404).json({
         success: false,
         message: "Note not found",
       });
@@ -163,10 +163,18 @@ export const editNote = async (req, res) => {
 };
 
 export const deleteNote = async (req, res) => {
-  const { id: doubtId } = req.params;
+  const { id } = req.params;
   try {
-    const note = await notes.findByIdAndDelete(doubtId);
-
+    const note = await notes.findByIdAndDelete(id);
+    if (note.fileUrl) {
+      unlink(`./src/uploads/${note.fileUrl}`, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+        } else {
+          console.log("File deleted successfully");
+        }
+      });
+    }
     if (!note) {
       return res.status(404).json({
         success: false,
