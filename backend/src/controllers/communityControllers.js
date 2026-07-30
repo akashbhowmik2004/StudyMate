@@ -1,18 +1,23 @@
 import Community from "../models/community.js";
-
+import Message from "../models/message.js";
+import generateCommunityCode from "../utils/generateCommunityCode.js";
 export const createCommunity = async (req, res) => {
-  const { name, description } = req.body;
+  const { name} = req.body;
 
   try {
-    if (!name || !description) {
+    if (!name) {
       return res.status(400).json({
         success: false,
         message: "Name or description can't be empty",
       });
     }
+    let uniqueCode;
+    do {
+      uniqueCode = generateCommunityCode();
+    } while (await Community.exists({ uniqueCode }));
     const newCommunity = new Community({
       name,
-      description,
+      uniqueCode,
       creatorId: req.user.id,
       members: [req.user.id],
     });
@@ -62,18 +67,41 @@ export const findCommunity = async (req, res) => {
   }
 };
 
+export const getAllCommunities = async (req, res) => {
+  try {
+    const communities = await Community.find({creatorId: req.user.id});
+    if(!communities) {
+      return res.status(404).json({
+        success: false,
+        message: "No communities found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Communities fetched successfully",
+      communities,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 export const joinCommunity = async (req, res) => {
-  const { id } = req.params;
+  const { uniqueCode } = req.body;
 
   try {
-    const community = await Community.findById(id);
-    if (!community) {
+    const findCommunity = await Community.findOne({ uniqueCode });
+    if (!findCommunity) {
       return res.status(404).json({
         success: false,
         message: "Can't find community",
       });
     }
-    const alreadyJoined = community.members.some(
+    const alreadyJoined = findCommunity.members.some(
       (member) => member.toString() === req.user.id,
     );
 
@@ -83,12 +111,12 @@ export const joinCommunity = async (req, res) => {
         message: "You already joined this community",
       });
     }
-    await community.updateOne({
-      $push: { members: req.user.id },
-    });
+    findCommunity.members.push(req.user.id);
+    await findCommunity.save();
     res.status(200).json({
       success: true,
       message: "You joined successfully",
+      findCommunity,
     });
   } catch (err) {
     console.log(err);
@@ -125,7 +153,7 @@ export const leaveCommunity = async (req, res) => {
     });
     res.status(200).json({
       success: true,
-      message: "You leave this community successfully",
+      message: "You left this community successfully",
     });
   } catch (err) {
     console.log(err);
@@ -148,6 +176,7 @@ export const deleteCommunity = async (req, res) => {
       });
     }
     await Community.findByIdAndDelete(id);
+    await Message.deleteMany({ community: id });
     res.status(200).json({
       success: true,
       message: "Community deleted successfully",

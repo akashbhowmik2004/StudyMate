@@ -11,7 +11,7 @@ import { api } from "../../lib/axois.js";
 import { toast } from "react-hot-toast";
 import EditNoteModal from "./EditNoteModal.jsx";
 
-const NoteCard = ({ note, fetchNotesBySubject }) => {
+const NoteCard = ({ note, fetchNotesBySubject, fetchSubjects }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const menuRef = useRef(null);
@@ -35,6 +35,7 @@ const NoteCard = ({ note, fetchNotesBySubject }) => {
     try {
       await api.delete(`/notes/${note._id}`);
       await fetchNotesBySubject();
+      await fetchSubjects();
       toast.success("Note deleted successfully");
     } catch (error) {
       toast.error("Failed to delete note");

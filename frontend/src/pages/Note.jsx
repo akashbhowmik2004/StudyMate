@@ -1,4 +1,4 @@
-import { FaBook, FaGraduationCap, FaPlus } from "react-icons/fa";
+import { FaBook, FaGraduationCap, FaPlus, FaTrashAlt } from "react-icons/fa";
 import StudyMateHeader from "../components/StudyMateHeader.jsx";
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
@@ -10,15 +10,19 @@ import AddNoteCard from "../components/Note/AddNoteCard.jsx";
 
 export default function Note() {
   const [subjects, setSubjects] = useState([]);
-
+  const [noteCount, setNoteCount] = useState(0);
   const [subject, setSubject] = useState({ name: "" });
 
-  // The currently clicked/selected subject. null until the user picks one.
   const [activeSubject, setActiveSubject] = useState(null);
 
   const fetchSubjects = async () => {
     try {
       const response = await api.get("/subjects");
+      if (!response) {
+        setSubjects([]);
+        return;
+      }
+      setNoteCount(response.data.totalNotes);
       setSubjects(response.data.subjects);
     } catch (err) {
       console.log(err);
@@ -62,6 +66,22 @@ export default function Note() {
     } catch (err) {
       console.log(err);
       toast.error("Failed to add subject");
+    }
+  };
+
+  const handleDeleteSubject = async (e, s) => {
+    e.stopPropagation();
+    try {
+      await api.delete(`/subjects/${s._id}`);
+      if (activeSubject?._id === s._id) {
+        setActiveSubject(null);
+      }
+      await fetchSubjects();
+      setActiveSubject(null);
+      toast.success("Subject deleted successfully");
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to delete subject");
     }
   };
 
@@ -114,10 +134,17 @@ export default function Note() {
               console.log(s);
               console.log(activeSubject);
               return (
-                <button
+                <div
                   key={s._id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setActiveSubject(s)}
-                  className={`flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition ${
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setActiveSubject(s);
+                    }
+                  }}
+                  className={`flex w-full cursor-pointer items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition ${
                     isActive
                       ? "border-transparent bg-cyan-400 shadow-[0_8px_24px_-8px_rgba(34,211,238,0.5)]"
                       : "border-transparent bg-transparent hover:bg-white/[0.04]"
@@ -141,7 +168,19 @@ export default function Note() {
                   >
                     {s.count}
                   </span>
-                </button>
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeleteSubject(e, s)}
+                    aria-label={`Delete ${s.name}`}
+                    className={`shrink-0 rounded-lg p-1.5 transition ${
+                      isActive
+                        ? "text-[#0B0D12]/60 hover:bg-[#0B0D12]/10 hover:text-[#0B0D12]"
+                        : "text-slate-500 hover:bg-white/5 hover:text-red-400"
+                    }`}
+                  >
+                    <FaTrashAlt className="text-xs" />
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -149,7 +188,7 @@ export default function Note() {
           <div className="mt-6 rounded-2xl border border-white/10 bg-[#0B0D12]/40 p-4">
             <p className="inline-flex items-center gap-2 text-xs font-medium text-slate-400">
               <FaGraduationCap className="text-cyan-200" />
-              43 notes across {subjects.length} subjects
+              {noteCount} notes across {subjects.length} subjects
             </p>
           </div>
         </aside>
@@ -160,7 +199,7 @@ export default function Note() {
             <NoSubjectCard />
           </div>
         ) : (
-          <AddNoteCard activeSubject={activeSubject} />
+          <AddNoteCard activeSubject={activeSubject} fetchSubjects={fetchSubjects} />
         )}
       </main>
     </div>

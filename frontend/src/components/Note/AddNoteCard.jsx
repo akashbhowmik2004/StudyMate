@@ -1,5 +1,4 @@
 import {
-  FaChevronDown,
   FaFilePdf,
   FaImage,
   FaPlus,
@@ -20,7 +19,7 @@ const filters = [
   { label: "PDFs", value: "pdf" },
 ];
 
-const AddNoteCard = ({ activeSubject }) => {
+const AddNoteCard = ({ activeSubject, fetchSubjects }) => {
   const [notes, setNotes] = useState([]);
   const [errors, setErrors] = useState({});
   const [file, setFile] = useState(null);
@@ -88,6 +87,7 @@ const AddNoteCard = ({ activeSubject }) => {
       setFile(null);
       setErrors({});
       setActiveButton("text");
+      await fetchSubjects();
       toast.success("Note added successfully");
       setNote({
         title: "",
@@ -122,11 +122,6 @@ const AddNoteCard = ({ activeSubject }) => {
           <h2 className="mt-1 font-['Fraunces',_serif] text-2xl font-medium tracking-tight text-white sm:text-3xl">
             {activeSubject ? activeSubject.name : "No subject selected"}
           </h2>
-          <p className="mt-1 text-xs text-slate-400">
-            {activeSubject
-              ? `${activeSubject.count} notes · last studied today`
-              : "Pick a subject from the sidebar"}
-          </p>
         </div>
 
         <div className="flex items-center gap-2.5">
@@ -139,7 +134,7 @@ const AddNoteCard = ({ activeSubject }) => {
             />
           </div>
           <button className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-[#EDE7DA]/70 transition hover:bg-white/[0.08]">
-            Newest first <FaChevronDown className="text-[10px]" />
+            Search 
           </button>
         </div>
       </div>
@@ -261,6 +256,7 @@ const AddNoteCard = ({ activeSubject }) => {
             key={note._id}
             note={note}
             fetchNotesBySubject={fetchNotesBySubject}
+            fetchSubjects={fetchSubjects}
           />
         ))}
       </div>

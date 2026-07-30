@@ -43,7 +43,7 @@ const App = () => {
           path="/community"
           element={
             <ProtectedRoute>
-              <Community/>
+              <Community />
             </ProtectedRoute>
           }
         />
@@ -51,7 +51,7 @@ const App = () => {
           path="/schedule"
           element={
             <ProtectedRoute>
-              <Schedule/>
+              <Schedule />
             </ProtectedRoute>
           }
         />
@@ -59,7 +59,7 @@ const App = () => {
           path="/doubts"
           element={
             <ProtectedRoute>
-              <DoubtsFeed/>
+              <DoubtsFeed />
             </ProtectedRoute>
           }
         />
