@@ -1,12 +1,29 @@
 import { useEffect, useRef } from "react";
 import MessageCard from "./MessageCard";
+import socket from "../../lib/socket.js";
 
-const MessageFeed = ({ messages }) => {
+const MessageFeed = ({ messages, setMessages }) => {
   const bottomRef = useRef(null);
-  console.log("MessageFeed messages:", messages); // Debugging line to check the messages prop
+  const handleReceiveMessage = (message) => {
+    setMessages(
+      (prevMessages) => {
+        console.log("MessageFeed handleReceiveMessage prev:", prevMessages); // Debugging line to check the previous state
+        console.log("MessageFeed handleReceiveMessage message:", message); // Debugging line to check the received message
+        return [...prevMessages, message];
+      }
+    );
+  };
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+
+    socket.on("receiveMessage", handleReceiveMessage);
+
+    return () => {
+      socket.off("receiveMessage", handleReceiveMessage);
+    };
   }, [messages]);
+
+  console.log("MessageFeed messages after useEffect:", messages); // Debugging line to check the messages state after useEffect
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-6 sm:px-8">
@@ -17,8 +34,8 @@ const MessageFeed = ({ messages }) => {
       </div>
 
       <div className="flex flex-1 flex-col justify-end space-y-5">
-        {messages.map((msg, index) => (
-          <MessageCard key={index} type="me" message={msg.text} />
+        {messages && messages.map((msg, index) => (
+          <MessageCard key={index} message={msg} />
         ))}
         <div ref={bottomRef} />
       </div>

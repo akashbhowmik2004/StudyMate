@@ -3,28 +3,25 @@ import { FaPlus, FaSearch, FaUsers } from "react-icons/fa";
 import CommunityCard from "./CommunityCard";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import socket from "../../lib/socket.js";
 const CommunitySidebar = ({
   setActiveCommunity,
   activeCommunity,
   setMessages,
+  getCommunities,
+  communities,
+  getJoinedCommunities,
+  joinedCommunities,
+  setJoinedCommunities,
 }) => {
   const [createCommunities, setCreateCommunities] = useState({ name: "" });
   const [joinCommunityCode, setJoinCommunityCode] = useState({
     uniqueCode: "",
   });
-  const [joinedCommunities, setJoinedCommunities] = useState([]);
-  const [communities, setCommunities] = useState([]);
-  const getCommunities = async () => {
-    try {
-      const response = await api.get("/communities");
-      setCommunities(response.data.communities);
-    } catch (err) {
-      console.log(err);
-      toast.error("Failed to fetch communities");
-    }
-  };
+
   useEffect(() => {
     getCommunities();
+    getJoinedCommunities();
   }, []);
   const handleCreateCommunity = async (e) => {
     e.preventDefault();
@@ -74,10 +71,13 @@ const CommunitySidebar = ({
       }
 
       const response = await api.put("/communities/join", joinCommunityCode);
+      console.log(response.data);
       const { findCommunity } = response.data;
       setJoinedCommunities([...joinedCommunities, findCommunity]);
       setJoinCommunityCode({ uniqueCode: "" });
-
+      if(response.data.success) {
+        socket.emit("joinCommunity", findCommunity._id);
+      }
       toast.success(response.data.message);
       console.log(response.data);
     } catch (err) {
@@ -157,8 +157,8 @@ const CommunitySidebar = ({
           Created
         </p>
 
-        {communities.map((community) => {
-          return (
+        {communities.length > 0 ? (
+          communities.map((community) => (
             <CommunityCard
               key={community._id}
               name={community.name}
@@ -167,29 +167,44 @@ const CommunitySidebar = ({
               setActiveCommunity={setActiveCommunity}
               activeCommunity={activeCommunity}
               getCommunities={getCommunities}
+              getJoinedCommunities={getJoinedCommunities}
               setMessages={setMessages}
             />
-          );
-        })}
+          ))
+        ) : (
+          <div className="flex h-20 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0B0D12]/30">
+            <p className="px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#EDE7DA]/40">
+              Create a community to see it here
+            </p>
+          </div>
+        )}
         <p className="mb-1 mt-5 px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#EDE7DA]/40">
           Joined
         </p>
 
-        {joinedCommunities.map((community) => {
-          console.log(joinedCommunities);
-          return (
-            <CommunityCard
-              key={community._id}
-              name={community.name}
-              members={community.members.length}
-              community={community}
-              setActiveCommunity={setActiveCommunity}
-              activeCommunity={activeCommunity}
-              getCommunities={getCommunities}
-              setMessages={setMessages}
-            />
-          );
-        })}
+        {joinedCommunities.length > 0 ? (
+          joinedCommunities.map((community) => {
+            console.log(joinedCommunities);
+            return (
+              <CommunityCard
+                key={community._id}
+                name={community.name}
+                members={community.members.length}
+                community={community}
+                setActiveCommunity={setActiveCommunity}
+                activeCommunity={activeCommunity}
+                getCommunities={getCommunities}
+                setMessages={setMessages}
+              />
+            );
+          })
+        ) : (
+          <div className="flex h-20 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0B0D12]/30">
+            <p className="px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#EDE7DA]/40">
+              No communities joined
+            </p>
+          </div>
+        )}
       </div>
     </aside>
   );

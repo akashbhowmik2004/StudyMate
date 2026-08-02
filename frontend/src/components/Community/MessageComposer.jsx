@@ -1,10 +1,10 @@
 import { FaPaperPlane, FaQuestionCircle } from "react-icons/fa";
 import { api } from "../../lib/axois.js";
+import socket from "../../lib/socket.js";
+
 const MessageComposer = ({
   message,
   setMessage,
-  messages,
-  setMessages,
   activeCommunity,
 }) => {
   const handleSendMessage = async (e) => {
@@ -17,7 +17,8 @@ const MessageComposer = ({
         text: message,
         communityId: activeCommunity._id,
       });
-      setMessages([...messages, newMessage.data]);
+      console.log("New message sent:", newMessage.data);
+      socket.emit("message", newMessage.data);
     } catch (err) {
       console.log(err);
     }

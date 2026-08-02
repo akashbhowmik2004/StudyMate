@@ -9,9 +9,11 @@ import {
   FaCopy,
 } from "react-icons/fa";
 
+import {api} from "../../lib/axois.js";
+import socket from "../../lib/socket.js";
 import toast from "react-hot-toast";
 
-const CommunityHeader = ({ activeCommunity, onLeave }) => {
+const CommunityHeader = ({ activeCommunity, getCommunities, setActiveCommunity, getJoinedCommunities }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -25,6 +27,19 @@ const CommunityHeader = ({ activeCommunity, onLeave }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleLeaveCommunity = async () => {
+    try {
+      const response = await api.put(`/communities/leave/${activeCommunity._id}`);
+      toast.success(response.data.message);
+      await Promise.all([getCommunities(), getJoinedCommunities()]);
+      socket.emit("leaveCommunity", activeCommunity._id);
+      setActiveCommunity(null);
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to leave community");
+    }
+  };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(
@@ -103,7 +118,7 @@ const CommunityHeader = ({ activeCommunity, onLeave }) => {
 
               <button
                 onClick={() => {
-                  onLeave?.();
+                  handleLeaveCommunity();
                   setMenuOpen(false);
                 }}
                 className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/10"

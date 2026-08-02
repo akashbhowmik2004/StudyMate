@@ -1,13 +1,18 @@
-
+import User from "../models/user.js";
 import Message from "../models/message.js";
 
 export const createMessage = async (req, res) => {
   const { communityId, text } = req.body;
   try{
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
     const message = new Message({
       community: communityId,
       sender: req.user.id,
       text,
+      username: user.username,
     });
     await message.save();
     res.status(201).json(message);

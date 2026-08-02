@@ -5,11 +5,34 @@ import CommunityHeader from "../components/Community/CommunityHeader.jsx";
 import MessageFeed from "../components/Community/MessageFeed.jsx";
 import MessageComposer from "../components/Community/MessageComposer.jsx";
 import { useState } from "react";
+import { api } from "../lib/axois.js";
+import toast from "react-hot-toast";
 
 export default function Community() {
   const [activeCommunity, setActiveCommunity] = useState(null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
+  const [communities, setCommunities] = useState([]);
+  const [joinedCommunities, setJoinedCommunities] = useState([]);
+
+  const getJoinedCommunities = async () => {
+    try {
+      const response = await api.get("/communities/joined");
+      setJoinedCommunities(response.data.joinedCommunities);
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to fetch joined communities");
+    }
+  };
+  const getCommunities = async () => {
+    try {
+      const response = await api.get("/communities");
+      setCommunities(response.data.communities);
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to fetch communities");
+    }
+  };
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-[#0B0D12] text-[#EDE7DA]">
@@ -30,6 +53,11 @@ export default function Community() {
           setActiveCommunity={setActiveCommunity}
           activeCommunity={activeCommunity}
           setMessages={setMessages}
+          getCommunities={getCommunities}
+          communities={communities}
+          joinedCommunities={joinedCommunities}
+          setJoinedCommunities={setJoinedCommunities}
+          getJoinedCommunities={getJoinedCommunities}
         />
 
         {/* ---------------- Main panel: community feed ---------------- */}
@@ -53,11 +81,16 @@ export default function Community() {
             <>
               {/* community header — fixed */}
               <div className="shrink-0">
-                <CommunityHeader activeCommunity={activeCommunity} />
+                <CommunityHeader
+                  activeCommunity={activeCommunity}
+                  getCommunities={getCommunities}
+                  setActiveCommunity={setActiveCommunity}
+                  getJoinedCommunities={getJoinedCommunities}
+                />
               </div>
 
               {/* messages / doubts feed — the only scrollable area */}
-              <MessageFeed messages={messages} />
+              <MessageFeed messages={messages} setMessages={setMessages} />
 
               {/* composer — fixed */}
               <div className="shrink-0">

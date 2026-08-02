@@ -2,7 +2,7 @@ import Community from "../models/community.js";
 import Message from "../models/message.js";
 import generateCommunityCode from "../utils/generateCommunityCode.js";
 export const createCommunity = async (req, res) => {
-  const { name} = req.body;
+  const { name } = req.body;
 
   try {
     if (!name) {
@@ -69,8 +69,8 @@ export const findCommunity = async (req, res) => {
 
 export const getAllCommunities = async (req, res) => {
   try {
-    const communities = await Community.find({creatorId: req.user.id});
-    if(!communities) {
+    const communities = await Community.find({ creatorId: req.user.id });
+    if (!communities) {
       return res.status(404).json({
         success: false,
         message: "No communities found",
@@ -127,6 +127,26 @@ export const joinCommunity = async (req, res) => {
   }
 };
 
+export const getJoinedCommunities = async (req, res) => {
+  try {
+    const joinedCommunities = await Community.find({
+      members: req.user.id,
+      creatorId: { $ne: req.user.id }, // Exclude communities created by this user
+    });
+    res.status(200).json({
+      success: true,
+      message: "Joined communities fetched successfully",
+      joinedCommunities,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 export const leaveCommunity = async (req, res) => {
   const { id } = req.params;
 
@@ -173,6 +193,12 @@ export const deleteCommunity = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Can't find community",
+      });
+    }
+    if (community.creatorId.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You can not delete this community",
       });
     }
     await Community.findByIdAndDelete(id);

@@ -6,15 +6,17 @@ import {
   getAllCommunities,
   joinCommunity,
   leaveCommunity,
+  getJoinedCommunities,
 } from "../controllers/communityControllers.js";
 
 const router = Router();
 
 router.post("/", createCommunity);
 router.get("/", getAllCommunities);
-router.get("/:id", findCommunity);
+router.get("/joined", getJoinedCommunities);
 router.put("/join", joinCommunity);
 router.put("/leave/:id", leaveCommunity);
+router.get("/:id", findCommunity);
 router.delete("/:id", deleteCommunity);
 
 export default router;
