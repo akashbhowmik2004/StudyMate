@@ -12,15 +12,16 @@ import {
 import {api} from "../../lib/axois.js";
 import socket from "../../lib/socket.js";
 import toast from "react-hot-toast";
+import CommunityMemberCard from "./CommunityMemberCard.jsx";
 
-const CommunityHeader = ({ activeCommunity, getCommunities, setActiveCommunity, getJoinedCommunities }) => {
+const CommunityHeader = ({ activeCommunity, getCommunities, setActiveCommunity, getJoinedCommunities, communityMembers, getCommunityDetails}) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [membersOpen, setMembersOpen] = useState(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
-        console.log(activeCommunity);
         setMenuOpen(false);
       }
     };
@@ -68,14 +69,17 @@ const CommunityHeader = ({ activeCommunity, getCommunities, setActiveCommunity, 
           </h2>
           <p className="flex items-center gap-1 truncate text-xs text-[#EDE7DA]/45">
             <FaHashtag className="text-[10px]" />
-            general &middot; {activeCommunity?.members?.length || 0} members
-            &middot; 14 online
+            general {activeCommunity?.members?.length || 0} members
+            14 online
           </p>
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <button className="hidden shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/[0.1] sm:inline-flex">
+        <button
+          onClick={() => setMembersOpen(true)}
+          className="hidden shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/[0.1] sm:inline-flex"
+        >
           <FaUsers className="text-xs" />
           Members
         </button>
@@ -130,6 +134,10 @@ const CommunityHeader = ({ activeCommunity, getCommunities, setActiveCommunity, 
           )}
         </div>
       </div>
+
+      {membersOpen && (
+        <CommunityMemberCard setMembersOpen={setMembersOpen} activeCommunity={activeCommunity} communityMembers={communityMembers} getCommunityDetails={getCommunityDetails} getCommunities={getCommunities} getJoinedCommunities={getJoinedCommunities} />
+      )}
     </div>
   );
 };

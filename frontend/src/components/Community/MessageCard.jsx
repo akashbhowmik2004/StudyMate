@@ -1,15 +1,13 @@
 import useAuth from "../../context/useAuth.jsx";
 
-const MessageCard = ({ message, joinMessage }) => {
+const MessageCard = ({ message }) => {
   const { user } = useAuth();
   const isMe = message.sender === user?._id;
-  console.log(message);
   const time = new Date(message.createdAt).toLocaleTimeString("en-IN", {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
   });
-  console.log(time);
   return (
     <div className="flex items-start gap-3">
       {isMe ? (
@@ -30,12 +28,12 @@ const MessageCard = ({ message, joinMessage }) => {
       ) : (
         <>
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-[#EDE7DA]">
-            {message.username[0].toUpperCase()}
+            {message.username?.[0].toUpperCase()}
           </span>
           <div className="min-w-0">
             <div className="flex items-baseline gap-2">
               <span className="text-sm font-medium text-white">
-                {message.username}
+                {message.username || "Unknown User"}
               </span>
               <span className="text-[11px] text-[#EDE7DA]/35">{time}</span>
             </div>

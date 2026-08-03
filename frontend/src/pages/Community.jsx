@@ -14,6 +14,7 @@ export default function Community() {
   const [message, setMessage] = useState("");
   const [communities, setCommunities] = useState([]);
   const [joinedCommunities, setJoinedCommunities] = useState([]);
+  const [communityMembers, setCommunityMembers] = useState([]);
 
   const getJoinedCommunities = async () => {
     try {
@@ -31,6 +32,17 @@ export default function Community() {
     } catch (err) {
       console.log(err);
       toast.error("Failed to fetch communities");
+    }
+  };
+
+  const getCommunityDetails = async (communityId) => {
+    try {
+      const response = await api.get(`/communities/${communityId}`);
+      console.log(response.data.community.members);
+      setCommunityMembers(response.data.community.members);
+      return response.data.community;
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -58,6 +70,7 @@ export default function Community() {
           joinedCommunities={joinedCommunities}
           setJoinedCommunities={setJoinedCommunities}
           getJoinedCommunities={getJoinedCommunities}
+          getCommunityDetails={getCommunityDetails}
         />
 
         {/* ---------------- Main panel: community feed ---------------- */}
@@ -85,6 +98,9 @@ export default function Community() {
                   activeCommunity={activeCommunity}
                   getCommunities={getCommunities}
                   setActiveCommunity={setActiveCommunity}
+                  getJoinedCommunities={getJoinedCommunities}
+                  communityMembers={communityMembers}
+                  getCommunityDetails={getCommunityDetails}
                   getJoinedCommunities={getJoinedCommunities}
                 />
               </div>

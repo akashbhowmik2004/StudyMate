@@ -13,6 +13,7 @@ const CommunitySidebar = ({
   getJoinedCommunities,
   joinedCommunities,
   setJoinedCommunities,
+  getCommunityDetails,
 }) => {
   const [createCommunities, setCreateCommunities] = useState({ name: "" });
   const [joinCommunityCode, setJoinCommunityCode] = useState({
@@ -20,11 +21,13 @@ const CommunitySidebar = ({
   });
 
   useEffect(() => {
+    console.log("Created Communities:", communities);
     getCommunities();
     getJoinedCommunities();
   }, []);
   const handleCreateCommunity = async (e) => {
     e.preventDefault();
+
     try {
       if (createCommunities.name.trim() === "") {
         toast.error("Community name cannot be empty");
@@ -73,9 +76,12 @@ const CommunitySidebar = ({
       const response = await api.put("/communities/join", joinCommunityCode);
       console.log(response.data);
       const { findCommunity } = response.data;
+
       setJoinedCommunities([...joinedCommunities, findCommunity]);
+      await getCommunities();
+      await getJoinedCommunities();
       setJoinCommunityCode({ uniqueCode: "" });
-      if(response.data.success) {
+      if (response.data.success) {
         socket.emit("joinCommunity", findCommunity._id);
       }
       toast.success(response.data.message);
@@ -169,6 +175,7 @@ const CommunitySidebar = ({
               getCommunities={getCommunities}
               getJoinedCommunities={getJoinedCommunities}
               setMessages={setMessages}
+              getCommunityDetails={getCommunityDetails}
             />
           ))
         ) : (
@@ -194,7 +201,9 @@ const CommunitySidebar = ({
                 setActiveCommunity={setActiveCommunity}
                 activeCommunity={activeCommunity}
                 getCommunities={getCommunities}
+                getJoinedCommunities={getJoinedCommunities}
                 setMessages={setMessages}
+                getCommunityDetails={getCommunityDetails}
               />
             );
           })

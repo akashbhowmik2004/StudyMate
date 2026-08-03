@@ -46,7 +46,10 @@ export const findCommunity = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const community = await Community.findById(id);
+    const community = await Community.findById(id).populate(
+      "members",
+      "username",
+    );
     if (!community) {
       return res.status(404).json({
         success: false,
@@ -143,6 +146,48 @@ export const getJoinedCommunities = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Something went wrong",
+    });
+  }
+};
+
+export const removeMember = async (req, res) => {
+  const { memberId } = req.params;
+  const { id } = req.body;
+
+  try {
+    const community = await Community.findById(id);
+    console.log("community", community);
+    if (!community) {
+      return res.status(404).json({
+        success: false,
+        message: "Can't find community",
+      });
+    }
+    if (community.creatorId.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You can not remove members from this community",
+      });
+    }
+    if (memberId === req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You cannot remove yourself from the community.",
+      });
+    }
+    console.log("memberId", memberId);
+    console.log("community.members", community.members);
+    community.members.pull(memberId);
+    await community.save();
+    res.status(200).json({
+      success: true,
+      message: "Member removed successfully",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: err.message,
     });
   }
 };

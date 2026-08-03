@@ -11,6 +11,7 @@ const CommunityCard = ({
   getCommunities,
   getJoinedCommunities,
   setMessages,
+  getCommunityDetails,
 }) => {
   const isActive = activeCommunity?._id === community._id;
   const handleDeleteCommunity = async (e) => {
@@ -59,6 +60,8 @@ const CommunityCard = ({
     }
   };
 
+  
+
   return (
     <>
       <div
@@ -68,7 +71,10 @@ const CommunityCard = ({
       >
         <button
           className="flex min-w-0 flex-1 items-center gap-3 text-left"
-          onClick={onSelectCommunity}
+          onClick={() => {
+            onSelectCommunity();
+            getCommunityDetails(community._id);
+          }}
         >
           <span
             className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ${
