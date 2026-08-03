@@ -5,6 +5,7 @@ import { api } from "../../lib/axois.js";
 import useAuth from "../../context/useAuth.jsx";
 import toast from "react-hot-toast";
 
+
 const CommunityMemberCard = ({
   setMembersOpen,
   activeCommunity,
@@ -13,10 +14,15 @@ const CommunityMemberCard = ({
   getJoinedCommunities,
   getCommunities,
 }) => {
+  let isAdmin = false;
   const { user } = useAuth();
   const [confirmingId, setConfirmingId] = useState(null);
   const [removingId, setRemovingId] = useState(null);
   const [canRemoveMembers, setCanRemoveMembers] = useState(false);
+
+  if(activeCommunity?.creatorId === user?._id) {
+    isAdmin = true;
+  }
 
   useEffect(() => {
     if (!activeCommunity) return;
@@ -46,6 +52,7 @@ const CommunityMemberCard = ({
   const handleConfirmRemove = async (member) => {
     const memberId = member?._id;
     try {
+      setRemovingId(memberId);
       await api.put(`/communities/remove-member/${memberId}`, { id: activeCommunity?._id });
       toast.success(`${member?.username || "Member"} removed successfully`);
       // Refresh community details after removing a member
@@ -82,7 +89,7 @@ const CommunityMemberCard = ({
               Members
             </h3>
             <p className="text-xs text-[#EDE7DA]/45">
-              {activeCommunity?.members?.length || 0} total
+              {communityMembers?.length || 0} total
             </p>
           </div>
           <button
@@ -102,7 +109,7 @@ const CommunityMemberCard = ({
               const id = member?._id || member?.id || displayName;
               const isConfirming = confirmingId === id;
               const isRemoving = removingId === id;
-
+              const memberIsAdmin = member?._id === activeCommunity?.creatorId;
               return (
                 <div
                   key={id}
@@ -130,6 +137,15 @@ const CommunityMemberCard = ({
                       </p>
                     )}
                   </div>
+                  {memberIsAdmin ? (
+                    <span className="flex shrink-0 items-center gap-1 rounded-lg bg-[#EDE7DA]/10 px-2 py-1 text-[10px] font-medium text-[#EDE7DA]/70">
+                      Admin
+                    </span>
+                  ) : (
+                    <span className="flex shrink-0 items-center gap-1 rounded-lg bg-[#EDE7DA]/10 px-2 py-1 text-[10px] font-medium text-[#EDE7DA]/70">
+                      Member
+                    </span>
+                  )}
 
                   {canRemoveMembers && (
                     <button
