@@ -1,6 +1,7 @@
-import { FaPaperPlane, FaQuestionCircle } from "react-icons/fa";
+import { FaPaperPlane } from "react-icons/fa";
 import { api } from "../../lib/axois.js";
 import socket from "../../lib/socket.js";
+import toast from "react-hot-toast";
 
 const MessageComposer = ({
   message,
@@ -11,6 +12,7 @@ const MessageComposer = ({
     e.preventDefault();
     try {
       if (message.trim() === "") {
+        toast.error("Message cannot be empty");
         return;
       }
       const newMessage = await api.post("/messages", {
@@ -29,15 +31,6 @@ const MessageComposer = ({
   };
   return (
     <div className="border-t border-white/10 bg-white/[0.03] p-4 backdrop-blur-xl sm:p-5">
-      <div className="mb-2 flex items-center gap-2">
-        <button className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-white">
-          Message
-        </button>
-        <button className="inline-flex items-center gap-1 rounded-full border border-white/15 px-3 py-1 text-xs font-medium text-[#EDE7DA]/70 hover:bg-white/[0.06]">
-          <FaQuestionCircle className="text-[10px]" />
-          Ask a Doubt
-        </button>
-      </div>
       <form className="flex items-end gap-3">
         <textarea
           rows={1}

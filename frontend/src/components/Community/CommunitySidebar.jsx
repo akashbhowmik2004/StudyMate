@@ -14,6 +14,9 @@ const CommunitySidebar = ({
   joinedCommunities,
   setJoinedCommunities,
   getCommunityDetails,
+  fetchMessages,
+  setShowConfirmDialog,
+  showConfirmDialog,
 }) => {
   const [createCommunities, setCreateCommunities] = useState({ name: "" });
   const [joinCommunityCode, setJoinCommunityCode] = useState({
@@ -24,6 +27,8 @@ const CommunitySidebar = ({
     console.log("Created Communities:", communities);
     getCommunities();
     getJoinedCommunities();
+
+    
   }, []);
   const handleCreateCommunity = async (e) => {
     e.preventDefault();
@@ -176,6 +181,9 @@ const CommunitySidebar = ({
               getJoinedCommunities={getJoinedCommunities}
               setMessages={setMessages}
               getCommunityDetails={getCommunityDetails}
+              fetchMessages={fetchMessages}
+              setShowConfirmDialog={setShowConfirmDialog}
+              showConfirmDialog={showConfirmDialog}
             />
           ))
         ) : (
@@ -204,6 +212,9 @@ const CommunitySidebar = ({
                 getJoinedCommunities={getJoinedCommunities}
                 setMessages={setMessages}
                 getCommunityDetails={getCommunityDetails}
+                fetchMessages={fetchMessages}
+                setShowConfirmDialog={setShowConfirmDialog}
+                showConfirmDialog={showConfirmDialog}
               />
             );
           })

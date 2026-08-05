@@ -19,7 +19,12 @@ const filters = [
   { label: "PDFs", value: "pdf" },
 ];
 
-const AddNoteCard = ({ activeSubject, fetchSubjects }) => {
+const AddNoteCard = ({
+  activeSubject,
+  fetchSubjects,
+  setShowConfirmDialog,
+  showConfirmDialog,
+}) => {
   const [notes, setNotes] = useState([]);
   const [errors, setErrors] = useState({});
   const [file, setFile] = useState(null);
@@ -134,7 +139,7 @@ const AddNoteCard = ({ activeSubject, fetchSubjects }) => {
             />
           </div>
           <button className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-sm text-[#EDE7DA]/70 transition hover:bg-white/[0.08]">
-            Search 
+            Search
           </button>
         </div>
       </div>
@@ -257,6 +262,8 @@ const AddNoteCard = ({ activeSubject, fetchSubjects }) => {
             note={note}
             fetchNotesBySubject={fetchNotesBySubject}
             fetchSubjects={fetchSubjects}
+            setShowConfirmDialog={setShowConfirmDialog}
+            showConfirmDialog={showConfirmDialog}
           />
         ))}
       </div>

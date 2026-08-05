@@ -2,16 +2,20 @@ import { useEffect, useRef } from "react";
 import MessageCard from "./MessageCard";
 import socket from "../../lib/socket.js";
 
-const MessageFeed = ({ messages, setMessages }) => {
+const MessageFeed = ({
+  messages,
+  setMessages,
+  fetchMessages,
+  setShowConfirmDialog,
+  showConfirmDialog,
+}) => {
   const bottomRef = useRef(null);
   const handleReceiveMessage = (message) => {
-    setMessages(
-      (prevMessages) => {
-        console.log("MessageFeed handleReceiveMessage prev:", prevMessages); // Debugging line to check the previous state
-        console.log("MessageFeed handleReceiveMessage message:", message); // Debugging line to check the received message
-        return [...prevMessages, message];
-      }
-    );
+    setMessages((prevMessages) => {
+      console.log("MessageFeed handleReceiveMessage prev:", prevMessages); // Debugging line to check the previous state
+      console.log("MessageFeed handleReceiveMessage message:", message); // Debugging line to check the received message
+      return [...prevMessages, message];
+    });
   };
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -34,9 +38,16 @@ const MessageFeed = ({ messages, setMessages }) => {
       </div>
 
       <div className="flex flex-1 flex-col justify-end space-y-5">
-        {messages && messages.map((msg, index) => (
-          <MessageCard key={index} message={msg} />
-        ))}
+        {messages &&
+          messages.map((msg, index) => (
+            <MessageCard
+              key={index}
+              message={msg}
+              fetchMessages={fetchMessages}
+              setShowConfirmDialog={setShowConfirmDialog}
+              showConfirmDialog={showConfirmDialog}
+            />
+          ))}
         <div ref={bottomRef} />
       </div>
     </div>

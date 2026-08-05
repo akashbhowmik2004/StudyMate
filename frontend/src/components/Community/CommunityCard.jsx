@@ -2,6 +2,9 @@ import { FiX } from "react-icons/fi";
 import { api } from "../../lib/axois.js";
 import toast from "react-hot-toast";
 import socket from "../../lib/socket.js";
+import ConfirmDialog from "../Common/ConfirmDialog.jsx";
+import useAuth from "../../context/useAuth.jsx";
+
 const CommunityCard = ({
   name,
   members,
@@ -12,14 +15,21 @@ const CommunityCard = ({
   getJoinedCommunities,
   setMessages,
   getCommunityDetails,
+  fetchMessages,
+  setShowConfirmDialog,
+  showConfirmDialog,
 }) => {
+  const { user } = useAuth();
   const isActive = activeCommunity?._id === community._id;
+  const isCreator = community.creatorId === user?._id;
+
   const handleDeleteCommunity = async (e) => {
     e.preventDefault();
     try {
       const response = await api.delete(`/communities/${community._id}`);
       toast.success(response.data.message);
       await Promise.all([getCommunities(), getJoinedCommunities()]);
+      setShowConfirmDialog(false);
       if (activeCommunity?._id === community._id) {
         setActiveCommunity(null);
       }
@@ -30,19 +40,9 @@ const CommunityCard = ({
       } else toast.error("Failed to delete community");
     }
   };
-  const fetchMessages = async () => {
-    try {
-      const response = await api.get(`/messages/${community?._id}`);
-      console.log("Api response for messages:", response.data);
-      return response.data.messages ?? [];
-    } catch (err) {
-      console.log(err);
-      toast.error("Failed to fetch messages");
-      return [];
-    }
-  };
 
   const onSelectCommunity = async () => {
+    console.log("Selected community:", community);
     try {
       if (activeCommunity?._id) {
         socket.emit("leaveCommunity", activeCommunity._id);
@@ -50,7 +50,7 @@ const CommunityCard = ({
 
       socket.emit("joinCommunity", community._id);
 
-      const messages = await fetchMessages();
+      const messages = await fetchMessages(community._id);
 
       setMessages(messages);
       setActiveCommunity(community);
@@ -60,10 +60,16 @@ const CommunityCard = ({
     }
   };
 
-  
-
   return (
     <>
+      {showConfirmDialog && (
+        <ConfirmDialog
+          onConfirm={handleDeleteCommunity}
+          onCancel={() => setShowConfirmDialog(false)}
+          title="Delete Community"
+          description="Are you sure you want to delete this community?"
+        />
+      )}
       <div
         className={`group flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition ${
           isActive ? "bg-white/8" : "hover:bg-white/5"
@@ -95,16 +101,18 @@ const CommunityCard = ({
           </span>
         </button>
 
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDeleteCommunity(e);
-          }}
-          aria-label={`Delete ${name}`}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#EDE7DA]/40 opacity-0 transition hover:bg-white/8 hover:text-white group-hover:opacity-100"
-        >
-          <FiX className="h-4 w-4" />
-        </button>
+        {isCreator && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowConfirmDialog(true);
+            }}
+            aria-label={`Delete ${name}`}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#EDE7DA]/40 opacity-0 transition hover:bg-white/8 hover:text-white group-hover:opacity-100"
+          >
+            <FiX className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </>
   );

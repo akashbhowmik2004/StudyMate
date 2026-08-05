@@ -16,6 +16,9 @@ const socketHandler = (io) => {
     socket.on("message", (message) => {
       io.to(message.community).emit("receiveMessage", message);
     });
+    socket.on("disconnect", () => {
+      console.log("A user disconnected:", socket.id);
+    });
   });
 };
 

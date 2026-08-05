@@ -3,7 +3,7 @@ import Message from "../models/message.js";
 
 export const createMessage = async (req, res) => {
   const { communityId, text } = req.body;
-  try{
+  try {
     const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -16,11 +16,11 @@ export const createMessage = async (req, res) => {
     });
     await message.save();
     res.status(201).json(message);
-  } catch(error) {
+  } catch (error) {
     console.error("Error creating message:", error);
     res.status(500).json({ error: "Failed to create message" });
   }
-}
+};
 
 export const getMessagesByCommunity = async (req, res) => {
   const { communityId } = req.params;
@@ -48,13 +48,17 @@ export const getMessagesByCommunity = async (req, res) => {
 };
 
 export const deleteMessage = async (req, res) => {
-  const { messageId } = req.params;
+  const { id } = req.params;
   try {
-    const message = await Message.findByIdAndDelete(messageId);
+    const message = await Message.findByIdAndDelete(id);
     if (!message) {
       return res.status(404).json({ error: "Message not found" });
     }
-    res.status(200).json({ status: "success", message: "Message deleted" });
+    res.status(200).json({
+      status: "success",
+      message: "Message deleted",
+      messages: message,
+    });
   } catch (error) {
     console.error("Error deleting message:", error);
     res.status(500).json({ error: "Failed to delete message" });

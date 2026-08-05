@@ -15,6 +15,7 @@ export default function Community() {
   const [communities, setCommunities] = useState([]);
   const [joinedCommunities, setJoinedCommunities] = useState([]);
   const [communityMembers, setCommunityMembers] = useState([]);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const getJoinedCommunities = async () => {
     try {
@@ -46,6 +47,20 @@ export default function Community() {
     }
   };
 
+  const fetchMessages = async (activeCommunityId) => {
+    const communityId = activeCommunityId || activeCommunity?._id;
+    try {
+      const response = await api.get(`/messages/${communityId}`);
+      console.log("Api response for messages:", response.data);
+      setMessages(response.data.messages ?? []);
+      return response.data.messages ?? [];
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to fetch messages");
+      return [];
+    }
+  };
+
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-[#0B0D12] text-[#EDE7DA]">
       {/* header no longer needs a fixed height assumption */}
@@ -71,6 +86,9 @@ export default function Community() {
           setJoinedCommunities={setJoinedCommunities}
           getJoinedCommunities={getJoinedCommunities}
           getCommunityDetails={getCommunityDetails}
+          fetchMessages={fetchMessages}
+          setShowConfirmDialog={setShowConfirmDialog}
+          showConfirmDialog={showConfirmDialog}
         />
 
         {/* ---------------- Main panel: community feed ---------------- */}
@@ -102,11 +120,19 @@ export default function Community() {
                   communityMembers={communityMembers}
                   getCommunityDetails={getCommunityDetails}
                   getJoinedCommunities={getJoinedCommunities}
+                  setShowConfirmDialog={setShowConfirmDialog}
+                  showConfirmDialog={showConfirmDialog}
                 />
               </div>
 
               {/* messages / doubts feed — the only scrollable area */}
-              <MessageFeed messages={messages} setMessages={setMessages} />
+              <MessageFeed
+                messages={messages}
+                setMessages={setMessages}
+                fetchMessages={fetchMessages}
+                setShowConfirmDialog={setShowConfirmDialog}
+                showConfirmDialog={showConfirmDialog}
+              />
 
               {/* composer — fixed */}
               <div className="shrink-0">

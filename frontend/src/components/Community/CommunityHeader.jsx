@@ -9,12 +9,24 @@ import {
   FaCopy,
 } from "react-icons/fa";
 
-import {api} from "../../lib/axois.js";
+import { api } from "../../lib/axois.js";
 import socket from "../../lib/socket.js";
 import toast from "react-hot-toast";
 import CommunityMemberCard from "./CommunityMemberCard.jsx";
+import ConfirmDialog from "../Common/ConfirmDialog.jsx";
+import useAuth from "../../context/useAuth.jsx";
 
-const CommunityHeader = ({ activeCommunity, getCommunities, setActiveCommunity, getJoinedCommunities, communityMembers, getCommunityDetails}) => {
+const CommunityHeader = ({
+  activeCommunity,
+  getCommunities,
+  setActiveCommunity,
+  getJoinedCommunities,
+  communityMembers,
+  getCommunityDetails,
+  setShowConfirmDialog,
+  showConfirmDialog,
+}) => {
+  const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
   const menuRef = useRef(null);
@@ -31,11 +43,19 @@ const CommunityHeader = ({ activeCommunity, getCommunities, setActiveCommunity, 
 
   const handleLeaveCommunity = async () => {
     try {
-      const response = await api.put(`/communities/leave/${activeCommunity._id}`);
+      if(activeCommunity?.creatorId === user._id) {
+        toast.error("You cannot leave the community as you are the creator.");
+        setShowConfirmDialog(false);
+        return;
+      }
+      const response = await api.put(
+        `/communities/leave/${activeCommunity._id}`,
+      );
       toast.success(response.data.message);
       await Promise.all([getCommunities(), getJoinedCommunities()]);
       socket.emit("leaveCommunity", activeCommunity._id);
       setActiveCommunity(null);
+      setShowConfirmDialog(false);
     } catch (err) {
       console.log(err);
       toast.error("Failed to leave community");
@@ -43,6 +63,7 @@ const CommunityHeader = ({ activeCommunity, getCommunities, setActiveCommunity, 
   };
 
   const copyToClipboard = (text) => {
+
     navigator.clipboard.writeText(text).then(
       () => {
         toast.success("Copied to clipboard!");
@@ -56,89 +77,106 @@ const CommunityHeader = ({ activeCommunity, getCommunities, setActiveCommunity, 
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-white/10 bg-white/[0.03] px-6 py-4 backdrop-blur-xl sm:px-8">
-      <div className="flex min-w-0 items-center gap-3">
-        <span
-          className={`flex h-10 w-10 shrink-0 items-center bg-[#EDE7DA]/15 text-white justify-center rounded-xl text-sm font-semibold`}
-        >
-          {activeCommunity?.name[0].toUpperCase()}
-        </span>
-        <div className="min-w-0">
-          <h2 className="truncate font-['Fraunces',_serif] text-lg font-medium text-white">
-            {activeCommunity?.name}
-          </h2>
-          <p className="flex items-center gap-1 truncate text-xs text-[#EDE7DA]/45">
-            <FaHashtag className="text-[10px]" />
-            general {activeCommunity?.members?.length || 0} members
-            14 online
-          </p>
-        </div>
-      </div>
-
-      <div className="flex shrink-0 items-center gap-2">
-        <button
-          onClick={() => setMembersOpen(true)}
-          className="hidden shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/[0.1] sm:inline-flex"
-        >
-          <FaUsers className="text-xs" />
-          Members
-        </button>
-
-        <div className="relative" ref={menuRef}>
-          <button
-            onClick={() => setMenuOpen((prev) => !prev)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-white transition hover:bg-white/[0.1]"
-            aria-haspopup="true"
-            aria-expanded={menuOpen}
+    <>
+      {showConfirmDialog && (
+        <ConfirmDialog
+          title="Leave Community"
+          description="Are you sure you want to leave this community?"
+          onCancel={() => setShowConfirmDialog(false)}
+          onConfirm={handleLeaveCommunity}
+          confirmButtonText="Leave"
+        />
+      )}
+      <div className="flex items-center justify-between gap-4 border-b border-white/10 bg-white/[0.03] px-6 py-4 backdrop-blur-xl sm:px-8">
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className={`flex h-10 w-10 shrink-0 items-center bg-[#EDE7DA]/15 text-white justify-center rounded-xl text-sm font-semibold`}
           >
-            <FaEllipsisV className="text-xs" />
+            {activeCommunity?.name[0].toUpperCase()}
+          </span>
+          <div className="min-w-0">
+            <h2 className="truncate font-['Fraunces',_serif] text-lg font-medium text-white">
+              {activeCommunity?.name}
+            </h2>
+            <p className="flex items-center gap-1 truncate text-xs text-[#EDE7DA]/45">
+              <FaHashtag className="text-[10px]" />
+              general {activeCommunity?.members?.length || 0} members 14 online
+            </p>
+          </div>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={() => setMembersOpen(true)}
+            className="hidden shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/[0.1] sm:inline-flex"
+          >
+            <FaUsers className="text-xs" />
+            Members
           </button>
 
-          {menuOpen && (
-            <div className="absolute right-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#141414]/95 shadow-xl backdrop-blur-xl">
-              <button
-                onClick={() => {
-                  copyToClipboard(activeCommunity?.uniqueCode);
-                  setMenuOpen(false);
-                }}
-                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-[#EDE7DA]/85 transition hover:bg-white/[0.06]"
-              >
-                <FaKey className="text-xs text-[#EDE7DA]/50" />
-                {activeCommunity?.uniqueCode}
-                <FaCopy className="inline-block text-xs text-[#EDE7DA]/50" />
-              </button>
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-white transition hover:bg-white/[0.1]"
+              aria-haspopup="true"
+              aria-expanded={menuOpen}
+            >
+              <FaEllipsisV className="text-xs" />
+            </button>
 
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                }}
-                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-[#EDE7DA]/85 transition hover:bg-white/[0.06]"
-              >
-                <FaBell className="text-xs text-[#EDE7DA]/50" />
-                Notification settings
-              </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#141414]/95 shadow-xl backdrop-blur-xl">
+                <button
+                  onClick={() => {
+                    copyToClipboard(activeCommunity?.uniqueCode);
+                    setMenuOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-[#EDE7DA]/85 transition hover:bg-white/[0.06]"
+                >
+                  <FaKey className="text-xs text-[#EDE7DA]/50" />
+                  {activeCommunity?.uniqueCode}
+                  <FaCopy className="inline-block text-xs text-[#EDE7DA]/50" />
+                </button>
 
-              <div className="my-1 h-px bg-white/10" />
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-[#EDE7DA]/85 transition hover:bg-white/[0.06]"
+                >
+                  <FaBell className="text-xs text-[#EDE7DA]/50" />
+                  Notification settings
+                </button>
 
-              <button
-                onClick={() => {
-                  handleLeaveCommunity();
-                  setMenuOpen(false);
-                }}
-                className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/10"
-              >
-                <FaSignOutAlt className="text-xs" />
-                Leave community
-              </button>
-            </div>
-          )}
+                <div className="my-1 h-px bg-white/10" />
+
+                <button
+                  onClick={() => {
+                    setShowConfirmDialog(true);
+                    setMenuOpen(false);
+                  }}
+                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/10"
+                >
+                  <FaSignOutAlt className="text-xs" />
+                  Leave community
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
-      {membersOpen && (
-        <CommunityMemberCard setMembersOpen={setMembersOpen} activeCommunity={activeCommunity} communityMembers={communityMembers} getCommunityDetails={getCommunityDetails} getCommunities={getCommunities} getJoinedCommunities={getJoinedCommunities} />
-      )}
-    </div>
+        {membersOpen && (
+          <CommunityMemberCard
+            setMembersOpen={setMembersOpen}
+            activeCommunity={activeCommunity}
+            communityMembers={communityMembers}
+            getCommunityDetails={getCommunityDetails}
+            getCommunities={getCommunities}
+            getJoinedCommunities={getJoinedCommunities}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

@@ -240,6 +240,8 @@ export const deleteCommunity = async (req, res) => {
         message: "Can't find community",
       });
     }
+    console.log("community.creatorId", community.creatorId.toString());
+    console.log("req.user.id", req.user.id);
     if (community.creatorId.toString() !== req.user.id) {
       return res.status(403).json({
         success: false,
