@@ -26,6 +26,7 @@ export default function Community() {
       toast.error("Failed to fetch joined communities");
     }
   };
+
   const getCommunities = async () => {
     try {
       const response = await api.get("/communities");
@@ -62,20 +63,21 @@ export default function Community() {
   };
 
   return (
-    <div className="relative flex h-screen flex-col overflow-hidden bg-[#0B0D12] text-[#EDE7DA]">
-      {/* header no longer needs a fixed height assumption */}
-      <div className="shrink-0">
+    <div className="relative flex h-screen flex-col overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">
+      
+      {/* 1. Top Navbar Wrapper — fixed explicit height so children can offset against it reliably */}
+      <div className="flex-none h-20 relative z-50 border-b border-white/10 bg-[#0B0D12]/80 backdrop-blur-md">
         <StudyMateHeader />
       </div>
 
-      {/* lamp glow — cyan tint to match Note/Dashboard's cyan accent */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_6%,rgba(34,211,238,0.12),transparent_36%),radial-gradient(circle_at_92%_12%,rgba(34,211,238,0.06),transparent_32%),linear-gradient(180deg,rgba(11,13,18,1),rgba(7,8,11,1))]" />
-      <div className="pointer-events-none absolute -left-28 top-24 h-72 w-72 rounded-full bg-cyan-400/8 blur-3xl" />
-      <div className="pointer-events-none absolute -right-28 top-60 h-80 w-80 rounded-full bg-cyan-300/8 blur-3xl" />
+      {/* Modern Ambient Backglow */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute top-0 left-[20%] w-[1000px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-[100%]" />
+        <div className="absolute bottom-0 right-[10%] w-[800px] h-[600px] bg-fuchsia-500/5 blur-[150px] rounded-[100%]" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+      </div>
 
-      {/* main now fills remaining space automatically via flex-1 + min-h-0 */}
-      <main className="relative flex min-h-0 flex-1 overflow-hidden">
-        {/* ---------------- Sidebar: communities ---------------- */}
+      <main className="relative z-10 flex min-h-0 flex-1 overflow-hidden">
         <CommunitySidebar
           setActiveCommunity={setActiveCommunity}
           activeCommunity={activeCommunity}
@@ -91,27 +93,25 @@ export default function Community() {
           showConfirmDialog={showConfirmDialog}
         />
 
-        {/* ---------------- Main panel: community feed ---------------- */}
-        <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <section className="flex flex-col h-full flex-1 min-w-0 overflow-hidden relative">
           {!activeCommunity ? (
             <div className="flex h-full items-center justify-center p-10 text-center">
-              <div className="max-w-sm rounded-3xl border border-dashed border-white/15 bg-[#0B0D12]/30 px-6 py-10">
-                <span className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[#EDE7DA]/50">
-                  <FaUsers className="text-lg" />
+              <div className="max-w-md rounded-[2rem] border border-dashed border-white/10 bg-white/[0.02] px-8 py-12 backdrop-blur-sm">
+                <span className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 shadow-[0_0_30px_-5px_rgba(34,211,238,0.2)]">
+                  <FaUsers className="text-3xl" />
                 </span>
-                <p className="font-['Fraunces',_serif] text-xl font-medium text-white">
-                  Select a community
+                <p className="font-['Fraunces',_serif] text-2xl font-bold text-[#EDE7DA]">
+                  Welcome to Community
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-[#EDE7DA]/50">
-                  Pick a community from the left, or create/join one to start
-                  asking doubts and chatting.
+                <p className="mt-3 text-sm leading-relaxed text-slate-400">
+                  Select a community from the sidebar, or create a new one to start collaborating and learning together.
                 </p>
               </div>
             </div>
           ) : (
             <>
-              {/* community header — fixed */}
-              <div className="shrink-0">
+              {/* 2. Community Header */}
+              <div className="flex-none w-full relative z-20 bg-white/[0.01] border-b border-white/10 backdrop-blur-sm">
                 <CommunityHeader
                   activeCommunity={activeCommunity}
                   getCommunities={getCommunities}
@@ -119,23 +119,24 @@ export default function Community() {
                   getJoinedCommunities={getJoinedCommunities}
                   communityMembers={communityMembers}
                   getCommunityDetails={getCommunityDetails}
-                  getJoinedCommunities={getJoinedCommunities}
                   setShowConfirmDialog={setShowConfirmDialog}
                   showConfirmDialog={showConfirmDialog}
                 />
               </div>
 
-              {/* messages / doubts feed — the only scrollable area */}
-              <MessageFeed
-                messages={messages}
-                setMessages={setMessages}
-                fetchMessages={fetchMessages}
-                setShowConfirmDialog={setShowConfirmDialog}
-                showConfirmDialog={showConfirmDialog}
-              />
+              {/* 3. Messages Wrapper */}
+              <div className="flex-1 min-h-0 relative w-full overflow-hidden">
+                <MessageFeed
+                  messages={messages}
+                  setMessages={setMessages}
+                  fetchMessages={fetchMessages}
+                  setShowConfirmDialog={setShowConfirmDialog}
+                  showConfirmDialog={showConfirmDialog}
+                />
+              </div>
 
-              {/* composer — fixed */}
-              <div className="shrink-0">
+              {/* 4. Composer Wrapper */}
+              <div className="flex-none w-full relative z-20 pb-4 px-4 lg:px-8 bg-gradient-to-t from-[#0B0D12] to-transparent">
                 <MessageComposer
                   message={message}
                   setMessage={setMessage}

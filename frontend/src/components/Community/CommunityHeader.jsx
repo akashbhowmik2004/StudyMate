@@ -63,7 +63,6 @@ const CommunityHeader = ({
   };
 
   const copyToClipboard = (text) => {
-
     navigator.clipboard.writeText(text).then(
       () => {
         toast.success("Copied to clipboard!");
@@ -72,12 +71,12 @@ const CommunityHeader = ({
       (err) => {
         toast.error("Failed to copy text!");
         console.error("Failed to copy text: ", err);
-      },
+      }
     );
   };
 
   return (
-    <>
+    <div className="w-full flex items-center justify-between gap-4 px-6 py-4 sm:px-8 border-b border-white/10 bg-white/[0.01] backdrop-blur-sm">
       {showConfirmDialog && (
         <ConfirmDialog
           title="Leave Community"
@@ -87,96 +86,94 @@ const CommunityHeader = ({
           confirmButtonText="Leave"
         />
       )}
-      <div className="flex items-center justify-between gap-4 border-b border-white/10 bg-white/[0.03] px-6 py-4 backdrop-blur-xl sm:px-8">
-        <div className="flex min-w-0 items-center gap-3">
-          <span
-            className={`flex h-10 w-10 shrink-0 items-center bg-[#EDE7DA]/15 text-white justify-center rounded-xl text-sm font-semibold`}
-          >
-            {activeCommunity?.name[0].toUpperCase()}
-          </span>
-          <div className="min-w-0">
-            <h2 className="truncate font-['Fraunces',_serif] text-lg font-medium text-white">
-              {activeCommunity?.name}
-            </h2>
-            <p className="flex items-center gap-1 truncate text-xs text-[#EDE7DA]/45">
-              <FaHashtag className="text-[10px]" />
-              general {activeCommunity?.members?.length || 0} members 14 online
-            </p>
-          </div>
+      
+      <div className="flex min-w-0 items-center gap-4">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xl font-bold text-cyan-400 shadow-[0_0_15px_-3px_rgba(34,211,238,0.2)]">
+          {activeCommunity?.name?.[0]?.toUpperCase() || "?"}
+        </span>
+        <div className="min-w-0">
+          <h2 className="truncate font-['Fraunces',_serif] text-lg font-bold text-[#EDE7DA]">
+            {activeCommunity?.name || "Loading Hub..."}
+          </h2>
+          <p className="flex items-center gap-1.5 mt-1 truncate text-xs font-medium text-slate-400">
+            <FaHashtag className="text-[10px] text-cyan-500/50" />
+            General <span className="mx-1.5 h-1 w-1 rounded-full bg-slate-600" /> 
+            {activeCommunity?.members?.length || 0} Members
+          </p>
         </div>
+      </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-3">
+        <button
+          onClick={() => setMembersOpen(true)}
+          className="hidden shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[#EDE7DA]/80 transition hover:bg-white/10 hover:text-white sm:inline-flex"
+        >
+          <FaUsers className="text-sm" />
+          Members
+        </button>
+
+        <div className="relative" ref={menuRef}>
           <button
-            onClick={() => setMembersOpen(true)}
-            className="hidden shrink-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-3.5 py-2 text-xs font-medium text-white transition hover:bg-white/[0.1] sm:inline-flex"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-[#EDE7DA]/80 transition hover:bg-white/10 hover:text-white"
+            aria-haspopup="true"
+            aria-expanded={menuOpen}
           >
-            <FaUsers className="text-xs" />
-            Members
+            <FaEllipsisV className="text-sm" />
           </button>
 
-          <div className="relative" ref={menuRef}>
-            <button
-              onClick={() => setMenuOpen((prev) => !prev)}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/[0.06] text-white transition hover:bg-white/[0.1]"
-              aria-haspopup="true"
-              aria-expanded={menuOpen}
-            >
-              <FaEllipsisV className="text-xs" />
-            </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-full z-50 mt-3 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#12141B]/95 p-1 shadow-2xl backdrop-blur-xl">
+              <button
+                onClick={() => {
+                  copyToClipboard(activeCommunity?.uniqueCode);
+                  setMenuOpen(false);
+                }}
+                className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm font-medium text-[#EDE7DA] transition hover:bg-white/[0.06]"
+              >
+                <div className="flex items-center gap-2.5">
+                  <FaKey className="text-xs text-cyan-400" />
+                  <span>{activeCommunity?.uniqueCode}</span>
+                </div>
+                <FaCopy className="text-xs text-slate-500" />
+              </button>
 
-            {menuOpen && (
-              <div className="absolute right-0 top-full z-20 mt-2 w-56 overflow-hidden rounded-xl border border-white/10 bg-[#141414]/95 shadow-xl backdrop-blur-xl">
-                <button
-                  onClick={() => {
-                    copyToClipboard(activeCommunity?.uniqueCode);
-                    setMenuOpen(false);
-                  }}
-                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-[#EDE7DA]/85 transition hover:bg-white/[0.06]"
-                >
-                  <FaKey className="text-xs text-[#EDE7DA]/50" />
-                  {activeCommunity?.uniqueCode}
-                  <FaCopy className="inline-block text-xs text-[#EDE7DA]/50" />
-                </button>
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-[#EDE7DA] transition hover:bg-white/[0.06]"
+              >
+                <FaBell className="text-xs text-amber-400" />
+                Notifications
+              </button>
 
-                <button
-                  onClick={() => {
-                    setMenuOpen(false);
-                  }}
-                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-[#EDE7DA]/85 transition hover:bg-white/[0.06]"
-                >
-                  <FaBell className="text-xs text-[#EDE7DA]/50" />
-                  Notification settings
-                </button>
+              <div className="my-1 h-px bg-white/5" />
 
-                <div className="my-1 h-px bg-white/10" />
-
-                <button
-                  onClick={() => {
-                    setShowConfirmDialog(true);
-                    setMenuOpen(false);
-                  }}
-                  className="flex w-full items-center gap-2.5 px-4 py-2.5 text-left text-sm text-red-400 transition hover:bg-red-500/10"
-                >
-                  <FaSignOutAlt className="text-xs" />
-                  Leave community
-                </button>
-              </div>
-            )}
-          </div>
+              <button
+                onClick={() => {
+                  setShowConfirmDialog(true);
+                  setMenuOpen(false);
+                }}
+                className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-400 transition hover:bg-red-500/10"
+              >
+                <FaSignOutAlt className="text-xs" />
+                Leave Community
+              </button>
+            </div>
+          )}
         </div>
-
-        {membersOpen && (
-          <CommunityMemberCard
-            setMembersOpen={setMembersOpen}
-            activeCommunity={activeCommunity}
-            communityMembers={communityMembers}
-            getCommunityDetails={getCommunityDetails}
-            getCommunities={getCommunities}
-            getJoinedCommunities={getJoinedCommunities}
-          />
-        )}
       </div>
-    </>
+
+      {membersOpen && (
+        <CommunityMemberCard
+          setMembersOpen={setMembersOpen}
+          activeCommunity={activeCommunity}
+          communityMembers={communityMembers}
+          getCommunityDetails={getCommunityDetails}
+          getCommunities={getCommunities}
+          getJoinedCommunities={getJoinedCommunities}
+        />
+      )}
+    </div>
   );
 };
 

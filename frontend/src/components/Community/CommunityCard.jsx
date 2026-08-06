@@ -47,11 +47,8 @@ const CommunityCard = ({
       if (activeCommunity?._id) {
         socket.emit("leaveCommunity", activeCommunity._id);
       }
-
       socket.emit("joinCommunity", community._id);
-
       const messages = await fetchMessages(community._id);
-
       setMessages(messages);
       setActiveCommunity(community);
     } catch (err) {
@@ -71,32 +68,36 @@ const CommunityCard = ({
         />
       )}
       <div
-        className={`group flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition ${
-          isActive ? "bg-white/8" : "hover:bg-white/5"
+        className={`group flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 transition-all duration-200 border ${
+          isActive
+            ? "border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 to-transparent shadow-[inset_4px_0_0_0_rgba(34,211,238,1)]"
+            : "border-transparent hover:border-white/5 hover:bg-white/[0.04]"
         }`}
       >
         <button
-          className="flex min-w-0 flex-1 items-center gap-3 text-left"
+          className="flex min-w-0 flex-1 items-center gap-3 text-left outline-none"
           onClick={() => {
             onSelectCommunity();
             getCommunityDetails(community._id);
           }}
         >
           <span
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold ${
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] text-sm font-bold transition-colors ${
               isActive
-                ? "bg-[#EDE7DA]/15 text-white"
-                : "bg-white/6 text-[#EDE7DA]/80"
+                ? "bg-cyan-500/20 text-cyan-300"
+                : "bg-white/5 text-[#EDE7DA]/80 group-hover:bg-white/10 group-hover:text-white"
             }`}
           >
             {community.name[0].toUpperCase()}
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-sm font-medium text-white">
+            <span className={`block truncate text-sm font-bold transition-colors ${
+              isActive ? "text-cyan-50" : "text-[#EDE7DA] group-hover:text-white"
+            }`}>
               {name}
             </span>
-            <span className="block truncate text-xs text-[#EDE7DA]/45">
-              {members} members
+            <span className="block truncate text-[11px] font-medium text-slate-500">
+              {members} {members === 1 ? 'member' : 'members'}
             </span>
           </span>
         </button>
@@ -108,7 +109,7 @@ const CommunityCard = ({
               setShowConfirmDialog(true);
             }}
             aria-label={`Delete ${name}`}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#EDE7DA]/40 opacity-0 transition hover:bg-white/8 hover:text-white group-hover:opacity-100"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-slate-500 opacity-0 transition-all hover:bg-red-500/20 hover:text-red-400 group-hover:opacity-100"
           >
             <FiX className="h-4 w-4" />
           </button>

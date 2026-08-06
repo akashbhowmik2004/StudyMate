@@ -10,13 +10,15 @@ const MessageFeed = ({
   showConfirmDialog,
 }) => {
   const bottomRef = useRef(null);
+
   const handleReceiveMessage = (message) => {
     setMessages((prevMessages) => {
-      console.log("MessageFeed handleReceiveMessage prev:", prevMessages); // Debugging line to check the previous state
-      console.log("MessageFeed handleReceiveMessage message:", message); // Debugging line to check the received message
+      console.log("MessageFeed handleReceiveMessage prev:", prevMessages);
+      console.log("MessageFeed handleReceiveMessage message:", message);
       return [...prevMessages, message];
     });
   };
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
 
@@ -27,17 +29,20 @@ const MessageFeed = ({
     };
   }, [messages]);
 
-  console.log("MessageFeed messages after useEffect:", messages); // Debugging line to check the messages state after useEffect
+  console.log("MessageFeed messages after useEffect:", messages);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-6 py-6 sm:px-8">
-      <div className="mb-5 flex justify-center">
-        <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-[#EDE7DA]/45">
-          Today
+    // h-full instead of flex-1: the parent wrapper in Community.jsx is a plain
+    // div (not flex), so flex-1 was a no-op there — the list had no height cap
+    // and just grew with content, which is why overflow-y-auto never scrolled.
+    <div className="flex h-full min-h-0 flex-col overflow-y-auto px-4 py-6 sm:px-8 max-w-5xl mx-auto w-full no-scrollbar">
+      <div className="mb-8 flex justify-center">
+        <span className="rounded-full border border-white/5 bg-white/[0.02] px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#EDE7DA]/50 backdrop-blur-sm">
+          Start of conversation
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col justify-end space-y-5">
+      <div className="flex flex-1 flex-col justify-end space-y-6">
         {messages &&
           messages.map((msg, index) => (
             <MessageCard
@@ -48,7 +53,7 @@ const MessageFeed = ({
               showConfirmDialog={showConfirmDialog}
             />
           ))}
-        <div ref={bottomRef} />
+        <div ref={bottomRef} className="h-2" />
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ const MessageCard = ({ message, fetchMessages, setShowConfirmDialog, showConfirm
   };
 
   return (
-    <div className="group flex items-start gap-3">
+    <div className="group flex items-end gap-3 w-full">
       {showConfirmDialog && (
         <ConfirmDialog
           onConfirm={handleDeleteMessage}
@@ -38,45 +38,49 @@ const MessageCard = ({ message, fetchMessages, setShowConfirmDialog, showConfirm
           description="Are you sure you want to delete this message?"
         />
       )}
+      
       {isMe ? (
-        <div className="flex w-full items-start justify-end gap-3">
+        <div className="flex w-full items-end justify-end gap-3">
           <button
             onClick={() => setShowConfirmDialog(true)}
-            className="mt-6 shrink-0 rounded-full p-1.5 text-[#EDE7DA]/0 opacity-0 transition-all hover:bg-white/10 hover:text-red-400 group-hover:text-[#EDE7DA]/40 group-hover:opacity-100"
+            className="mb-8 shrink-0 rounded-full p-2 text-slate-500 opacity-0 transition-all hover:bg-white/5 hover:text-red-400 group-hover:opacity-100"
             aria-label="Delete message"
           >
-            <Trash2 size={14} />
+            <Trash2 size={15} />
           </button>
-          <div className="min-w-0 text-right">
-            <div className="flex items-baseline justify-end gap-2">
-              <span className="text-[11px] text-[#EDE7DA]/35">{time}</span>
-              <span className="text-sm font-medium text-white">You</span>
+          
+          <div className="min-w-0 max-w-[75%] text-right">
+            <div className="flex items-baseline justify-end gap-2 mb-1.5 px-1">
+              <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">{time}</span>
+              <span className="text-xs font-bold text-[#EDE7DA]">You</span>
             </div>
-            <p className="mt-1 ml-auto max-w-md rounded-2xl rounded-tr-sm bg-cyan-400/20 px-4 py-2.5 text-left text-sm leading-relaxed text-[#EDE7DA]">
+            <div className="ml-auto rounded-[1.5rem] rounded-br-sm border border-cyan-500/20 bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 px-5 py-3.5 text-left text-sm leading-relaxed text-[#EDE7DA] shadow-lg shadow-cyan-900/10 backdrop-blur-sm">
               {message.text}
-            </p>
+            </div>
           </div>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-400/30 text-xs font-semibold text-cyan-200">
-            Me
+          
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-cyan-500 text-[10px] font-black text-[#0B0D12] shadow-md shadow-cyan-500/30">
+            ME
           </span>
         </div>
       ) : (
-        <>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold text-[#EDE7DA]">
+        <div className="flex w-full items-end justify-start gap-3">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-[11px] font-bold text-[#EDE7DA]">
             {message.username?.[0].toUpperCase()}
           </span>
-          <div className="min-w-0">
-            <div className="flex items-baseline gap-2">
-              <span className="text-sm font-medium text-white">
-                {message.username || "Unknown User"}
+          
+          <div className="min-w-0 max-w-[75%] text-left">
+            <div className="flex items-baseline gap-2 mb-1.5 px-1">
+              <span className="text-xs font-bold text-cyan-50">
+                {message.username || "Unknown"}
               </span>
-              <span className="text-[11px] text-[#EDE7DA]/35">{time}</span>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-slate-500">{time}</span>
             </div>
-            <p className="mt-1 max-w-md rounded-2xl rounded-tl-sm border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm leading-relaxed text-[#EDE7DA]/85">
+            <div className="rounded-[1.5rem] rounded-bl-sm border border-white/10 bg-white/[0.04] px-5 py-3.5 text-sm leading-relaxed text-[#EDE7DA]/90 backdrop-blur-sm">
               {message.text}
-            </p>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

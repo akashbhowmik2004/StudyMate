@@ -1,9 +1,10 @@
 import { api } from "../../lib/axois.js";
-import { FaPlus, FaSearch, FaUsers } from "react-icons/fa";
+import { FaPlus, FaUsers, FaBars, FaTimes } from "react-icons/fa";
 import CommunityCard from "./CommunityCard";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import socket from "../../lib/socket.js";
+
 const CommunitySidebar = ({
   setActiveCommunity,
   activeCommunity,
@@ -22,14 +23,14 @@ const CommunitySidebar = ({
   const [joinCommunityCode, setJoinCommunityCode] = useState({
     uniqueCode: "",
   });
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     console.log("Created Communities:", communities);
     getCommunities();
     getJoinedCommunities();
-
-    
   }, []);
+
   const handleCreateCommunity = async (e) => {
     e.preventDefault();
 
@@ -98,135 +99,153 @@ const CommunitySidebar = ({
   };
 
   return (
-    <aside className="flex w-full max-w-xs shrink-0 flex-col border-r border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl sm:max-w-sm">
-      <div className="flex items-center gap-2">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-200/20 bg-cyan-400/10 text-cyan-200">
-          <FaUsers className="text-sm" />
-        </span>
-        <h2 className="font-['Fraunces',_serif] text-xl font-medium tracking-tight text-white">
-          Communities
-        </h2>
-      </div>
-
-      {/* create community */}
-      <form className="mt-5 space-y-3" onSubmit={handleCreateCommunity}>
-        <input
-          type="text"
-          value={createCommunities.name}
-          onChange={(e) =>
-            setCreateCommunities({ ...createCommunities, name: e.target.value })
-          }
-          placeholder="Create a community (e.g. NEET Aspirants)"
-          className="w-full rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-cyan-400/60 focus:bg-[#0B0D12]/80 focus:ring-2 focus:ring-cyan-400/20"
+    <>
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-30 bg-[#0B0D12]/60 backdrop-blur-sm lg:hidden"
         />
-        <button
-          type="submit"
-          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-[#0B0D12] shadow-[0_8px_24px_-8px_rgba(34,211,238,0.5)] transition hover:bg-cyan-300 active:scale-[0.99]"
-        >
-          <FaPlus className="text-xs" />
-          Create Community
-        </button>
-      </form>
+      )}
 
-      {/* join community */}
-      <form className="mt-3 flex items-center gap-2">
-        <input
-          type="text"
-          value={joinCommunityCode.uniqueCode}
-          name="uniqueCode"
-          onChange={(e) =>
-            setJoinCommunityCode({
-              ...joinCommunityCode,
-              uniqueCode: e.target.value,
-            })
-          }
-          placeholder="Join with a code or name"
-          className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-cyan-400/60 focus:ring-2 focus:ring-cyan-400/20"
-        />
-        <button
-          type="submit"
-          onClick={handleJoinCommunity}
-          className="shrink-0 rounded-2xl border border-white/15 bg-white/[0.06] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/[0.1]"
-        >
-          Join
-        </button>
-      </form>
+      <button
+        type="button"
+        onClick={() => setSidebarOpen((open) => !open)}
+        className="fixed left-4 top-24 z-50 flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-[#12141B]/90 text-[#EDE7DA] shadow-xl backdrop-blur-md transition hover:bg-white/10 lg:hidden"
+      >
+        {sidebarOpen ? <FaTimes className="text-lg" /> : <FaBars className="text-lg" />}
+      </button>
 
-      {/* search */}
-      <div className="relative mt-6">
-        <FaSearch className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-xs text-[#EDE7DA]/35" />
-        <input
-          type="text"
-          placeholder="Search your communities"
-          className="w-full rounded-xl border border-white/10 bg-[#0B0D12]/40 py-2.5 pl-9 pr-3 text-xs text-white outline-none transition placeholder:text-[#EDE7DA]/35 focus:border-cyan-400/60"
-        />
-      </div>
+      {/*
+        Positioning fix:
+        - top-20 + h-[calc(100vh-5rem)] instead of top-0 + h-screen, so the drawer
+          starts exactly below the fixed navbar (which is h-20 in Community.jsx)
+          instead of guessing the offset with an internal spacer div.
+        - On lg+ it becomes a normal sticky flex child (lg:sticky lg:top-0 lg:h-full)
+          instead of h-screen, so it can't overflow its flex row and get clipped
+          behind the navbar during re-renders (e.g. selecting a community).
+        - z-40 kept below navbar's z-50 so it never visually overlaps it.
+      */}
+      <aside
+        className={`fixed left-0 top-20 z-40 flex h-[calc(100vh-5rem)] w-full max-w-[320px] shrink-0 flex-col border-r border-white/5 bg-gradient-to-b from-[#0B0D12]/95 to-[#0B0D12]/80 backdrop-blur-2xl transition-transform duration-300 ease-in-out overflow-y-auto no-scrollbar lg:sticky lg:top-0 lg:h-full lg:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="h-6 shrink-0" />
 
-      {/* community list */}
-      <div className="mt-4 flex-1 space-y-1.5 overflow-y-auto">
-        <p className="mb-1 px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#EDE7DA]/40">
-          Created
-        </p>
-
-        {communities.length > 0 ? (
-          communities.map((community) => (
-            <CommunityCard
-              key={community._id}
-              name={community.name}
-              members={community.members.length}
-              community={community}
-              setActiveCommunity={setActiveCommunity}
-              activeCommunity={activeCommunity}
-              getCommunities={getCommunities}
-              getJoinedCommunities={getJoinedCommunities}
-              setMessages={setMessages}
-              getCommunityDetails={getCommunityDetails}
-              fetchMessages={fetchMessages}
-              setShowConfirmDialog={setShowConfirmDialog}
-              showConfirmDialog={showConfirmDialog}
-            />
-          ))
-        ) : (
-          <div className="flex h-20 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0B0D12]/30">
-            <p className="px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#EDE7DA]/40">
-              Create a community to see it here
-            </p>
+        <div className="space-y-6 px-6">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-400/5 border border-cyan-500/20 text-cyan-300 shadow-[0_0_15px_-3px_rgba(34,211,238,0.3)]">
+              <FaUsers className="text-lg" />
+            </span>
+            <h2 className="font-['Fraunces',_serif] text-2xl font-bold tracking-tight text-[#EDE7DA]">
+              Communities
+            </h2>
           </div>
-        )}
-        <p className="mb-1 mt-5 px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#EDE7DA]/40">
-          Joined
-        </p>
 
-        {joinedCommunities.length > 0 ? (
-          joinedCommunities.map((community) => {
-            console.log(joinedCommunities);
-            return (
-              <CommunityCard
-                key={community._id}
-                name={community.name}
-                members={community.members.length}
-                community={community}
-                setActiveCommunity={setActiveCommunity}
-                activeCommunity={activeCommunity}
-                getCommunities={getCommunities}
-                getJoinedCommunities={getJoinedCommunities}
-                setMessages={setMessages}
-                getCommunityDetails={getCommunityDetails}
-                fetchMessages={fetchMessages}
-                setShowConfirmDialog={setShowConfirmDialog}
-                showConfirmDialog={showConfirmDialog}
+          <form className="group relative" onSubmit={handleCreateCommunity}>
+            <div className="absolute -inset-0.5 rounded-[1.25rem] bg-gradient-to-r from-cyan-500/30 to-fuchsia-500/30 opacity-0 blur transition duration-500 group-focus-within:opacity-100" />
+            <div className="relative flex flex-col space-y-3 rounded-2xl bg-[#0B0D12] p-3 border border-white/5">
+              <input
+                type="text"
+                value={createCommunities.name}
+                onChange={(e) => setCreateCommunities({ ...createCommunities, name: e.target.value })}
+                placeholder="New community name..."
+                className="w-full rounded-xl bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-[#EDE7DA] outline-none transition placeholder:text-[#EDE7DA]/30 focus:bg-white/[0.06]"
               />
-            );
-          })
-        ) : (
-          <div className="flex h-20 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-[#0B0D12]/30">
-            <p className="px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#EDE7DA]/40">
-              No communities joined
-            </p>
+              <button
+                type="submit"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-[#0B0D12] shadow-[0_0_20px_-5px_rgba(34,211,238,0.4)] transition hover:bg-cyan-400 active:scale-[0.98]"
+              >
+                <FaPlus className="text-xs" /> Create Community
+              </button>
+            </div>
+          </form>
+
+          <form className="flex items-center gap-2">
+            <input
+              type="text"
+              value={joinCommunityCode.uniqueCode}
+              name="uniqueCode"
+              onChange={(e) => setJoinCommunityCode({ ...joinCommunityCode, uniqueCode: e.target.value })}
+              placeholder="Paste unique code..."
+              className="min-w-0 flex-1 rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-sm font-medium text-[#EDE7DA] outline-none transition placeholder:text-[#EDE7DA]/30 focus:border-cyan-500/30 focus:bg-white/[0.04]"
+            />
+            <button
+              type="submit"
+              onClick={handleJoinCommunity}
+              className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-[#EDE7DA] transition hover:bg-white/10 hover:text-white"
+            >
+              Join
+            </button>
+          </form>
+
+          <div className="space-y-6">
+            <div>
+              <p className="mb-3 px-1 text-xs font-bold uppercase tracking-widest text-[#EDE7DA]/40">
+                Created by you
+              </p>
+              {communities.length > 0 ? (
+                <div className="space-y-2">
+                  {communities.map((community) => (
+                    <CommunityCard
+                      key={community._id}
+                      name={community.name}
+                      members={community.members.length}
+                      community={community}
+                      setActiveCommunity={setActiveCommunity}
+                      activeCommunity={activeCommunity}
+                      getCommunities={getCommunities}
+                      getJoinedCommunities={getJoinedCommunities}
+                      setMessages={setMessages}
+                      getCommunityDetails={getCommunityDetails}
+                      fetchMessages={fetchMessages}
+                      setShowConfirmDialog={setShowConfirmDialog}
+                      showConfirmDialog={showConfirmDialog}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex h-20 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.01]">
+                  <p className="text-xs font-medium text-[#EDE7DA]/30">No Community created yet</p>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <p className="mb-3 px-1 text-xs font-bold uppercase tracking-widest text-[#EDE7DA]/40">
+                Joined Communities
+              </p>
+              {joinedCommunities.length > 0 ? (
+                <div className="space-y-2">
+                  {joinedCommunities.map((community) => (
+                    <CommunityCard
+                      key={community._id}
+                      name={community.name}
+                      members={community.members.length}
+                      community={community}
+                      setActiveCommunity={setActiveCommunity}
+                      activeCommunity={activeCommunity}
+                      getCommunities={getCommunities}
+                      getJoinedCommunities={getJoinedCommunities}
+                      setMessages={setMessages}
+                      getCommunityDetails={getCommunityDetails}
+                      fetchMessages={fetchMessages}
+                      setShowConfirmDialog={setShowConfirmDialog}
+                      showConfirmDialog={showConfirmDialog}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex h-20 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.01]">
+                  <p className="text-xs font-medium text-[#EDE7DA]/30">Not in any communities</p>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
-    </aside>
+        </div>
+        <div className="h-10 shrink-0" />
+      </aside>
+    </>
   );
 };
 
