@@ -24,6 +24,22 @@ export const getDoubt = async (req, res) => {
   }
 };
 
+export const getAllDoubts = async (req, res) => {
+  try {
+    const doubts = await Doubt.find();
+    res.status(200).json({
+      success: true,
+      doubts,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 export const postDoubts = async (req, res) => {
   const { title, content } = req.body;
   const userId = req.user.id;

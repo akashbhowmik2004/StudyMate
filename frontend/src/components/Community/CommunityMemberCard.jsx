@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { FaTimes, FaUserMinus, FaSpinner } from "react-icons/fa";
 import { api } from "../../lib/axois.js";
 import useAuth from "../../context/useAuth.jsx";
-import toast from "react-hot-toast";
+import {useToast} from "../../context/ToastContext.jsx";
 
 const CommunityMemberCard = ({
   setMembersOpen,
@@ -13,15 +13,11 @@ const CommunityMemberCard = ({
   getJoinedCommunities,
   getCommunities,
 }) => {
-  let isAdmin = false;
   const { user } = useAuth();
   const [confirmingId, setConfirmingId] = useState(null);
   const [removingId, setRemovingId] = useState(null);
   const [canRemoveMembers, setCanRemoveMembers] = useState(false);
-
-  if(activeCommunity?.creatorId === user?._id) {
-    isAdmin = true;
-  }
+  const {showToast} = useToast();
 
   useEffect(() => {
     if (!activeCommunity) return;
@@ -52,7 +48,7 @@ const CommunityMemberCard = ({
     try {
       setRemovingId(memberId);
       await api.put(`/communities/remove-member/${memberId}`, { id: activeCommunity?._id });
-      toast.success(`${member?.username || "Member"} removed successfully`);
+      showToast(`${member?.username || "Member"} removed successfully`, true);
       await getCommunityDetails(activeCommunity?._id);
       await getCommunities();
       await getJoinedCommunities();
@@ -60,10 +56,10 @@ const CommunityMemberCard = ({
     } catch (error) {
       console.error("Error removing member:", error.response);
       if(error.response?.status === 403) {
-        toast.error(error.response?.data.message || "You are not authorized to remove this member.");
+        showToast(error.response?.data.message || "You are not authorized to remove this member.", false);
       }
       else {
-        toast.error("Failed to remove member");
+        showToast("Failed to remove member", false);
       }
     } finally {
       setRemovingId(null);

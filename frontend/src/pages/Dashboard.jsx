@@ -1,18 +1,3 @@
-/**
- * StudyMate Dashboard — "Desk at night" redesign
- * ------------------------------------------------
- * Design concept: a study desk lit by a single cyan lamp. The page background
- * is ink-dark like the room; content lives on two kinds of surfaces —
- * glass "desk" panels (schedule, actions) and warm paper "index cards"
- * (notes, subjects, streak) that sit on top of the desk, tilted slightly,
- * the way real study cards do.
- *
- * Fonts used (add once to index.html <head>, or your global CSS):
- * <link rel="preconnect" href="https://fonts.googleapis.com">
- * <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
- *
- * No functional logic was changed — only markup, structure, and styling.
- */
 import {
   FaBookOpen,
   FaCalendarAlt,
@@ -51,38 +36,38 @@ const todaySchedule = [
   {
     time: "08:30",
     end: "09:45",
-    title: "Data Structures Revision",
+    title: "Java Full Stack Revision",
     type: "Deep Focus",
   },
   {
     time: "11:00",
     end: "12:00",
-    title: "Group Doubt Session",
-    type: "Collaboration",
+    title: "PostgreSQL Lab Prep",
+    type: "Practice",
   },
   {
     time: "17:30",
     end: "18:30",
-    title: "Operating Systems Quiz Prep",
-    type: "Practice",
+    title: "Computer Networks Quiz",
+    type: "Review",
   },
 ];
 
 const recentNotes = [
   {
-    title: "Binary Trees — Traversals",
-    subject: "Algorithms",
+    title: "TCP Three-Way Handshake",
+    subject: "Computer Networks",
     updated: "2h ago",
     tint: "coral",
   },
   {
-    title: "Normalization Cheatsheet",
-    subject: "Database Systems",
+    title: "PostgreSQL ER Diagrams",
+    subject: "Database Management",
     updated: "Yesterday",
     tint: "mint",
   },
   {
-    title: "TCP vs UDP, quick diagram",
+    title: "Leaky Bucket Algorithm",
     subject: "Computer Networks",
     updated: "2 days ago",
     tint: "lav",
@@ -90,19 +75,18 @@ const recentNotes = [
 ];
 
 const subjects = [
-  { subject: "Algorithms", progress: 76, tint: "coral" },
-  { subject: "Database Systems", progress: 64, tint: "mint" },
+  { subject: "Full Stack Development", progress: 76, tint: "coral" },
+  { subject: "Database Management", progress: 64, tint: "mint" },
   { subject: "Computer Networks", progress: 52, tint: "lav" },
-  { subject: "Mathematics", progress: 83, tint: "amber" },
+  { subject: "Java Programming", progress: 83, tint: "amber" },
 ];
 
-// Swap for [] to preview the empty state.
 const joinedCommunities = [
   {
-    name: "Logic League",
+    name: "BBIT Tech Club",
     members: 42,
     activity: "6 posts today",
-    initials: "LL",
+    initials: "BT",
     tint: "coral",
   },
   {
@@ -123,24 +107,24 @@ const quickActions = [
 
 const tint = {
   coral: {
-    chip: "bg-[#F2735B]/15 text-[#FF8B72] border-[#F2735B]/30",
-    bar: "bg-[#F2735B]",
-    dot: "bg-[#F2735B]",
+    chip: "bg-fuchsia-500/15 text-fuchsia-400 border-fuchsia-500/30",
+    bar: "bg-fuchsia-500",
+    dot: "bg-fuchsia-500",
   },
   mint: {
-    chip: "bg-[#6FCF97]/15 text-[#8FE0AE] border-[#6FCF97]/30",
-    bar: "bg-[#6FCF97]",
-    dot: "bg-[#6FCF97]",
+    chip: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+    bar: "bg-emerald-500",
+    dot: "bg-emerald-500",
   },
   lav: {
-    chip: "bg-[#A996D9]/15 text-[#C3B6EA] border-[#A996D9]/30",
-    bar: "bg-[#A996D9]",
-    dot: "bg-[#A996D9]",
+    chip: "bg-indigo-500/15 text-indigo-400 border-indigo-500/30",
+    bar: "bg-indigo-500",
+    dot: "bg-indigo-500",
   },
   amber: {
-    chip: "bg-[#E8A33D]/15 text-[#F2BE6D] border-[#E8A33D]/30",
-    bar: "bg-[#E8A33D]",
-    dot: "bg-[#E8A33D]",
+    chip: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    bar: "bg-amber-500",
+    dot: "bg-amber-500",
   },
 };
 
@@ -149,18 +133,18 @@ const tint = {
 function StreakChain({ count }) {
   const dots = Array.from({ length: count });
   return (
-    <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
       {dots.map((_, i) => (
         <span
           key={i}
-          className={`h-2.5 w-2.5 shrink-0 rounded-full ${
+          className={`h-2.5 w-2.5 shrink-0 rounded-full transition-all duration-300 ${
             i === dots.length - 1
-              ? "bg-cyan-400 shadow-[0_0_10px_2px_rgba(34,211,238,0.55)]"
-              : "bg-cyan-400/45"
+              ? "bg-cyan-400 shadow-[0_0_12px_2px_rgba(34,211,238,0.6)] scale-110"
+              : "bg-cyan-500/20"
           }`}
         />
       ))}
-      <FaFire className="ml-1 shrink-0 text-cyan-400 drop-shadow-[0_0_6px_rgba(34,211,238,0.5)]" />
+      <FaFire className="ml-1 shrink-0 text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]" />
     </div>
   );
 }
@@ -169,40 +153,49 @@ function StreakChain({ count }) {
 
 export default function Dashboard() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA]">
-      <StudyMateHeader />
+    <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">
+      <div className="relative z-50 flex-none">
+        <StudyMateHeader />
+      </div>
 
-      {/* lamp glow */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(34,211,238,0.16),transparent_38%),radial-gradient(circle_at_100%_20%,rgba(34,211,238,0.08),transparent_35%),linear-gradient(180deg,rgba(11,13,18,1),rgba(7,8,11,1))]" />
-      <div className="pointer-events-none absolute left-1/2 top-0 h-96 w-[42rem] -translate-x-1/2 rounded-full bg-cyan-400/10 blur-[110px]" />
+      {/* Modern Ambient Backglow */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute top-[0%] left-[10%] w-[800px] h-[500px] bg-cyan-500/10 blur-[120px] rounded-[100%]" />
+        <div className="absolute bottom-[10%] right-[10%] w-[600px] h-[500px] bg-fuchsia-500/10 blur-[120px] rounded-[100%]" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+      </div>
 
-      <main className="relative mx-auto max-w-7xl px-4 pb-14 pt-8 sm:px-6 lg:px-8 lg:pt-10">
+      <main className="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-8 sm:px-6 lg:px-8 lg:pt-12">
+        
         {/* ---------------------------- hero ---------------------------- */}
-        <section className="rounded-4xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-2xl sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.24em] text-cyan-200/80">
-                <IoSparkles className="text-sm" />
+        <section className="relative overflow-hidden rounded-[2.5rem] border border-white/5 bg-[#12141B]/40 p-8 shadow-2xl shadow-black/50 backdrop-blur-xl sm:p-10">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
+          
+          <div className="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-cyan-300">
+                <IoSparkles className="text-xs" />
                 Your desk, tonight
               </p>
-              <h1 className="mt-3 max-w-xl font-['Fraunces',_serif] text-3xl font-medium leading-tight tracking-tight text-white sm:text-4xl">
-                Welcome back — the lamp's still on and your streak is glowing.
+              <h1 className="mt-5 font-['Fraunces',_serif] text-4xl font-black leading-[1.15] tracking-tight text-[#EDE7DA] sm:text-5xl">
+                Welcome back — the lamp's still on and your streak is{" "}
+                <span className="text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.4)]">glowing.</span>
               </h1>
-              <p className="mt-3 max-w-xl text-sm leading-6 text-[#EDE7DA]/65 sm:text-base">
-                Everything you're studying, sharing, and joining — in one place.
+              <p className="mt-4 text-sm font-medium leading-relaxed text-slate-400 sm:text-base">
+                Everything you're studying, sharing, and joining — right where you left it.
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Link to={"/community"}>
-                <button className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-5 py-3 font-semibold text-[#0B0D12] shadow-[0_14px_36px_rgba(34,211,238,0.28)] transition hover:-translate-y-0.5 hover:bg-cyan-300">
-                  <IoPeople className="text-xl" />
+            <div className="grid shrink-0 gap-3 sm:grid-cols-2 lg:flex lg:flex-col xl:flex-row w-full lg:w-auto">
+              <Link to={"/community"} className="w-full">
+                <button className="inline-flex w-full items-center justify-center gap-2.5 rounded-2xl bg-cyan-500 px-6 py-4 text-sm font-bold text-[#0B0D12] shadow-[0_0_20px_-5px_rgba(34,211,238,0.4)] transition-all hover:-translate-y-0.5 hover:bg-cyan-400 hover:shadow-cyan-400/40 active:scale-95">
+                  <IoPeople className="text-lg" />
                   Explore Community
                 </button>
               </Link>
-              <Link to={"/notes"}>
-                <button className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-white/10">
-                  <FaBookOpen className="text-lg" />
+              <Link to={"/notes"} className="w-full">
+                <button className="inline-flex w-full items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-sm font-bold text-[#EDE7DA] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:bg-white/10 hover:border-white/20 active:scale-95">
+                  <FaBookOpen className="text-base" />
                   Browse Notes
                 </button>
               </Link>
@@ -210,39 +203,39 @@ export default function Dashboard() {
           </div>
 
           {/* streak + focus strip */}
-          <div className="mt-7 grid gap-4 rounded-3xl border border-white/10 bg-[#0B0D12]/50 p-4 sm:grid-cols-[1.3fr_1px_1fr_1fr_1fr] sm:items-center sm:p-5">
+          <div className="relative mt-10 grid gap-6 rounded-[2rem] border border-white/5 bg-black/20 p-5 sm:grid-cols-[1.3fr_1px_1fr_1fr_1fr] sm:items-center sm:p-6 backdrop-blur-md">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.18em] text-[#EDE7DA]/50">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
                 Study streak
               </p>
-              <div className="mt-1.5 flex items-baseline gap-2">
-                <span className="font-['JetBrains_Mono',_monospace] text-2xl font-semibold text-white">
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="font-['Fraunces',_serif] text-4xl font-black text-white drop-shadow-md">
                   {streak.days}
                 </span>
-                <span className="text-sm text-[#EDE7DA]/60">
+                <span className="text-xs font-bold uppercase tracking-widest text-cyan-400/80">
                   {streak.label}
                 </span>
               </div>
-              <div className="mt-2">
+              <div className="mt-3">
                 <StreakChain count={streak.days} />
               </div>
-              <p className="mt-1 text-xs text-[#EDE7DA]/45">{streak.note}</p>
+              <p className="mt-2 text-[11px] font-medium text-slate-500">{streak.note}</p>
             </div>
 
-            <div className="hidden h-full w-px bg-white/10 sm:block" />
+            <div className="hidden h-full w-px bg-white/5 sm:block" />
 
             {focusStats.map((s) => {
               const Icon = s.icon;
               return (
-                <div key={s.label} className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-cyan-200">
-                    <Icon className="text-sm" />
+                <div key={s.label} className="flex items-center gap-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_-3px_rgba(34,211,238,0.2)]">
+                    <Icon className="text-lg" />
                   </span>
                   <div>
-                    <p className="text-[11px] uppercase tracking-[0.14em] text-[#EDE7DA]/45">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
                       {s.label}
                     </p>
-                    <p className="font-['JetBrains_Mono',_monospace] text-lg font-semibold text-white">
+                    <p className="mt-1 font-['Fraunces',_serif] text-2xl font-bold text-white">
                       {s.value}
                     </p>
                   </div>
@@ -253,75 +246,73 @@ export default function Dashboard() {
         </section>
 
         {/* ------------------------ main two column ------------------------ */}
-        <section className="mt-6 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="mt-8 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
+          
           {/* today's page */}
-          <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl sm:p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="font-['Fraunces',_serif] text-xl font-medium text-white sm:text-2xl">
+          <article className="rounded-[2.5rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-6 backdrop-blur-xl sm:p-8">
+            <div className="flex items-center justify-between border-b border-white/5 pb-5">
+              <h2 className="font-['Fraunces',_serif] text-2xl font-bold text-white">
                 Today's Page
               </h2>
               <Link to="/schedule">
-                <button className="inline-flex items-center gap-1 rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-medium text-[#EDE7DA]/80 transition hover:bg-white/10">
+                <button className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[#EDE7DA]/80 transition hover:bg-white/10 hover:text-white">
                   Calendar <FaChevronRight className="text-[10px]" />
                 </button>
               </Link>
             </div>
 
-            <div className="mt-5 space-y-0 border-l border-dashed border-white/15 pl-5">
+            <div className="mt-6 space-y-0 border-l-2 border-dashed border-white/10 pl-6 ml-2">
               {todaySchedule.map((item, i) => (
-                <div key={item.title} className="relative pb-6 last:pb-0">
-                  <span className="absolute -left-[27px] top-1 h-2.5 w-2.5 rounded-full border-2 border-[#0B0D12] bg-cyan-400" />
-                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                    <h3 className="text-base font-semibold text-white">
+                <div key={item.title} className="relative pb-8 last:pb-0">
+                  <span className="absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full border-4 border-[#0B0D12] bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <h3 className="text-base font-bold text-[#EDE7DA] transition-colors hover:text-cyan-50">
                       {item.title}
                     </h3>
-                    <span className="w-fit rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-[#EDE7DA]/70">
+                    <span className="w-fit rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-cyan-300">
                       {item.type}
                     </span>
                   </div>
-                  <p className="mt-1.5 font-['JetBrains_Mono',_monospace] text-xs tracking-wide text-[#EDE7DA]/55">
+                  <p className="mt-2 text-xs font-bold tracking-widest text-slate-500 uppercase">
                     {item.time} – {item.end}
                   </p>
-                  {i !== todaySchedule.length - 1 && (
-                    <div className="mt-5 h-px w-full bg-white/5" />
-                  )}
                 </div>
               ))}
             </div>
           </article>
 
           {/* recent notes — index cards */}
-          <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl sm:p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="font-['Fraunces',_serif] text-xl font-medium text-white sm:text-2xl">
+          <article className="rounded-[2.5rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-6 backdrop-blur-xl sm:p-8">
+            <div className="flex items-center justify-between border-b border-white/5 pb-5">
+              <h2 className="font-['Fraunces',_serif] text-2xl font-bold text-white">
                 Recent Notes
               </h2>
               <Link
                 to={"/notes"}
-                className="inline-flex items-center gap-1 text-sm font-medium text-cyan-200/90 hover:text-cyan-100"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-400 transition hover:text-cyan-300"
               >
                 All notes <FaChevronRight className="text-[10px]" />
               </Link>
             </div>
 
-            <div className="mt-5 space-y-3">
+            <div className="mt-6 space-y-4">
               {recentNotes.map((note) => (
                 <div
                   key={note.title}
-                  className="group relative overflow-hidden rounded-2xl border border-[#EDE7DA]/12 bg-[#F3ECDD]/[0.06] p-4 pr-9 transition hover:bg-[#F3ECDD]/[0.1]"
+                  className="group relative overflow-hidden rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-5 transition-all duration-300 hover:bg-white/[0.04] hover:shadow-lg hover:shadow-cyan-900/10 hover:border-white/10"
                 >
-                  <span className="absolute right-0 top-0 h-6 w-6 -translate-y-1/2 translate-x-1/2 rotate-45 bg-[#0B0D12]" />
-                  <FaThumbtack className="absolute right-3 top-3 text-xs text-[#EDE7DA]/35" />
-                  <p className="text-sm font-semibold text-[#F3ECDD]">
+                  <span className="absolute right-0 top-0 h-8 w-8 -translate-y-1/2 translate-x-1/2 rotate-45 bg-white/10 transition-transform duration-300 group-hover:scale-110" />
+                  <FaThumbtack className="absolute right-4 top-4 text-xs text-[#EDE7DA]/20 transition-colors group-hover:text-cyan-400/50" />
+                  <p className="pr-6 text-base font-bold text-[#EDE7DA] transition-colors group-hover:text-white">
                     {note.title}
                   </p>
-                  <div className="mt-2 flex items-center gap-2 text-xs">
+                  <div className="mt-4 flex items-center gap-3 text-xs">
                     <span
-                      className={`rounded-full border px-2 py-0.5 ${tint[note.tint].chip}`}
+                      className={`rounded-full border px-3 py-1 font-bold ${tint[note.tint].chip}`}
                     >
                       {note.subject}
                     </span>
-                    <span className="text-[#EDE7DA]/40">{note.updated}</span>
+                    <span className="font-medium text-slate-500">{note.updated}</span>
                   </div>
                 </div>
               ))}
@@ -330,31 +321,30 @@ export default function Dashboard() {
         </section>
 
         {/* --------------------------- subjects --------------------------- */}
-        <section className="mt-6 grid gap-6 lg:grid-cols-[1fr_1fr]">
-          <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl sm:p-6">
-            <h2 className="font-['Fraunces',_serif] text-xl font-medium text-white">
+        <section className="mt-8 grid gap-8 lg:grid-cols-[1fr_1fr]">
+          <article className="rounded-[2.5rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-6 backdrop-blur-xl sm:p-8">
+            <h2 className="font-['Fraunces',_serif] text-2xl font-bold text-white border-b border-white/5 pb-5">
               Subjects
             </h2>
-            <div className="mt-5 space-y-3">
+            <div className="mt-6 space-y-4">
               {subjects.map((item) => (
                 <div
                   key={item.subject}
-                  className={`flex items-center gap-4 rounded-2xl border border-white/10 bg-[#0B0D12]/40 p-3.5 pl-4 border-l-[3px] ${tint[
-                    item.tint
-                  ].bar.replace("bg-", "border-l-")}`}
+                  className="group flex items-center gap-4 rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-4 pl-5 transition-all duration-300 hover:bg-white/[0.04] relative overflow-hidden"
                 >
+                  <div className={`absolute left-0 top-0 bottom-0 w-1 ${tint[item.tint].bar}`} />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="truncate text-[#EDE7DA]/90">
+                      <span className="truncate font-bold text-[#EDE7DA] group-hover:text-white transition-colors">
                         {item.subject}
                       </span>
-                      <span className="font-['JetBrains_Mono',_monospace] font-medium text-white">
+                      <span className="font-bold text-slate-400">
                         {item.progress}%
                       </span>
                     </div>
-                    <div className="mt-2 h-1.5 rounded-full bg-white/8">
+                    <div className="mt-3 h-2 w-full rounded-full bg-black/40 overflow-hidden shadow-inner">
                       <div
-                        className={`h-full rounded-full ${tint[item.tint].bar}`}
+                        className={`h-full rounded-full transition-all duration-1000 ease-out ${tint[item.tint].bar}`}
                         style={{ width: `${item.progress}%` }}
                       />
                     </div>
@@ -365,59 +355,61 @@ export default function Dashboard() {
           </article>
 
           {/* communities */}
-          <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl sm:p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="font-['Fraunces',_serif] text-xl font-medium text-white">
-                Your Communities
+          <article className="rounded-[2.5rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-6 backdrop-blur-xl sm:p-8">
+            <div className="flex items-center justify-between border-b border-white/5 pb-5">
+              <h2 className="font-['Fraunces',_serif] text-2xl font-bold text-white">
+                Your Hubs
               </h2>
               <Link
                 to={"/community"}
-                className="inline-flex items-center gap-1 text-sm font-medium text-cyan-200/90 hover:text-cyan-100"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-400 transition hover:text-cyan-300"
               >
                 Browse <FaChevronRight className="text-[10px]" />
               </Link>
             </div>
 
             {joinedCommunities.length > 0 ? (
-              <div className="mt-5 space-y-3">
+              <div className="mt-6 space-y-4">
                 {joinedCommunities.map((c) => (
                   <div
                     key={c.name}
-                    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0B0D12]/40 p-3.5"
+                    className="group flex items-center gap-4 rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-4 transition-all duration-300 hover:bg-white/[0.04]"
                   >
                     <span
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border text-sm font-semibold ${tint[c.tint].chip}`}
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] border text-sm font-bold shadow-lg ${tint[c.tint].chip}`}
                     >
                       {c.initials}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-white">
+                      <p className="truncate text-base font-bold text-white">
                         {c.name}
                       </p>
-                      <p className="truncate text-xs text-[#EDE7DA]/50">
-                        {c.members} members · {c.activity}
+                      <p className="mt-1 truncate text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                        {c.members} members <span className="mx-1">•</span> {c.activity}
                       </p>
                     </div>
-                    <button className="shrink-0 rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-[#EDE7DA]/80 transition hover:bg-white/10">
+                    <button className="shrink-0 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[#EDE7DA] transition hover:bg-white/10 hover:text-white">
                       Open
                     </button>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="mt-5 flex flex-col items-center gap-3 rounded-2xl border border-dashed border-white/15 bg-[#0B0D12]/30 px-4 py-8 text-center">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[#EDE7DA]/50">
-                  <FaUsers />
+              <div className="mt-6 flex flex-col items-center justify-center gap-4 rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.01] px-4 py-12 text-center">
+                <span className="flex h-14 w-14 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400">
+                  <FaUsers className="text-xl" />
                 </span>
-                <p className="text-sm font-medium text-[#EDE7DA]/80">
-                  No communities yet
-                </p>
-                <p className="max-w-[220px] text-xs text-[#EDE7DA]/45">
-                  Join a study group to swap notes and stay accountable.
-                </p>
+                <div>
+                  <p className="text-base font-bold text-[#EDE7DA]">
+                    No Hubs Yet
+                  </p>
+                  <p className="mt-1 max-w-[250px] text-xs font-medium text-slate-500">
+                    Join a study group to swap notes and stay accountable.
+                  </p>
+                </div>
                 <Link to={"/community"}>
-                  <button className="mt-1 rounded-xl bg-cyan-400 px-4 py-2 text-xs font-semibold text-[#0B0D12] transition hover:bg-cyan-300">
-                    Browse communities
+                  <button className="mt-2 rounded-xl bg-cyan-500 px-5 py-2.5 text-xs font-bold text-[#0B0D12] transition hover:bg-cyan-400 shadow-[0_0_15px_-3px_rgba(34,211,238,0.4)]">
+                    Browse Hubs
                   </button>
                 </Link>
               </div>
@@ -426,25 +418,25 @@ export default function Dashboard() {
         </section>
 
         {/* ------------------------- quick actions ------------------------- */}
-        <section className="mt-6 rounded-3xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl sm:p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <section className="mt-8 rounded-[2.5rem] border border-white/5 bg-[#12141B]/40 p-6 backdrop-blur-xl sm:p-8 shadow-xl">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.18em] text-[#EDE7DA]/45">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
                 Desk tools
               </p>
-              <h2 className="mt-1 font-['Fraunces',_serif] text-lg font-medium text-white">
+              <h2 className="mt-1 font-['Fraunces',_serif] text-2xl font-bold text-white">
                 Quick actions
               </h2>
             </div>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="flex flex-wrap gap-3">
               {quickActions.map((action) => {
                 const Icon = action.icon;
                 return (
                   <button
                     key={action.label}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/5 px-4 py-2 text-sm font-medium text-[#EDE7DA]/85 transition hover:border-cyan-400/40 hover:bg-white/10"
+                    className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-bold text-[#EDE7DA] transition hover:border-cyan-500/30 hover:bg-cyan-500/10 hover:text-cyan-100"
                   >
-                    <Icon className="text-xs text-cyan-300" />
+                    <Icon className="text-xs text-cyan-400" />
                     {action.label}
                   </button>
                 );
@@ -452,14 +444,14 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-3 border-t border-white/8 pt-5">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-[#EDE7DA]/70">
-              <FaGraduationCap />
-              Semester 5
+          <div className="mt-6 flex flex-wrap gap-3 border-t border-white/5 pt-6">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/5 bg-white/[0.02] px-4 py-2 text-xs font-bold text-slate-400">
+              <FaGraduationCap className="text-cyan-400/70 text-sm" />
+              Semester 6
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs text-[#EDE7DA]/70">
-              <FaUserFriends />
-              Team: Logic League
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/5 bg-white/[0.02] px-4 py-2 text-xs font-bold text-slate-400">
+              <FaUserFriends className="text-fuchsia-400/70 text-sm" />
+              Team: StudyMate Backend
             </span>
           </div>
         </section>

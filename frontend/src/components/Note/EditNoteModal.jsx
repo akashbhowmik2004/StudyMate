@@ -4,22 +4,13 @@ import { FaTimes, FaImage, FaFilePdf, FaRegStickyNote } from "react-icons/fa";
 import { api } from "../../lib/axois.js";
 import { toast } from "react-hot-toast";
 import UploadButton from "./UploadButton.jsx";
-/**
- * EditNoteModal
- *
- * Props:
- *  - note: { id, type: "text" | "image" | "pdf", title, content, meta, date, shared }
- *  - open: boolean
- *  - onClose: () => void
- *  - fetchNotesBySubject: () => void
- */
+
 const EditNoteModal = ({ note, open, onClose, fetchNotesBySubject }) => {
   const [title, setTitle] = useState(note?.title || "");
   const [content, setContent] = useState(note?.content || "");
   const dialogRef = useRef(null);
   const titleInputRef = useRef(null);
 
-  // Reset local state whenever a new note is opened
   useEffect(() => {
     if (open) {
       setTitle(note?.title || "");
@@ -27,7 +18,6 @@ const EditNoteModal = ({ note, open, onClose, fetchNotesBySubject }) => {
     }
   }, [open, note]);
 
-  // Autofocus title field on open
   useEffect(() => {
     if (open) {
       const t = setTimeout(() => titleInputRef.current?.focus(), 50);
@@ -35,7 +25,6 @@ const EditNoteModal = ({ note, open, onClose, fetchNotesBySubject }) => {
     }
   }, [open]);
 
-  // Close on Escape
   useEffect(() => {
     const handleKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -54,7 +43,6 @@ const EditNoteModal = ({ note, open, onClose, fetchNotesBySubject }) => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    // Here you would typically call an API to save the changes
     try {
       await api.put(`/notes/${note._id}`, {
         title,
@@ -76,70 +64,66 @@ const EditNoteModal = ({ note, open, onClose, fetchNotesBySubject }) => {
         ? FaFilePdf
         : FaRegStickyNote;
 
-  // Portalled to document.body so the modal isn't trapped inside any
-  // ancestor card's `transform` (e.g. the NoteCard's hover:-translate-y-0.5),
-  // which would otherwise turn `position: fixed` into a local containing
-  // block and cause the modal to jump/glitch when a card is hovered.
   return createPortal(
     <div
       onMouseDown={handleBackdropClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B0D12]/80 px-4 py-8 backdrop-blur-xl transition-all"
     >
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-note-title"
-        className="w-full max-w-md rounded-2xl border border-white/10 bg-[#12141B] shadow-2xl shadow-black/50"
+        className="w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-b from-[#12141B] to-[#0B0D12] shadow-2xl shadow-cyan-900/20"
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-400/10 text-cyan-200/80">
-              <TypeIcon className="text-[13px]" />
+        <div className="flex items-center justify-between border-b border-white/5 px-6 py-5">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300">
+              <TypeIcon className="text-sm" />
             </span>
             <h2
               id="edit-note-title"
-              className="text-sm font-semibold text-[#F3ECDD]"
+              className="font-['Fraunces',_serif] text-xl font-bold text-[#EDE7DA]"
             >
-              Edit note
+              Edit Note
             </h2>
           </div>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="rounded-md p-1.5 text-[#EDE7DA]/40 transition hover:bg-white/5 hover:text-[#EDE7DA]/80"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-[#EDE7DA]/60 transition hover:bg-white/10 hover:text-white"
           >
             <FaTimes className="text-xs" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="space-y-4 px-5 py-5">
+        <div className="space-y-5 px-6 py-6">
           {note.type === "pdf" && (
-            <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#0B0D12]/40 p-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#F2735B]/15 text-[#FF8B72]">
-                <FaFilePdf className="text-base" />
+            <div className="flex items-center gap-3 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400">
+                <FaFilePdf className="text-lg" />
               </span>
-              <div className="min-w-0">
-                <p className="truncate text-xs font-medium text-[#EDE7DA]/85">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold text-[#EDE7DA]">
                   {note.meta}
                 </p>
-                <p className="text-[11px] text-slate-400">Document</p>
+                <p className="text-[11px] font-medium uppercase tracking-wider text-slate-500 mt-1">PDF Document</p>
               </div>
             </div>
           )}
 
           {note.type === "image" && (
-            <div className="flex h-24 w-full items-center justify-center rounded-xl border border-white/10 bg-[radial-gradient(circle_at_30%_20%,rgba(34,211,238,0.18),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(103,232,249,0.14),transparent_50%)]">
-              <FaImage className="text-xl text-[#EDE7DA]/25" />
+            <div className="flex h-32 w-full items-center justify-center rounded-2xl border border-fuchsia-500/20 bg-gradient-to-br from-fuchsia-500/10 to-transparent">
+              <FaImage className="text-3xl text-fuchsia-400/50 drop-shadow-lg" />
             </div>
           )}
 
-          <div>
+          <div className="space-y-1.5">
             <label
               htmlFor="note-title-input"
-              className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-[#EDE7DA]/40"
+              className="block text-[10px] font-bold uppercase tracking-widest text-[#EDE7DA]/50 px-1"
             >
               Title
             </label>
@@ -150,14 +134,14 @@ const EditNoteModal = ({ note, open, onClose, fetchNotesBySubject }) => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Note title"
-              className="w-full rounded-xl border border-white/10 bg-[#0B0D12]/60 px-3 py-2.5 text-sm text-[#F3ECDD] placeholder:text-[#EDE7DA]/25 outline-none transition focus:border-cyan-300/40 focus:ring-1 focus:ring-cyan-300/30"
+              className="w-full rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-sm font-bold text-[#EDE7DA] outline-none transition placeholder:text-[#EDE7DA]/30 focus:border-cyan-500/30 focus:bg-white/[0.04]"
             />
           </div>
 
-          <div>
+          <div className="space-y-1.5">
             <label
               htmlFor="note-content-input"
-              className="mb-1.5 block text-[11px] font-medium uppercase tracking-wide text-[#EDE7DA]/40"
+              className="block text-[10px] font-bold uppercase tracking-widest text-[#EDE7DA]/50 px-1"
             >
               Content
             </label>
@@ -165,27 +149,27 @@ const EditNoteModal = ({ note, open, onClose, fetchNotesBySubject }) => {
               id="note-content-input"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Write something..."
+              placeholder="Update your notes..."
               rows={5}
-              className="w-full resize-none rounded-xl border border-white/10 bg-[#0B0D12]/60 px-3 py-2.5 text-sm leading-relaxed text-[#EDE7DA]/85 placeholder:text-[#EDE7DA]/25 outline-none transition focus:border-cyan-300/40 focus:ring-1 focus:ring-cyan-300/30"
+              className="w-full resize-none rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-sm leading-relaxed text-[#EDE7DA]/80 outline-none transition placeholder:text-[#EDE7DA]/30 focus:border-cyan-500/30 focus:bg-white/[0.04]"
             />
           </div>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 border-t border-white/10 px-5 py-4">
-          {note.type !== "text" && <UploadButton type={note.type} />}
+        <div className="flex items-center justify-end gap-3 border-t border-white/5 px-6 py-5 bg-black/20">
+          {note.type !== "text" && <div className="mr-auto"><UploadButton type={note.type} /></div>}
           <button
             onClick={onClose}
-            className="rounded-xl border border-white/10 px-4 py-2 text-xs font-medium text-[#EDE7DA]/70 transition hover:bg-white/5"
+            className="rounded-xl px-5 py-2.5 text-xs font-bold text-[#EDE7DA]/60 transition hover:bg-white/10 hover:text-white"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="rounded-xl bg-cyan-300/90 px-4 py-2 text-xs font-semibold text-[#0B0D12] transition hover:bg-cyan-200"
+            className="rounded-xl bg-cyan-500 px-6 py-2.5 text-xs font-bold text-[#0B0D12] shadow-[0_0_15px_-3px_rgba(34,211,238,0.4)] transition hover:bg-cyan-400"
           >
-            Save changes
+            Save Changes
           </button>
         </div>
       </div>

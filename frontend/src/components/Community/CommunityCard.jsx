@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import socket from "../../lib/socket.js";
 import ConfirmDialog from "../Common/ConfirmDialog.jsx";
 import useAuth from "../../context/useAuth.jsx";
+import {useToast} from "../../context/ToastContext.jsx";
 
 const CommunityCard = ({
   name,
@@ -22,12 +23,13 @@ const CommunityCard = ({
   const { user } = useAuth();
   const isActive = activeCommunity?._id === community._id;
   const isCreator = community.creatorId === user?._id;
+  const { showToast } = useToast();
 
   const handleDeleteCommunity = async (e) => {
     e.preventDefault();
     try {
       const response = await api.delete(`/communities/${community._id}`);
-      toast.success(response.data.message);
+      showToast(response.data.message, true);
       await Promise.all([getCommunities(), getJoinedCommunities()]);
       setShowConfirmDialog(false);
       if (activeCommunity?._id === community._id) {
@@ -36,8 +38,8 @@ const CommunityCard = ({
     } catch (err) {
       console.log(err.status);
       if (err.status === 403) {
-        toast.error("You can not delete this community");
-      } else toast.error("Failed to delete community");
+        showToast("You can not delete this community", false);
+      } else showToast("Failed to delete community", false);
     }
   };
 
@@ -52,7 +54,7 @@ const CommunityCard = ({
       setMessages(messages);
       setActiveCommunity(community);
     } catch (err) {
-      toast.error("Failed to fetch messages");
+      showToast("Failed to fetch messages", false);
       console.log(err);
     }
   };

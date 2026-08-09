@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import CommunityMemberCard from "./CommunityMemberCard.jsx";
 import ConfirmDialog from "../Common/ConfirmDialog.jsx";
 import useAuth from "../../context/useAuth.jsx";
+import { useToast } from "../../context/ToastContext.jsx";
 
 const CommunityHeader = ({
   activeCommunity,
@@ -30,6 +31,7 @@ const CommunityHeader = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(false);
   const menuRef = useRef(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -44,32 +46,32 @@ const CommunityHeader = ({
   const handleLeaveCommunity = async () => {
     try {
       if(activeCommunity?.creatorId === user._id) {
-        toast.error("You cannot leave the community as you are the creator.");
+        showToast("You cannot leave the community as you are the creator.", false);
         setShowConfirmDialog(false);
         return;
       }
       const response = await api.put(
         `/communities/leave/${activeCommunity._id}`,
       );
-      toast.success(response.data.message);
+      showToast(response.data.message, true);
       await Promise.all([getCommunities(), getJoinedCommunities()]);
       socket.emit("leaveCommunity", activeCommunity._id);
       setActiveCommunity(null);
       setShowConfirmDialog(false);
     } catch (err) {
       console.log(err);
-      toast.error("Failed to leave community");
+      showToast("Failed to leave community", false);
     }
   };
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(
       () => {
-        toast.success("Copied to clipboard!");
+        showToast("Copied to clipboard!", true);
         console.log("Copied to clipboard:", text);
       },
       (err) => {
-        toast.error("Failed to copy text!");
+        showToast("Failed to copy text!", false);
         console.error("Failed to copy text: ", err);
       }
     );

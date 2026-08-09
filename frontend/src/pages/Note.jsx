@@ -8,8 +8,6 @@ import AddNoteCard from "../components/Note/AddNoteCard.jsx";
 import SubjectCard from "../components/Note/SubjectCard.jsx";
 import ConfirmDialog from "../components/Common/ConfirmDialog.jsx";
 
-/* -------------------------------- component ------------------------------- */
-
 export default function Note() {
   const [subjects, setSubjects] = useState([]);
   const [noteCount, setNoteCount] = useState(0);
@@ -90,51 +88,58 @@ export default function Note() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA]">
-      <StudyMateHeader />
+    <div className="relative flex h-screen flex-col overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">
+      <div className="flex-none relative z-50">
+        <StudyMateHeader />
+      </div>
 
-      {/* lamp glow — cyan tint to match Navbar's cyan accent */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_6%,rgba(34,211,238,0.12),transparent_36%),radial-gradient(circle_at_92%_12%,rgba(34,211,238,0.06),transparent_32%),linear-gradient(180deg,rgba(11,13,18,1),rgba(7,8,11,1))]" />
-      <div className="pointer-events-none absolute -left-28 top-24 h-72 w-72 rounded-full bg-cyan-400/8 blur-3xl" />
-      <div className="pointer-events-none absolute -right-28 top-60 h-80 w-80 rounded-full bg-cyan-300/8 blur-3xl" />
+      {/* Modern Ambient Backglow */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute top-0 left-[20%] w-[1000px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-[100%]" />
+        <div className="absolute bottom-0 right-[10%] w-[800px] h-[600px] bg-fuchsia-500/5 blur-[150px] rounded-[100%]" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+      </div>
 
-      <main className="relative flex min-h-[calc(100vh-4rem)]">
+      <main className="relative z-10 flex min-h-0 flex-1 overflow-hidden">
         {/* ---------------- Sidebar: subject binder ---------------- */}
-        <aside className="hidden w-full max-w-xs shrink-0 flex-col border-r border-white/10 bg-white/[0.04] p-6 backdrop-blur-xl sm:flex sm:max-w-sm">
-          <div className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-200/20 bg-cyan-400/10 text-cyan-200">
-              <FaBook className="text-sm" />
+        <aside className="hidden w-full max-w-[320px] shrink-0 flex-col border-r border-white/5 bg-gradient-to-b from-[#0B0D12]/95 to-[#0B0D12]/80 p-6 backdrop-blur-2xl sm:flex transition-transform overflow-y-auto no-scrollbar">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-400/5 border border-cyan-500/20 text-cyan-300 shadow-[0_0_15px_-3px_rgba(34,211,238,0.3)]">
+              <FaBook className="text-lg" />
             </span>
-            <h2 className="font-['Fraunces',_serif] text-xl font-medium tracking-tight text-white">
+            <h2 className="font-['Fraunces',_serif] text-2xl font-bold tracking-tight text-[#EDE7DA]">
               Subjects
             </h2>
           </div>
 
-          <form className="mt-5 space-y-3">
-            <input
-              type="text"
-              name="name"
-              onChange={handleSubjectChange}
-              value={subject.name}
-              placeholder="Add a subject (e.g. Physics)"
-              className="w-full rounded-2xl border border-white/10 bg-[#0B0D12]/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-400/60 focus:bg-[#0B0D12]/80 focus:ring-2 focus:ring-cyan-400/20"
-            />
-            <button
-              type="submit"
-              onClick={handleAddSubject}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-[#0B0D12] shadow-[0_8px_24px_-8px_rgba(34,211,238,0.5)] transition hover:bg-cyan-300 active:scale-[0.99]"
-            >
-              <FaPlus className="text-xs" />
-              Add Subject
-            </button>
+          <form className="group relative mt-6" onSubmit={handleAddSubject}>
+            <div className="absolute -inset-0.5 rounded-[1.25rem] bg-gradient-to-r from-cyan-500/30 to-fuchsia-500/30 opacity-0 blur transition duration-500 group-focus-within:opacity-100" />
+            <div className="relative flex flex-col space-y-3 rounded-2xl bg-[#0B0D12] p-3 border border-white/5">
+              <input
+                type="text"
+                name="name"
+                onChange={handleSubjectChange}
+                value={subject.name}
+                placeholder="New subject..."
+                className="w-full rounded-xl bg-white/[0.03] px-4 py-2.5 text-sm font-medium text-[#EDE7DA] outline-none transition placeholder:text-[#EDE7DA]/30 focus:bg-white/[0.06]"
+              />
+              <button
+                type="submit"
+                onClick={handleAddSubject}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 px-4 py-2.5 text-sm font-bold text-[#0B0D12] shadow-[0_0_20px_-5px_rgba(34,211,238,0.4)] transition hover:bg-cyan-400 active:scale-[0.98]"
+              >
+                <FaPlus className="text-xs" />
+                Add Subject
+              </button>
+            </div>
           </form>
 
-          <p className="mb-2 mt-6 px-1 text-[11px] font-medium uppercase tracking-[0.16em] text-slate-400">
+          <p className="mb-3 mt-8 px-1 text-xs font-bold uppercase tracking-widest text-[#EDE7DA]/40">
             Your subjects
           </p>
-          <div className="flex-1 space-y-1.5 overflow-y-auto">
-            {subjects.map((s) => {
-              return (
+          <div className="flex-1 space-y-2 overflow-y-auto no-scrollbar pb-4">
+            {subjects.length > 0 ? (
+              subjects.map((s) => (
                 <SubjectCard
                   key={s._id}
                   s={s}
@@ -144,31 +149,37 @@ export default function Note() {
                   showConfirmDialog={showConfirmDialog}
                   handleDeleteSubject={handleDeleteSubject}
                 />
-              );
-            })}
+              ))
+            ) : (
+              <div className="flex h-20 items-center justify-center rounded-2xl border border-dashed border-white/10 bg-white/[0.01]">
+                <p className="text-xs font-medium text-[#EDE7DA]/30">No subjects yet</p>
+              </div>
+            )}
           </div>
 
-          <div className="mt-6 rounded-2xl border border-white/10 bg-[#0B0D12]/40 p-4">
-            <p className="inline-flex items-center gap-2 text-xs font-medium text-slate-400">
-              <FaGraduationCap className="text-cyan-200" />
-              {noteCount} notes across {subjects.length} subjects
+          <div className="mt-4 rounded-2xl border border-white/5 bg-white/[0.02] p-4 shadow-lg backdrop-blur-sm">
+            <p className="inline-flex items-center gap-2 text-xs font-bold text-slate-400">
+              <FaGraduationCap className="text-cyan-400 text-sm" />
+              {noteCount} notes • {subjects.length} subjects
             </p>
           </div>
         </aside>
 
         {/* ---------------- Main panel ---------------- */}
-        {!activeSubject ? (
-          <div className="flex-2 items-center justify-center p-6 sm:flex">
-            <NoSubjectCard />
-          </div>
-        ) : (
-          <AddNoteCard
-            activeSubject={activeSubject}
-            fetchSubjects={fetchSubjects}
-            setShowConfirmDialog={setShowConfirmDialog}
-            showConfirmDialog={showConfirmDialog}
-          />
-        )}
+        <section className="flex flex-col flex-1 min-w-0 overflow-hidden relative">
+          {!activeSubject ? (
+            <div className="flex h-full items-center justify-center p-6">
+              <NoSubjectCard />
+            </div>
+          ) : (
+            <AddNoteCard
+              activeSubject={activeSubject}
+              fetchSubjects={fetchSubjects}
+              setShowConfirmDialog={setShowConfirmDialog}
+              showConfirmDialog={showConfirmDialog}
+            />
+          )}
+        </section>
       </main>
     </div>
   );

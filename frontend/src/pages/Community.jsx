@@ -6,7 +6,7 @@ import MessageFeed from "../components/Community/MessageFeed.jsx";
 import MessageComposer from "../components/Community/MessageComposer.jsx";
 import { useState } from "react";
 import { api } from "../lib/axois.js";
-import toast from "react-hot-toast";
+import { useToast } from "../context/ToastContext.jsx";
 
 export default function Community() {
   const [activeCommunity, setActiveCommunity] = useState(null);
@@ -16,6 +16,7 @@ export default function Community() {
   const [joinedCommunities, setJoinedCommunities] = useState([]);
   const [communityMembers, setCommunityMembers] = useState([]);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const { showToast } = useToast();
 
   const getJoinedCommunities = async () => {
     try {
@@ -23,7 +24,7 @@ export default function Community() {
       setJoinedCommunities(response.data.joinedCommunities);
     } catch (err) {
       console.log(err);
-      toast.error("Failed to fetch joined communities");
+      showToast("Failed to fetch joined communities", false);
     }
   };
 
@@ -33,7 +34,7 @@ export default function Community() {
       setCommunities(response.data.communities);
     } catch (err) {
       console.log(err);
-      toast.error("Failed to fetch communities");
+      showToast("Failed to fetch communities", false);
     }
   };
 
@@ -57,7 +58,7 @@ export default function Community() {
       return response.data.messages ?? [];
     } catch (err) {
       console.log(err);
-      toast.error("Failed to fetch messages");
+      showToast("Failed to fetch messages", false);
       return [];
     }
   };

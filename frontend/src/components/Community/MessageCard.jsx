@@ -1,11 +1,12 @@
 import { Trash2 } from "lucide-react";
 import useAuth from "../../context/useAuth.jsx";
-import toast from "react-hot-toast";
 import {api} from "../../lib/axois.js"
 import ConfirmDialog from "../Common/ConfirmDialog.jsx";
+import { useToast } from "../../context/ToastContext.jsx";
 
 const MessageCard = ({ message, fetchMessages, setShowConfirmDialog, showConfirmDialog }) => {
   const { user } = useAuth();
+  const { showToast } = useToast();
   console.log("messages", message);
   const isMe = message.sender === user?._id;
   const time = new Date(message.createdAt).toLocaleTimeString("en-IN", {
@@ -21,10 +22,10 @@ const MessageCard = ({ message, fetchMessages, setShowConfirmDialog, showConfirm
       await api.delete(`/messages/${message._id}`);
       await fetchMessages(activeCommunityId);
       setShowConfirmDialog(false);
-      toast.success("Message deleted successfully");
+      showToast("Message deleted successfully", true);
     } catch (error) {
       console.error("Error deleting message:", error);
-      toast.error("Failed to delete message");
+      showToast("Failed to delete message", false);
     }
   };
 

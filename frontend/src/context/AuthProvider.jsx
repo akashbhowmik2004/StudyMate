@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { auth } from "../lib/axois";
 import AuthContext from "./AuthContext";
+import socket from "../lib/socket.js";
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -11,6 +12,7 @@ const AuthProvider = ({ children }) => {
       try {
         const { data } = await auth.get("/verify");
         setUser(data.user);
+        socket.connect(); // Connect the socket after successful verification
       } catch (err) {
         if (err.response?.status === 401) {
           setUser(null);

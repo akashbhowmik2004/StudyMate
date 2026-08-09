@@ -5,7 +5,7 @@ import { auth } from "../lib/axois.js";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import useAuth from "../context/useAuth.jsx";
-
+import socket from "../lib/socket.js";
 
 const NavProfileButton = ({userInfo}) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -37,6 +37,7 @@ const NavProfileButton = ({userInfo}) => {
     const handleLogout = async () => {
         try {
             await auth.post("/logout");
+            socket.disconnect();
             setIsOpen(false);
             setUser(null);
             navigate("/");
@@ -60,27 +61,27 @@ const NavProfileButton = ({userInfo}) => {
                 aria-haspopup="menu"
                 aria-expanded={isOpen}
                 aria-label="User menu"
-                className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 pr-2 text-slate-200 backdrop-blur-xl transition hover:border-white/20 hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-cyan-200/40"
+                className="flex h-10 items-center gap-2.5 rounded-full border border-white/10 bg-white/5 pl-1.5 pr-3 text-[#EDE7DA] backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/20 focus:outline-none"
                 type="button"
             >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-cyan-200/20 bg-cyan-400/10 text-cyan-200">
-                    <UserCircle size={20} />
+                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_-3px_rgba(34,211,238,0.2)]">
+                    <UserCircle size={16} />
                 </span>
 
-                <span className="hidden text-sm font-medium md:block">{account.username}</span>
-                <ChevronDown size={16} className={`text-slate-400 transition-transform duration-150 ${isOpen ? 'rotate-180' : ''}`} />
+                <span className="hidden text-sm font-bold md:block">{account.username}</span>
+                <ChevronDown size={14} className={`text-slate-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
                 <div
-                    className="absolute right-0 mt-3 w-64 origin-top-right rounded-2xl border border-white/10 bg-slate-950/95 p-1 shadow-2xl shadow-black/30 backdrop-blur-2xl"
+                    className="absolute right-0 mt-3 w-64 origin-top-right overflow-hidden rounded-[1.5rem] border border-white/10 bg-[#12141B]/95 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-xl z-50"
                     role="menu"
                     aria-orientation="vertical"
                     aria-labelledby="user-menu"
                 >
-                    <div className="rounded-xl border border-white/5 bg-white/5 px-4 py-3">
-                        <p className="text-sm font-semibold text-white">{account.username ?? "Account"}</p>
-                        {account.email && <p className="text-xs text-slate-400">{account.email}</p>}
+                    <div className="mb-1 rounded-xl border border-white/5 bg-white/[0.04] px-4 py-3">
+                        <p className="font-['Fraunces',_serif] text-base font-bold text-[#EDE7DA]">{account.username ?? "Account"}</p>
+                        {account.email && <p className="mt-0.5 text-xs font-medium text-slate-400 truncate">{account.email}</p>}
                     </div>
 
                     <div className="py-1">
@@ -90,21 +91,21 @@ const NavProfileButton = ({userInfo}) => {
                                 <button
                                     key={item.label}
                                     onClick={() => handleMenuItemClick(item.path)}
-                                    className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm text-slate-200 transition hover:bg-white/10 hover:text-white"
+                                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-[#EDE7DA]/80 transition-colors hover:bg-white/[0.06] hover:text-[#EDE7DA]"
                                     role="menuitem"
                                     type="button"
                                 >
-                                    <Icon size={16} className="text-slate-400" />
+                                    <Icon size={16} className="text-cyan-400/70" />
                                     <span>{item.label}</span>
                                 </button>
                             );
                         })}
                     </div>
 
-                    <div className="border-t border-white/10 pt-1">
+                    <div className="mt-1 border-t border-white/5 pt-1">
                         <button
                             onClick={handleLogout}
-                            className="flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-left text-sm text-red-300 transition hover:bg-red-500/10 hover:text-red-200"
+                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-300"
                             role="menuitem"
                             type="button"
                         >

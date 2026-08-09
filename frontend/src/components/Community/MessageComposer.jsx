@@ -1,18 +1,20 @@
 import { FaPaperPlane } from "react-icons/fa";
 import { api } from "../../lib/axois.js";
 import socket from "../../lib/socket.js";
-import toast from "react-hot-toast";
+import { useToast } from "../../context/ToastContext.jsx";
 
 const MessageComposer = ({
   message,
   setMessage,
   activeCommunity,
 }) => {
+  const { showToast } = useToast();
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     try {
       if (message.trim() === "") {
-        toast.error("Message cannot be empty");
+        showToast("Message cannot be empty", false);
         return;
       }
       const newMessage = await api.post("/messages", {
@@ -23,6 +25,7 @@ const MessageComposer = ({
       socket.emit("message", newMessage.data);
     } catch (err) {
       console.log(err);
+      showToast("Failed to send message", false);
     }
     setMessage("");
   };
