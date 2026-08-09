@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   FaHeart,
   FaRegHeart,
@@ -10,6 +10,8 @@ import {
   FaPaperPlane,
 } from "react-icons/fa";
 import CommentBlock from "./CommentBlock.jsx";
+import formatTime from "../../lib/formateTime.js";
+import useAuth from "../../context/useAuth.jsx";
 
 const DoubtCard = ({
   doubt,
@@ -20,6 +22,7 @@ const DoubtCard = ({
   onShare,
   currentUser,
   Avatar,
+  userInfo,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -28,26 +31,29 @@ const DoubtCard = ({
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const menuRef = useRef(null);
+  const { user } = useAuth();
 
-  const isMine = doubt.username === currentUser.username;
+  const isMine = doubt.userId === user._id;
 
+  
   const saveEdit = () => {
     if (!editTitle.trim()) return;
     onEdit(doubt.id, { title: editTitle.trim(), content: editContent.trim() });
     setIsEditing(false);
   };
-
+  console.log("DoubtCard Rendered:", doubt.createdAt); // Debugging log
+  console.log("DoubtCard Rendered:", doubt); // Debugging log
   return (
     <div className="group relative overflow-hidden rounded-[2rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-1 transition-all hover:border-white/10 hover:shadow-xl hover:shadow-cyan-900/10">
       <div className="rounded-[1.75rem] bg-[#0B0D12]/80 p-6 backdrop-blur-xl">
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Avatar name={doubt.author} />
+            <Avatar name={userInfo?.username || "Unknown"} />
             <div>
-              <p className="text-sm font-bold text-[#EDE7DA]">{doubt.author}</p>
+              <p className="text-sm font-bold text-[#EDE7DA]">{userInfo?.username || "Unknown"}</p>
               <p className="text-[11px] font-medium tracking-wide text-cyan-200/50 uppercase">
-                {doubt.timestamp}
+                {formatTime(doubt.createdAt)}
               </p>
             </div>
           </div>
@@ -161,7 +167,7 @@ const DoubtCard = ({
             className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[#EDE7DA]/60 transition hover:bg-white/10 hover:text-[#EDE7DA]"
           >
             <FaRegCommentDots className="text-sm" />
-            {doubt.comments.length}{" "}
+
             <span className="hidden sm:inline">Answers</span>
           </button>
 

@@ -1,31 +1,87 @@
 import { useState, useRef, useEffect } from "react";
 import { FaImage, FaTimes } from "react-icons/fa";
-
-const DoubtComposer = ({ onPost}) => {
+import { api } from "../../lib/axois.js";
+import { useToast } from "../../context/ToastContext.jsx";
+import useAuth from "../../context/useAuth.jsx";
+const DoubtComposer = ({ setDoubts, setUserInfo}) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [doubtInput, setDoubtInput] = useState({
+    title: "",
+    content: "",
+  });
+  const [errors, setErrors] = useState({});
+  // Added state for doubt input
   const [file, setFile] = useState(null); // Added file state
   const composerRef = useRef(null);
+  const { showToast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (composerRef.current && !composerRef.current.contains(e.target) && !title && !content && !file) {
+      if (
+        composerRef.current &&
+        !composerRef.current.contains(e.target) &&
+        !doubtInput.title &&
+        !doubtInput.content &&
+        !file
+      ) {
         setIsExpanded(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [title, content, file]);
+  }, [doubtInput.title, doubtInput.content, file]);
 
-  const handlePost = () => {
-    if (!title.trim()) return;
-    onPost({ title: title.trim(), content: content.trim(), image: file });
-    setTitle("");
-    setContent("");
-    setFile(null); // Reset file
-    setIsExpanded(false);
+  const onChange = (e) => {
+    const { name, value } = e.target;
+    setDoubtInput((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
+  
+  const authorInfo = async () => {
+    try {
+      const response = await api.get(`/users/${user?._id}`);
+      if (!response) {
+        console.error("No response from server");
+        return;
+      }
+      console.log("Author info fetched:", response.data.otherDetails);
+      setUserInfo(response.data.otherDetails);
+      // Do something with the author info if needed
+    } catch (err) {
+      console.error("Error fetching author info:", err);
+    }
+  };
+  const handlePost = async () => {
+    if (!doubtInput.title.trim()) return;
+    try {
+      const response = await api.post("/doubts", {
+        title: doubtInput.title.trim(),
+        content: doubtInput.content.trim(),
+      });
+
+      setDoubts((prev) => [response.data.newDoubt, ...prev]);
+      authorInfo(); // Fetch author info after posting doubt
+      console.log("Doubt posted successfully:", response.data.newDoubt);
+      showToast("Doubt posted successfully!");
+      setDoubtInput({ title: "", content: "" });
+      setFile(null); // Reset file
+      setIsExpanded(false);
+    } catch (err) {
+      console.log(err);
+      if (err.response) {
+        setErrors({
+          [err.response.data.field]: err.response.data.message,
+          ErrorCode: err.response.status,
+        });
+      }
+      showToast("Error posting doubt.", false);
+    }
+  };
+
+  
 
   return (
     <div
@@ -37,10 +93,9 @@ const DoubtComposer = ({ onPost}) => {
       }`}
     >
       <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-cyan-400 to-transparent opacity-50" />
-      
+
       <div className="p-6">
         <div className="flex items-start gap-4">
-          
           <div className="flex-1 w-full min-w-0">
             {!isExpanded ? (
               <div className="mt-2.5">
@@ -52,23 +107,46 @@ const DoubtComposer = ({ onPost}) => {
               </div>
             ) : (
               <div className="animate-in fade-in slide-in-from-top-2 space-y-4 w-full">
-                
-                {/* Separated Title Field */}
-                <div className="rounded-2xl border border-white/5 bg-white/[0.02] px-5 py-4 transition-all duration-300 focus-within:border-cyan-500/40 focus-within:bg-white/[0.04] focus-within:shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]">
+                {/* Title Field */}
+                {errors.title && (
+                  <p className="mt-1.5 px-1 text-xs font-bold text-red-400">
+                    {errors.title}
+                  </p>
+                )}
+                <div
+                  className={
+                    errors.title
+                      ? "rounded-2xl border border-red-500/50 bg-red-500/5 px-5 py-4"
+                      : "rounded-2xl border border-white/5 bg-white/[0.02] px-5 py-4 transition-all duration-300 focus-within:border-cyan-500/40 focus-within:bg-white/[0.04] focus-within:shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]"
+                  }
+                >
                   <input
                     autoFocus
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    value={doubtInput.title}
+                    name="title"
+                    onChange={onChange}
                     placeholder="Summarize your doubt..."
                     className="w-full bg-transparent font-['Fraunces',_serif] text-xl font-bold text-[#EDE7DA] placeholder:text-[#EDE7DA]/30 outline-none"
                   />
                 </div>
 
-                {/* Separated Content Field */}
-                <div className="rounded-2xl border border-white/5 bg-white/[0.02] px-5 py-4 transition-all duration-300 focus-within:border-cyan-500/40 focus-within:bg-white/[0.04] focus-within:shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]">
+                {/*  Content Field */}
+                {errors.content && (
+                  <p className="mt-1.5 px-1 text-xs font-bold text-red-400">
+                    {errors.content}
+                  </p>
+                )}
+                <div
+                  className={
+                    errors.content
+                      ? "rounded-2xl border border-red-500/50 bg-red-500/5 px-5 py-4"
+                      : "rounded-2xl border border-white/5 bg-white/[0.02] px-5 py-4 transition-all duration-300 focus-within:border-cyan-500/40 focus-within:bg-white/[0.04] focus-within:shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]"
+                  }
+                >
                   <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
+                    value={doubtInput.content}
+                    name="content"
+                    onChange={onChange}
                     placeholder="Provide more context, paste code snippets, or share what you've tried..."
                     rows={3}
                     className="w-full resize-none bg-transparent text-sm leading-relaxed text-[#EDE7DA]/80 placeholder:text-[#EDE7DA]/25 outline-none"
@@ -80,7 +158,9 @@ const DoubtComposer = ({ onPost}) => {
                   <div className="flex items-center justify-between rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2.5 backdrop-blur-md">
                     <div className="flex items-center gap-2 min-w-0">
                       <FaImage className="text-cyan-400 shrink-0" />
-                      <span className="text-xs font-bold text-cyan-200 truncate">{file.name}</span>
+                      <span className="text-xs font-bold text-cyan-200 truncate">
+                        {file.name}
+                      </span>
                     </div>
                     <button
                       onClick={() => setFile(null)}
@@ -98,19 +178,19 @@ const DoubtComposer = ({ onPost}) => {
                     <label className="flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[#EDE7DA]/80 transition-all hover:bg-white/10 hover:text-white">
                       <FaImage className="text-cyan-400/80 text-[13px]" />
                       <span>Attach Image</span>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
-                        onChange={(e) => setFile(e.target.files[0])} 
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => setFile(e.target.files[0])}
                       />
                     </label>
-                    
+
                     <span className="hidden text-[10px] font-bold uppercase tracking-widest text-slate-500 sm:block">
                       Markdown supported
                     </span>
                   </div>
-                  
+
                   <div className="flex gap-3">
                     <button
                       onClick={() => {
@@ -123,14 +203,13 @@ const DoubtComposer = ({ onPost}) => {
                     </button>
                     <button
                       onClick={handlePost}
-                      disabled={!title.trim()}
+                      disabled={!doubtInput.title.trim()}
                       className="flex-1 sm:flex-none rounded-xl bg-cyan-500 px-6 py-2.5 text-xs font-bold text-[#0B0D12] shadow-[0_0_20px_-5px_rgba(34,211,238,0.5)] transition hover:bg-cyan-400 hover:shadow-cyan-400/40 disabled:opacity-50 disabled:shadow-none active:scale-95"
                     >
                       Post Doubt
                     </button>
                   </div>
                 </div>
-
               </div>
             )}
           </div>
@@ -140,4 +219,4 @@ const DoubtComposer = ({ onPost}) => {
   );
 };
 
-export default DoubtComposer
+export default DoubtComposer;

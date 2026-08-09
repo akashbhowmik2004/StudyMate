@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {  FaFeatherAlt } from "react-icons/fa";
+import { FaFeatherAlt } from "react-icons/fa";
 import StudyMateHeader from "../components/StudyMateHeader.jsx";
 import DoubtComposer from "../components/DoubtFeed/DoubtComposer.jsx";
 import DashboardSidebar from "../components/DoubtFeed/DashboardSidebar.jsx";
@@ -38,126 +38,60 @@ const Avatar = ({ name, size = "h-10 w-10", className = "" }) => {
   );
 };
 
-const seedDoubts = [
-  {
-    id: 3,
-    author: "Priya Verma",
-    username: "priya_v",
-    title: "Why does recursion cause a stack overflow?",
-    content:
-      "I get how recursive functions call themselves, but I don't fully understand why deep recursion crashes with a stack overflow. Is there a rule of thumb for when to switch to iteration?",
-    imageUrl: null,
-    timestamp: "10m ago",
-    likes: 3,
-    likedByMe: false,
-    comments: [
-      {
-        id: 1,
-        author: "Akash Bhowmik",
-        text: "Each call adds a frame to the call stack, and the stack has a fixed size — too many frames and it overflows. Deep, unbounded recursion is usually the sign to switch to iteration or memoization.",
-        timestamp: "5m ago",
-      },
-    ],
-  },
-  {
-    id: 2,
-    author: "Rohit Das",
-    username: "rohitd",
-    title: "Difference between let, const and var?",
-    content:
-      "I keep mixing these up. When should I actually use var over let, if ever?",
-    imageUrl: null,
-    timestamp: "1h ago",
-    likes: 7,
-    likedByMe: true,
-    comments: [],
-  },
-  {
-    id: 1,
-    author: "Sneha Iyer",
-    username: "sneha_i",
-    title: "How does the event loop handle async/await?",
-    content:
-      "I understand promises but I'm lost on how await actually pauses execution without blocking the main thread.",
-    imageUrl: null,
-    timestamp: "3h ago",
-    likes: 12,
-    likedByMe: false,
-    comments: [],
-  },
-];
+
 
 const DoubtsFeed = () => {
-  const [doubts, setDoubts] = useState(seedDoubts);
+  
+  const [doubts, setDoubts] = useState([]);
   const { showToast } = useToast();
+  const [userInfo, setUserInfo] = useState({});
+ 
+  // const handleLike = (id) => {
+  //   setDoubts((prev) =>
+  //     prev.map((d) =>
+  //       d.id === id
+  //         ? {
+  //             ...d,
+  //             likedByMe: !d.likedByMe,
+  //             likes: d.likedByMe ? d.likes - 1 : d.likes + 1,
+  //           }
+  //         : d,
+  //     ),
+  //   );
+  // };
 
+  // const handleDelete = (id) => {
+  //   setDoubts((prev) => prev.filter((d) => d.id !== id));
+  //   showToast("Doubt deleted.");
+  // };
 
-  const handlePost = ({ title, content, image }) => {
-    // Generate a temporary local URL for the preview (since we aren't uploading to a real backend here)
-    const localImageUrl = image ? URL.createObjectURL(image) : null;
+  // const handleEdit = (id, updates) => {
+  //   setDoubts((prev) =>
+  //     prev.map((d) => (d.id === id ? { ...d, ...updates } : d)),
+  //   );
+  //   showToast("Changes saved.");
+  // };
 
-    const newDoubt = {
-      id: Date.now(),
-      author: CURRENT_USER.name,
-      username: CURRENT_USER.username,
-      title,
-      content,
-      imageUrl: localImageUrl, // Save the image URL in the doubt object
-      timestamp: "Just now",
-      likes: 0,
-      likedByMe: false,
-      comments: [],
-    };
-    setDoubts([newDoubt, ...doubts]);
-    showToast("Awesome! Doubt posted.");
-  };
-
-  const handleLike = (id) => {
-    setDoubts((prev) =>
-      prev.map((d) =>
-        d.id === id
-          ? {
-              ...d,
-              likedByMe: !d.likedByMe,
-              likes: d.likedByMe ? d.likes - 1 : d.likes + 1,
-            }
-          : d,
-      ),
-    );
-  };
-
-  const handleDelete = (id) => {
-    setDoubts((prev) => prev.filter((d) => d.id !== id));
-    showToast("Doubt deleted.");
-  };
-
-  const handleEdit = (id, updates) => {
-    setDoubts((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, ...updates } : d)),
-    );
-    showToast("Changes saved.");
-  };
-
-  const handleAddComment = (id, text) => {
-    setDoubts((prev) =>
-      prev.map((d) =>
-        d.id === id
-          ? {
-              ...d,
-              comments: [
-                ...d.comments,
-                {
-                  id: Date.now(),
-                  author: CURRENT_USER.name,
-                  text,
-                  timestamp: "Just now",
-                },
-              ],
-            }
-          : d,
-      ),
-    );
-  };
+  // const handleAddComment = (id, text) => {
+  //   setDoubts((prev) =>
+  //     prev.map((d) =>
+  //       d.id === id
+  //         ? {
+  //             ...d,
+  //             comments: [
+  //               ...d.comments,
+  //               {
+  //                 id: Date.now(),
+  //                 author: CURRENT_USER.name,
+  //                 text,
+  //                 timestamp: "Just now",
+  //               },
+  //             ],
+  //           }
+  //         : d,
+  //     ),
+  //   );
+  // };
 
   const handleShare = (doubt) => {
     if (navigator.clipboard?.writeText) {
@@ -194,20 +128,21 @@ const DoubtsFeed = () => {
               </p>
             </header>
 
-            <DoubtComposer onPost={handlePost} />
+            <DoubtComposer setDoubts={setDoubts} setUserInfo={setUserInfo} doubts={doubts}/>
 
             <div className="space-y-6">
               {doubts.map((doubt) => (
                 <DoubtCard
                   key={doubt.id}
                   doubt={doubt}
-                  onLike={handleLike}
-                  onDelete={handleDelete}
-                  onEdit={handleEdit}
-                  onAddComment={handleAddComment}
+                  // onLike={handleLike}
+                  // onDelete={handleDelete}
+                  // onEdit={handleEdit}
+                  // onAddComment={handleAddComment}
                   onShare={handleShare}
                   currentUser={CURRENT_USER}
                   Avatar={Avatar}
+                  userInfo={userInfo}
                 />
               ))}
 
@@ -226,7 +161,6 @@ const DoubtsFeed = () => {
           </section>
         </div>
       </main>
-
     </div>
   );
 };

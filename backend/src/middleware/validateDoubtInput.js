@@ -7,6 +7,7 @@ export const validateCreateDoubt = (req, res, next) => {
     console.log(error);
     return res.status(400).json({
       success: false,
+      field: error.details[0].path[0],
       message: error.details[0].message.replace(/"/g, ""),
     });
   }
