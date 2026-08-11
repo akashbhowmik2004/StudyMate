@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { FaImage, FaTimes } from "react-icons/fa";
 import { api } from "../../lib/axois.js";
 import { useToast } from "../../context/ToastContext.jsx";
-import useAuth from "../../context/useAuth.jsx";
-const DoubtComposer = ({ setDoubts, setUserInfo}) => {
+const DoubtComposer = ({ setDoubts }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [doubtInput, setDoubtInput] = useState({
     title: "",
@@ -14,7 +13,6 @@ const DoubtComposer = ({ setDoubts, setUserInfo}) => {
   const [file, setFile] = useState(null); // Added file state
   const composerRef = useRef(null);
   const { showToast } = useToast();
-  const { user } = useAuth();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -40,20 +38,7 @@ const DoubtComposer = ({ setDoubts, setUserInfo}) => {
     }));
   };
   
-  const authorInfo = async () => {
-    try {
-      const response = await api.get(`/users/${user?._id}`);
-      if (!response) {
-        console.error("No response from server");
-        return;
-      }
-      console.log("Author info fetched:", response.data.otherDetails);
-      setUserInfo(response.data.otherDetails);
-      // Do something with the author info if needed
-    } catch (err) {
-      console.error("Error fetching author info:", err);
-    }
-  };
+  
   const handlePost = async () => {
     if (!doubtInput.title.trim()) return;
     try {
@@ -61,12 +46,11 @@ const DoubtComposer = ({ setDoubts, setUserInfo}) => {
         title: doubtInput.title.trim(),
         content: doubtInput.content.trim(),
       });
-
       setDoubts((prev) => [response.data.newDoubt, ...prev]);
-      authorInfo(); // Fetch author info after posting doubt
       console.log("Doubt posted successfully:", response.data.newDoubt);
       showToast("Doubt posted successfully!");
       setDoubtInput({ title: "", content: "" });
+      setErrors({});
       setFile(null); // Reset file
       setIsExpanded(false);
     } catch (err) {

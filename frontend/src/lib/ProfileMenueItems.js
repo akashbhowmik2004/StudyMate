@@ -1,10 +1,15 @@
 
-import { FaUser,FaStickyNote } from "react-icons/fa";
+import { FaUser,FaStickyNote,FaRegUserCircle } from "react-icons/fa";
 import { IoIosSettings,IoIosPeople } from "react-icons/io";
 import { MdOutlineDashboard } from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 
 export const menuItems = [
+    {
+        label: 'Profile',
+        icon: FaRegUserCircle,
+        path: "/profile"
+    },
     {
         label: 'Dashboard',
         icon: MdOutlineDashboard,

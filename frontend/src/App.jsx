@@ -9,12 +9,21 @@ import Setting from "./pages/Setting.jsx";
 import Community from "./pages/Community.jsx";
 import Schedule from "./pages/Schedule.jsx";
 import DoubtsFeed from "./pages/DoubtsFeed.jsx";
+import Profile from "./pages/Profile.jsx";
 
 const App = () => {
   return (
     <div>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile/>
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard"
           element={

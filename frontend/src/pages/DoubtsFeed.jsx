@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaFeatherAlt } from "react-icons/fa";
 import StudyMateHeader from "../components/StudyMateHeader.jsx";
 import DoubtComposer from "../components/DoubtFeed/DoubtComposer.jsx";
 import DashboardSidebar from "../components/DoubtFeed/DashboardSidebar.jsx";
 import DoubtCard from "../components/DoubtFeed/DoubtCard.jsx";
 import { useToast } from "../context/ToastContext.jsx";
+import { api } from "../lib/axois.js";
+import ConfirmDialog from "../components/Common/ConfirmDialog.jsx";
 
 const CURRENT_USER = { name: "Akash Bhowmik", username: "akash_b" };
 
@@ -38,70 +40,48 @@ const Avatar = ({ name, size = "h-10 w-10", className = "" }) => {
   );
 };
 
-
-
 const DoubtsFeed = () => {
-  
   const [doubts, setDoubts] = useState([]);
   const { showToast } = useToast();
-  const [userInfo, setUserInfo] = useState({});
- 
-  // const handleLike = (id) => {
-  //   setDoubts((prev) =>
-  //     prev.map((d) =>
-  //       d.id === id
-  //         ? {
-  //             ...d,
-  //             likedByMe: !d.likedByMe,
-  //             likes: d.likedByMe ? d.likes - 1 : d.likes + 1,
-  //           }
-  //         : d,
-  //     ),
-  //   );
-  // };
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const [doubtId, setDoubtId] = useState(null);
+  
 
-  // const handleDelete = (id) => {
-  //   setDoubts((prev) => prev.filter((d) => d.id !== id));
-  //   showToast("Doubt deleted.");
-  // };
+  const fetchAllDoubts = async () => {
+    const response = await api.get("/doubts");
+    console.log("Fetched doubts:", response.data);
+    
+    setDoubts(response.data.doubts);
+  };
 
-  // const handleEdit = (id, updates) => {
-  //   setDoubts((prev) =>
-  //     prev.map((d) => (d.id === id ? { ...d, ...updates } : d)),
-  //   );
-  //   showToast("Changes saved.");
-  // };
-
-  // const handleAddComment = (id, text) => {
-  //   setDoubts((prev) =>
-  //     prev.map((d) =>
-  //       d.id === id
-  //         ? {
-  //             ...d,
-  //             comments: [
-  //               ...d.comments,
-  //               {
-  //                 id: Date.now(),
-  //                 author: CURRENT_USER.name,
-  //                 text,
-  //                 timestamp: "Just now",
-  //               },
-  //             ],
-  //           }
-  //         : d,
-  //     ),
-  //   );
-  // };
+  useEffect(() => {
+    fetchAllDoubts();
+  }, []);
 
   const handleShare = (doubt) => {
     if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(`https://studymate.app/doubts/${doubt.id}`);
+      navigator.clipboard.writeText(`https://studymate.app/doubts/${doubtId}`);
       showToast("Link copied to clipboard!");
+    }
+  };
+  const deleteDoubt = async (doubtId) => {
+    try {
+      await api.delete(`/doubts/${doubtId}`);
+      setDoubts((prevDoubts) => prevDoubts.filter((doubt) => doubt._id !== doubtId));
+      setShowConfirmDelete(false);
+      await fetchAllDoubts(); // Refresh the doubts list after deletion
+      showToast("Doubt deleted successfully!", true);
+    } catch (err) {
+      console.log(err);
+      showToast("Error deleting doubt.", false);
     }
   };
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">
+      {showConfirmDelete && (
+        <ConfirmDialog onCancel={() => setShowConfirmDelete(false)} title="Delete Doubt" description="Are you sure you want to delete this doubt?" onConfirm={() => deleteDoubt(doubtId)} />
+      )}
       <div className="shrink-0 relative z-50">
         <StudyMateHeader />
       </div>
@@ -128,21 +108,25 @@ const DoubtsFeed = () => {
               </p>
             </header>
 
-            <DoubtComposer setDoubts={setDoubts} setUserInfo={setUserInfo} doubts={doubts}/>
+            <DoubtComposer
+              setDoubts={setDoubts}
+              doubts={doubts}
+              fetchAllDoubts={fetchAllDoubts}
+            />
 
             <div className="space-y-6">
               {doubts.map((doubt) => (
                 <DoubtCard
-                  key={doubt.id}
+                  key={doubt._id}
                   doubt={doubt}
-                  // onLike={handleLike}
-                  // onDelete={handleDelete}
-                  // onEdit={handleEdit}
-                  // onAddComment={handleAddComment}
+                  setDoubts={setDoubts}
+                  fetchAllDoubts={fetchAllDoubts}
+                  setShowConfirmDelete={setShowConfirmDelete}
                   onShare={handleShare}
                   currentUser={CURRENT_USER}
                   Avatar={Avatar}
-                  userInfo={userInfo}
+                  deleteDoubt={deleteDoubt}
+                  setDoubtId={setDoubtId}
                 />
               ))}
 
