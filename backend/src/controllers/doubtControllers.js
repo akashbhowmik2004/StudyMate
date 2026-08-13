@@ -26,10 +26,23 @@ export const getDoubt = async (req, res) => {
 
 export const getAllDoubts = async (req, res) => {
   try {
-    const doubts = await Doubt.find().populate("userId", "username").sort({ createdAt: -1 });
+    const doubts = await Doubt.find()
+      .populate("userId", "username")
+      .sort({ createdAt: -1 });
+    const formattedDoubts = doubts.map((doubt) => ({
+      ...doubt.toObject(),
+
+      likeCount: doubt.likes.length,
+
+      isLiked: doubt.likes.some(
+        (id) => id.toString() === req.user.id.toString(),
+      ),
+
+    }));
+
     res.status(200).json({
       success: true,
-      doubts,
+      doubts: formattedDoubts,
     });
   } catch (err) {
     console.log(err);
@@ -66,36 +79,38 @@ export const postDoubts = async (req, res) => {
 
 export const likeAndDislikeDoubt = async (req, res) => {
   const { id } = req.params;
+  const userId = req.user.id;
 
   try {
     const post = await Doubt.findById(id);
+
     if (!post) {
       return res.status(404).json({
         success: false,
-        message: "No post found",
+        message: "No doubt found",
       });
     }
-    if (!post.likes.includes(req.user.id)) {
-      await post.updateOne({
-        $push: { likes: req.user.id },
-      });
 
-      return res.status(200).json({
-        success: true,
-        message: "Post liked successfully",
-      });
+    const isLiked = post.likes.some(
+      (userId) => userId.toString() === req.user.id.toString()
+    );
+
+    if (isLiked) {
+      post.likes.pull(userId);
     } else {
-      await post.updateOne({
-        $pull: { likes: req.user.id },
-      });
-
-      return res.status(200).json({
-        success: true,
-        message: "Post disliked successfully",
-      });
+      post.likes.push(userId);
     }
+
+    await post.save();
+
+    res.status(200).json({
+      success: true,
+      likes: post.likes.length,
+      isLiked: !isLiked,
+    });
   } catch (err) {
     console.log(err);
+
     res.status(500).json({
       success: false,
       message: "Something went wrong",
@@ -110,14 +125,14 @@ export const editDoubt = async (req, res) => {
 
     if (!doubt) {
       return res.status(404).json({
-        status: false,
+        success: false,
         message: "Doubt not found",
       });
     }
 
     if (doubt.userId.toString() !== req.user.id) {
       return res.status(403).json({
-        status: false,
+        success: false,
         message: "You are not allowed",
       });
     }

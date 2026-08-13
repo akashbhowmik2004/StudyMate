@@ -12,10 +12,11 @@ import {
 import CommentBlock from "./CommentBlock.jsx";
 import formatTime from "../../lib/formateTime.js";
 import useAuth from "../../context/useAuth.jsx";
+import { api } from "../../lib/axois.js";
+import { useToast } from "../../context/ToastContext.jsx";
 
 const DoubtCard = ({
   doubt,
-  onLike,
   onEdit,
   onAddComment,
   onShare,
@@ -30,18 +31,34 @@ const DoubtCard = ({
   const [editContent, setEditContent] = useState(doubt.content);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [likeDoubt, setLikeDoubt] = useState(doubt.isLiked || false);
   const menuRef = useRef(null);
   const { user } = useAuth();
   const isMine = doubt.userId._id === user._id;
+  const { showToast } = useToast();
 
   const saveEdit = () => {
     if (!editTitle.trim()) return;
     onEdit(doubt.id, { title: editTitle.trim(), content: editContent.trim() });
     setIsEditing(false);
   };
+  const handleLike = async () => {
+    try {
+      const response = await api.put(`/doubts/${doubt._id}/like`);
+      console.log("Like/Dislike response:", response.data);
+      // Update the like count based on the response
+      if (response.data.success) {
+        setLikeDoubt(response.data.isLiked);
+      } else {
+        showToast("Error liking the doubt", false);
+      }
+    } catch (err) {
+      console.log(err);
+      showToast("Error liking the doubt", false);
+    }
+  };
   return (
     <>
-      
       <div className="group relative overflow-hidden rounded-[2rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-1 transition-all hover:border-white/10 hover:shadow-xl hover:shadow-cyan-900/10">
         <div className="rounded-[1.75rem] bg-[#0B0D12]/80 p-6 backdrop-blur-xl">
           {/* Header Section */}
@@ -148,19 +165,19 @@ const DoubtCard = ({
           {/* Action Pills */}
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
-              onClick={() => onLike(doubt.id)}
+              onClick={handleLike}
               className={`flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition ${
-                doubt.likedByMe
+                likeDoubt
                   ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-400"
                   : "border-white/10 bg-white/5 text-[#EDE7DA]/60 hover:bg-white/10 hover:text-[#EDE7DA]"
               }`}
             >
-              {doubt.likedByMe ? (
+              {likeDoubt ? (
                 <FaHeart className="text-sm drop-shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
               ) : (
                 <FaRegHeart className="text-sm" />
               )}
-              {doubt.likes}
+              {doubt.likeCount}
             </button>
 
             <button

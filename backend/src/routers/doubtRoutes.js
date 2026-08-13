@@ -5,15 +5,15 @@ import {
   getDoubt,
   likeAndDislikeDoubt,
   postDoubts,
-  getAllDoubts
+  getAllDoubts,
 } from "../controllers/doubtControllers.js";
 import { validateCreateDoubt } from "../middleware/validateDoubtInput.js";
 
 const router = Router();
 
 router.get("/", getAllDoubts);
-router.get("/:id", getDoubt);
 router.post("/", validateCreateDoubt, postDoubts);
+router.get("/:id", getDoubt);
 router.put("/:id", editDoubt);
 router.put("/:id/like", likeAndDislikeDoubt);
 router.delete("/:id", deleteDoubt);

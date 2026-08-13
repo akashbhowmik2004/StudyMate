@@ -20,10 +20,12 @@ const doubtSchema = new mongoose.Schema(
       default: [],
     },
 
-    likes: {
-      type: Array,
-      default: [],
-    },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true },
 );

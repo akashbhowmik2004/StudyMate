@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { FaImage, FaTimes } from "react-icons/fa";
 import { api } from "../../lib/axois.js";
 import { useToast } from "../../context/ToastContext.jsx";
-const DoubtComposer = ({ setDoubts }) => {
+const DoubtComposer = ({ setDoubts, fetchAllDoubts }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [doubtInput, setDoubtInput] = useState({
     title: "",
@@ -37,8 +37,7 @@ const DoubtComposer = ({ setDoubts }) => {
       [name]: value,
     }));
   };
-  
-  
+
   const handlePost = async () => {
     if (!doubtInput.title.trim()) return;
     try {
@@ -47,6 +46,7 @@ const DoubtComposer = ({ setDoubts }) => {
         content: doubtInput.content.trim(),
       });
       setDoubts((prev) => [response.data.newDoubt, ...prev]);
+      fetchAllDoubts(); // Refresh the doubts list
       console.log("Doubt posted successfully:", response.data.newDoubt);
       showToast("Doubt posted successfully!");
       setDoubtInput({ title: "", content: "" });
@@ -64,8 +64,6 @@ const DoubtComposer = ({ setDoubts }) => {
       showToast("Error posting doubt.", false);
     }
   };
-
-  
 
   return (
     <div
