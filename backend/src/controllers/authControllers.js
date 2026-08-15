@@ -14,10 +14,10 @@ const createToken = (id) => {
 };
 // Handle Signup
 export const signup = async (req, res) => {
-  const { username, email, password, confirmPassword } = req.body;
+  const { name, username, email, password, confirmPassword } = req.body;
 
   try {
-    if (!email || !password || !username) {
+    if (!email || !password || !username || !name) {
       return res.status(400).json({
         success: false,
         message: "fill up all fields",
@@ -104,7 +104,7 @@ export const login = async (req, res) => {
         message: "Invalid credential",
       });
     }
-    const token = createToken(user._id);
+    const token = createToken(user._id, user.username);
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: maxAge * 1000,

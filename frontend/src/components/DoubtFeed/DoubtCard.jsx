@@ -17,38 +17,58 @@ import { useToast } from "../../context/ToastContext.jsx";
 
 const DoubtCard = ({
   doubt,
-  onEdit,
-  onAddComment,
   onShare,
-  currentUser,
   Avatar,
   setShowConfirmDelete,
   setDoubtId,
+  fetchAllDoubts,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(doubt.title);
-  const [editContent, setEditContent] = useState(doubt.content);
+  const [editContents, setEditContents] = useState({
+    title: doubt.title,
+    content: doubt.content,
+  });
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
+  const [comments, setComments] = useState([]);
   const [likeDoubt, setLikeDoubt] = useState(doubt.isLiked || false);
   const menuRef = useRef(null);
   const { user } = useAuth();
   const isMine = doubt.userId._id === user._id;
   const { showToast } = useToast();
 
-  const saveEdit = () => {
-    if (!editTitle.trim()) return;
-    onEdit(doubt.id, { title: editTitle.trim(), content: editContent.trim() });
+  const fetchAllComments = async () => {
+    try {
+      const response = await api.get(`/comment/doubts/${doubt._id}`);
+      setComments(response.data.comments);
+    } catch (err) {
+      console.log(err);
+      showToast("Error fetching comments", false);
+    }
+  };
+
+  const saveEdit = async () => {
+    if (!editContents.title.trim()) return;
+    try {
+      const response = await api.put(`/doubts/${doubt._id}`, editContents);
+      console.log("Edit response:", response.data.updatedDoubt.updatedAt);
+      await fetchAllDoubts();
+      showToast("Doubt updated successfully", true);
+    } catch (err) {
+      console.log(err);
+      showToast("Error updating the doubt", false);
+    }
     setIsEditing(false);
   };
+
   const handleLike = async () => {
     try {
       const response = await api.put(`/doubts/${doubt._id}/like`);
       console.log("Like/Dislike response:", response.data);
-      // Update the like count based on the response
       if (response.data.success) {
         setLikeDoubt(response.data.isLiked);
+        await fetchAllDoubts();
       } else {
         showToast("Error liking the doubt", false);
       }
@@ -57,6 +77,38 @@ const DoubtCard = ({
       showToast("Error liking the doubt", false);
     }
   };
+
+  const handleComment = async () => {
+    if (!commentText.trim()) return;
+
+    try {
+      const response = await api.post(`comment/doubts/${doubt._id}`, {
+        content: commentText,
+      });
+      setComments((prevComments) => [
+        ...prevComments,
+        response.data.newComment,
+      ]);
+      console.log("Add comment response:", response.data);
+    } catch (err) {
+      console.log(err);
+      showToast("Error adding comment", false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await api.delete(`/comment/${commentId}`);
+      setComments((prevComments) =>
+        prevComments.filter((c) => c._id !== commentId),
+      );
+      showToast("Comment deleted successfully", true);
+    } catch (err) {
+      console.log(err);
+      showToast("Error deleting comment", false);
+    }
+  };
+
   return (
     <>
       <div className="group relative overflow-hidden rounded-[2rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-1 transition-all hover:border-white/10 hover:shadow-xl hover:shadow-cyan-900/10">
@@ -69,8 +121,10 @@ const DoubtCard = ({
                 <p className="text-sm font-bold text-[#EDE7DA]">
                   {doubt.userId?.username || "Unknown"}
                 </p>
-                <p className="text-[11px] font-medium tracking-wide text-cyan-200/50 uppercase">
-                  {formatTime(doubt.createdAt)}
+                <p className="text-[11px] font-medium tracking-wide text-cyan-200/50">
+                  {doubt.createdAt !== doubt.updatedAt
+                    ? `Edited ${formatTime(doubt.updatedAt)}`
+                    : formatTime(doubt.createdAt)}
                 </p>
               </div>
             </div>
@@ -115,13 +169,17 @@ const DoubtCard = ({
           {isEditing ? (
             <div className="mt-5 space-y-4 rounded-2xl bg-white/[0.02] p-4 border border-white/10">
               <input
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
+                value={editContents.title}
+                onChange={(e) =>
+                  setEditContents({ ...editContents, title: e.target.value })
+                }
                 className="w-full bg-transparent font-['Fraunces',_serif] text-xl font-bold text-[#EDE7DA] outline-none"
               />
               <textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
+                value={editContents.content}
+                onChange={(e) =>
+                  setEditContents({ ...editContents, content: e.target.value })
+                }
                 rows={3}
                 className="w-full resize-none bg-transparent text-sm leading-relaxed text-[#EDE7DA]/70 outline-none"
               />
@@ -181,11 +239,13 @@ const DoubtCard = ({
             </button>
 
             <button
-              onClick={() => setShowComments((p) => !p)}
+              onClick={() => {
+                setShowComments((p) => !p);
+                if (!showComments) fetchAllComments();
+              }}
               className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-[#EDE7DA]/60 transition hover:bg-white/10 hover:text-[#EDE7DA]"
             >
               <FaRegCommentDots className="text-sm" />
-
               <span className="hidden sm:inline">Answers</span>
             </button>
 
@@ -201,9 +261,15 @@ const DoubtCard = ({
           {showComments && (
             <div className="mt-6 animate-in slide-in-from-top-2 relative border-t border-white/5 pt-2">
               <div className="space-y-2 pl-4">
-                {doubt.comments.length > 0 ? (
-                  doubt.comments.map((c) => (
-                    <CommentBlock key={c.id} comment={c} Avatar={Avatar} />
+                {comments.length > 0 ? (
+                  comments.map((c) => (
+                    <CommentBlock
+                      key={c._id}
+                      comment={c}
+                      Avatar={Avatar}
+                      currentUser={user} // NEW: Pass current user
+                      onDelete={() => handleDeleteComment(c._id)} // NEW: Pass delete function
+                    />
                   ))
                 ) : (
                   <div className="py-6 text-center text-sm font-medium text-slate-500 italic">
@@ -214,7 +280,7 @@ const DoubtCard = ({
 
               <div className="mt-6 flex items-center gap-3 rounded-2xl bg-white/[0.02] border border-white/5 p-2 transition-colors focus-within:border-cyan-500/30 focus-within:bg-white/[0.04]">
                 <Avatar
-                  name={currentUser.name}
+                  name={user?.username || "Unknown"}
                   size="h-9 w-9"
                   className="rounded-xl ml-1"
                 />
@@ -224,14 +290,14 @@ const DoubtCard = ({
                   onKeyDown={(e) =>
                     e.key === "Enter" &&
                     commentText.trim() &&
-                    (onAddComment(doubt.id, commentText), setCommentText(""))
+                    (handleComment(), setCommentText(""))
                   }
                   placeholder="Write an answer..."
                   className="flex-1 bg-transparent px-2 text-sm text-[#EDE7DA] placeholder:text-[#EDE7DA]/30 outline-none"
                 />
                 <button
                   onClick={() => {
-                    onAddComment(doubt.id, commentText);
+                    handleComment();
                     setCommentText("");
                   }}
                   disabled={!commentText.trim()}

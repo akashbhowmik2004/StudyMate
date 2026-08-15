@@ -25,6 +25,23 @@ export const getComment = async (req, res) => {
   }
 };
 
+export const getAllCommentsForDoubt = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const comments = await Comment.find({ postId: id }).populate("userId", "username email");
+    res.status(200).json({
+      success: true,
+      comments,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 export const commentDoubt = async (req, res) => {
   const { id } = req.params;
   const { content } = req.body;
@@ -41,6 +58,7 @@ export const commentDoubt = async (req, res) => {
       text: content,
     });
     await newComment.save();
+    await newComment.populate("userId", "username email");
     res.status(201).json({
       success: true,
       message: "Comment successful",

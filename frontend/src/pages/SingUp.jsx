@@ -13,6 +13,7 @@ const SignUp = () => {
   const { setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [signupData, setSignupData] = useState({
+    name: "", // <-- Added name to state
     username: "",
     email: "",
     password: "",
@@ -41,13 +42,13 @@ const SignUp = () => {
       navigate("/");
       toast.success(res.data.message);
     } catch (err) {
-      const status = err.response.status;
+      const status = err.response?.status;
       if (status === 429) {
         dialog.current.open();
       }
       setErrors({
-        [err.response.data.field]: err.response.data.message,
-        ErrorCode: err.response.status,
+        [err.response?.data?.field]: err.response?.data?.message,
+        ErrorCode: err.response?.status,
       });
       if (errors.ErrorCode === 11000) {
         console.log("User already exists");
@@ -69,9 +70,8 @@ const SignUp = () => {
   return (
     <>
       <RateLimiterCard ref={dialog} />
-      
+
       <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0B0D12] px-4 py-10 selection:bg-cyan-500/30 sm:px-6 lg:px-8">
-        
         {/* Modern Ambient Backglow */}
         <div className="pointer-events-none fixed inset-0 z-0">
           <div className="absolute top-0 left-[20%] w-[1000px] h-[500px] bg-cyan-500/10 blur-[120px] rounded-[100%]" />
@@ -81,9 +81,7 @@ const SignUp = () => {
 
         <div className="relative z-10 w-full max-w-md">
           <section className="w-full rounded-[2.5rem] border border-white/10 bg-[#12141B]/80 p-8 shadow-2xl shadow-black/50 backdrop-blur-2xl sm:p-10">
-            
             <div className="mb-10 text-center">
-              
               <h1 className="font-['Fraunces',_serif] text-3xl font-bold tracking-tight text-[#EDE7DA] sm:text-4xl">
                 Create Account
               </h1>
@@ -93,6 +91,40 @@ const SignUp = () => {
             </div>
 
             <form className="space-y-5" onSubmit={createUser}>
+              {/* Name Field (NEW) */}
+              <div>
+                <label
+                  htmlFor="name"
+                  className="mb-1.5 block px-1 text-[10px] font-bold uppercase tracking-widest text-[#EDE7DA]/50"
+                >
+                  Full Name
+                </label>
+                <div
+                  className={`rounded-2xl border px-4 py-3.5 transition-all duration-300 ${
+                    errors.name && errors.name !== "Name is required"
+                      ? "border-red-500/50 bg-red-500/5"
+                      : "border-white/5 bg-white/[0.02] focus-within:border-cyan-500/40 focus-within:bg-white/[0.04] focus-within:shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]"
+                  }`}
+                >
+                  <input
+                    id="name"
+                    name="name"
+                    value={signupData.name}
+                    onChange={handleChange}
+                    type="text"
+                    placeholder="Enter your full name"
+                    className="w-full bg-transparent text-sm font-medium text-[#EDE7DA] outline-none placeholder:text-[#EDE7DA]/30"
+                  />
+                </div>
+
+                {/* Displays the backend error message for 'name' */}
+                {errors.name && (
+                  <p className="mt-1.5 px-1 text-xs font-bold text-red-400">
+                    {errors.name}
+                  </p>
+                )}
+              </div>
+
               {/* Username Field */}
               <div>
                 <label
@@ -190,12 +222,20 @@ const SignUp = () => {
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-[#EDE7DA]/50 transition hover:bg-white/10 hover:text-white"
                   >
                     {showPassword ? (
-                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="h-4 w-4"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                         <circle cx="12" cy="12" r="3" fill="currentColor" />
                       </svg>
                     ) : (
-                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="h-4 w-4"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path d="M3 3l18 18m-9-15a9 9 0 019 9m0 0a9 9 0 01-9 9m9-9H3" />
                       </svg>
                     )}
@@ -239,12 +279,20 @@ const SignUp = () => {
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-[#EDE7DA]/50 transition hover:bg-white/10 hover:text-white"
                   >
                     {showConfirmPassword ? (
-                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="h-4 w-4"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                         <circle cx="12" cy="12" r="3" fill="currentColor" />
                       </svg>
                     ) : (
-                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="h-4 w-4"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         <path d="M3 3l18 18m-9-15a9 9 0 019 9m0 0a9 9 0 01-9 9m9-9H3" />
                       </svg>
                     )}

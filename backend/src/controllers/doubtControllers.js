@@ -92,7 +92,7 @@ export const likeAndDislikeDoubt = async (req, res) => {
     }
 
     const isLiked = post.likes.some(
-      (userId) => userId.toString() === req.user.id.toString()
+      (likeId) => likeId.toString() === userId.toString()
     );
 
     if (isLiked) {
@@ -101,7 +101,7 @@ export const likeAndDislikeDoubt = async (req, res) => {
       post.likes.push(userId);
     }
 
-    await post.save();
+    await post.save({timestamps: false});
 
     res.status(200).json({
       success: true,
@@ -139,6 +139,7 @@ export const editDoubt = async (req, res) => {
     const updatedDoubt = await Doubt.findByIdAndUpdate(
       id,
       { $set: req.body },
+      
       { returnDocument: "after" },
     );
     res.status(200).json({

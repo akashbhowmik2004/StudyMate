@@ -1,6 +1,8 @@
 
 import { FaTrophy, FaFire } from "react-icons/fa";
-const DashboardSidebar = ({currentUser, Avatar}) => {
+import useAuth from "../../context/useAuth.jsx";
+const DashboardSidebar = ({Avatar}) => {
+  const { user } = useAuth();
 
   return (
     <aside className="hidden w-72 shrink-0 lg:block">
@@ -8,13 +10,13 @@ const DashboardSidebar = ({currentUser, Avatar}) => {
         
         {/* User Badge */}
         <div className="group flex cursor-pointer items-center gap-4 rounded-[2rem] border border-white/5 bg-white/[0.02] p-4 transition hover:border-cyan-500/20 hover:bg-white/[0.04]">
-          <Avatar name={currentUser.name} size="h-12 w-12" className="rounded-full shadow-lg" />
+          <Avatar name={user.name || "Unknown"} size="h-12 w-12" className="rounded-full shadow-lg" />
           <div className="min-w-0">
             <p className="truncate font-['Fraunces',_serif] text-base font-bold text-[#EDE7DA] group-hover:text-cyan-100">
-              {currentUser.name}
+              {user.name || "Unknown"}
             </p>
             <p className="truncate text-xs font-medium text-slate-500">
-              @{currentUser.username}
+              @{user.username}
             </p>
           </div>
         </div>

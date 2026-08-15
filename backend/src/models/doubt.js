@@ -19,7 +19,10 @@ const doubtSchema = new mongoose.Schema(
       type: Array,
       default: [],
     },
-
+    editedAt: {
+      type: Date,
+      default: null,
+    },
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,
