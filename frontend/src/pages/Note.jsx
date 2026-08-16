@@ -6,7 +6,6 @@ import { api } from "../lib/axois.js";
 import NoSubjectCard from "../components/Note/NoSubjectCard.jsx";
 import AddNoteCard from "../components/Note/AddNoteCard.jsx";
 import SubjectCard from "../components/Note/SubjectCard.jsx";
-import ConfirmDialog from "../components/Common/ConfirmDialog.jsx";
 
 export default function Note() {
   const [subjects, setSubjects] = useState([]);

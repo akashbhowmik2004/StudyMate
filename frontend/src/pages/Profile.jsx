@@ -1,15 +1,15 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
-  FaCamera,
   FaCheck,
   FaCopy,
-  FaEdit,
-  FaTimes,
   FaUserFriends,
   FaUserPlus,
 } from "react-icons/fa";
 import StudyMateHeader from "../components/StudyMateHeader.jsx";
-import { useToast } from "../context/ToastContext.jsx"; // Using your global toast
+import { useToast } from "../context/ToastContext.jsx"; 
+import{ api} from "../lib/axois.js";
+import ProfileCard from "../components/Profile/ProfileCard.jsx";
+import useAuth from "../context/useAuth.jsx";
 
 // --- Reusable Avatar Logic from previous components ---
 const AVATAR_PALETTES = [
@@ -30,7 +30,12 @@ const initials = (name) =>
     .join("")
     .toUpperCase();
 
-const Avatar = ({ name, size = "h-16 w-16", className = "", imageUrl = null }) => {
+const Avatar = ({
+  name,
+  size = "h-16 w-16",
+  className = "",
+  imageUrl = null,
+}) => {
   return (
     <div
       className={`relative flex ${size} shrink-0 items-center justify-center rounded-[1.5rem] border text-xl font-bold backdrop-blur-md overflow-hidden ${
@@ -50,16 +55,9 @@ const Avatar = ({ name, size = "h-16 w-16", className = "", imageUrl = null }) =
 const AccountPage = () => {
   const { showToast } = useToast();
   const fileInputRef = useRef(null);
-
+  const { user } = useAuth();
   // --- State: Current User Profile ---
-  const [profile, setProfile] = useState({
-    name: "Akash Bhowmik",
-    username: "akash_b",
-    uniqueId: "AKB-035", // Unique ID for adding friends
-    imageUrl: null,
-    followers: 124,
-    following: 89,
-  });
+  const [profile, setProfile] = useState({});
 
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [editUsernameVal, setEditUsernameVal] = useState(profile.username);
@@ -70,6 +68,19 @@ const AccountPage = () => {
     { id: 1, name: "Priya Verma", username: "priya_v" },
     { id: 2, name: "Rohit Das", username: "rohitd" },
   ]);
+  const fetchUserData = async () => {
+    try {
+      const response = await api.get(`/users/${user._id}`);
+      setProfile(response.data.otherDetails);
+      setEditUsernameVal(response.data.username);
+      console.log("Fetched user data:", response.data.otherDetails);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+  useEffect(() => {
+    fetchUserData();
+  },[user._id])
 
   // --- Handlers ---
   const handleImageUpload = (e) => {
@@ -99,13 +110,13 @@ const AccountPage = () => {
   const handleSendRequest = (e) => {
     e.preventDefault();
     if (!followInput.trim()) return;
-    
+
     // Simulate sending request
     if (followInput.toUpperCase() === profile.uniqueId) {
       showToast("You cannot follow yourself!", false);
       return;
     }
-    
+
     showToast(`Follow request sent to ${followInput.toUpperCase()}!`);
     setFollowInput("");
   };
@@ -120,6 +131,8 @@ const AccountPage = () => {
     setPendingRequests((prev) => prev.filter((req) => req.id !== id));
     showToast("Follow request declined.", false); // Red toast for decline
   };
+
+
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">
@@ -145,82 +158,39 @@ const AccountPage = () => {
         </header>
 
         <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
-          
           {/* LEFT COLUMN: Profile Info & Customization */}
           <section className="flex flex-col gap-8">
-            
             {/* Profile Card */}
             <article className="rounded-[2.5rem] border border-white/5 bg-[#12141B]/40 p-8 shadow-xl backdrop-blur-xl">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-6">
-                
-                {/* Avatar with Hover Edit */}
-                <div className="relative group shrink-0">
-                  <Avatar name={profile.name} imageUrl={profile.imageUrl} size="h-24 w-24" className="shadow-2xl" />
-                  <button 
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute inset-0 flex items-center justify-center rounded-[1.5rem] bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100 backdrop-blur-sm"
-                  >
-                    <FaCamera className="text-xl text-white" />
-                  </button>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    className="hidden" 
-                    ref={fileInputRef} 
-                    onChange={handleImageUpload} 
-                  />
-                </div>
-
-                {/* Name & Username Edit */}
-                <div className="flex-1 min-w-0">
-                  <h2 className="font-['Fraunces',_serif] text-2xl font-bold text-white truncate">
-                    {profile.name}
-                  </h2>
-                  
-                  <div className="mt-2 flex items-center gap-3">
-                    {isEditingUsername ? (
-                      <div className="flex w-full items-center gap-2 rounded-xl border border-cyan-500/40 bg-white/[0.02] p-1.5 shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]">
-                        <span className="pl-3 text-sm font-bold text-slate-500">@</span>
-                        <input
-                          autoFocus
-                          value={editUsernameVal}
-                          onChange={(e) => setEditUsernameVal(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleSaveUsername()}
-                          className="w-full bg-transparent text-sm font-bold text-[#EDE7DA] outline-none"
-                        />
-                        <button onClick={handleSaveUsername} className="rounded-lg bg-cyan-500/20 p-2 text-cyan-300 hover:bg-cyan-500/40 transition">
-                          <FaCheck className="text-xs" />
-                        </button>
-                        <button onClick={() => { setIsEditingUsername(false); setEditUsernameVal(profile.username); }} className="rounded-lg bg-white/5 p-2 text-slate-400 hover:bg-white/10 hover:text-white transition">
-                          <FaTimes className="text-xs" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="group flex items-center gap-2">
-                        <p className="text-sm font-bold text-slate-400 truncate">
-                          @{profile.username}
-                        </p>
-                        <button 
-                          onClick={() => setIsEditingUsername(true)}
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-cyan-400 p-1 hover:text-cyan-300"
-                        >
-                          <FaEdit className="text-sm" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <ProfileCard
+                profile={profile}
+                Avatar={Avatar}
+                fileInputRef={fileInputRef}
+                isEditingUsername={isEditingUsername}
+                editUsernameVal={editUsernameVal}
+                handleImageUpload={handleImageUpload}
+                handleSaveUsername={handleSaveUsername}
+                setEditUsernameVal={setEditUsernameVal}
+                setIsEditingUsername={setIsEditingUsername}
+              />
 
               {/* Stats Bar */}
               <div className="mt-8 flex items-center gap-8 border-t border-white/5 pt-6">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Followers</p>
-                  <p className="mt-1 font-['Fraunces',_serif] text-2xl font-bold text-white">{profile.followers}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    Followers
+                  </p>
+                  <p className="mt-1 font-['Fraunces',_serif] text-2xl font-bold text-white">
+                    {profile.followers?.length}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Following</p>
-                  <p className="mt-1 font-['Fraunces',_serif] text-2xl font-bold text-white">{profile.following}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    Following
+                  </p>
+                  <p className="mt-1 font-['Fraunces',_serif] text-2xl font-bold text-white">
+                    {profile.followings?.length}
+                  </p>
                 </div>
               </div>
             </article>
@@ -232,9 +202,12 @@ const AccountPage = () => {
                   <FaUserFriends className="text-xl" />
                 </div>
                 <div>
-                  <h3 className="font-['Fraunces',_serif] text-xl font-bold text-white">Your Unique ID</h3>
+                  <h3 className="font-['Fraunces',_serif] text-xl font-bold text-white">
+                    Your Unique ID
+                  </h3>
                   <p className="mt-1 text-xs font-medium leading-relaxed text-slate-400">
-                    Share this ID with classmates so they can find your profile and send a follow request.
+                    Share this ID with classmates so they can find your profile
+                    and send a follow request.
                   </p>
                 </div>
               </div>
@@ -243,7 +216,7 @@ const AccountPage = () => {
                 <span className="font-['Fraunces',_serif] text-2xl font-black tracking-widest text-cyan-300">
                   {profile.uniqueId}
                 </span>
-                <button 
+                <button
                   onClick={handleCopyId}
                   className="flex items-center gap-2 rounded-xl bg-cyan-500/20 px-4 py-2 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/40"
                 >
@@ -255,15 +228,20 @@ const AccountPage = () => {
 
           {/* RIGHT COLUMN: Social & Connections */}
           <section className="flex flex-col gap-8">
-            
             {/* Add Friend / Follow By ID */}
             <article className="rounded-[2.5rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-8 shadow-xl backdrop-blur-xl">
-              <h3 className="font-['Fraunces',_serif] text-2xl font-bold text-white mb-2">Follow a Student</h3>
+              <h3 className="font-['Fraunces',_serif] text-2xl font-bold text-white mb-2">
+                Follow a Student
+              </h3>
               <p className="text-sm font-medium text-slate-400 mb-6">
-                Know someone's unique ID? Enter it below to follow them and see their notes.
+                Know someone's unique ID? Enter it below to follow them and see
+                their notes.
               </p>
 
-              <form onSubmit={handleSendRequest} className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              <form
+                onSubmit={handleSendRequest}
+                className="flex flex-col gap-4 sm:flex-row sm:items-center"
+              >
                 <div className="flex-1 rounded-2xl border border-white/5 bg-white/[0.02] px-5 py-4 transition-all duration-300 focus-within:border-cyan-500/40 focus-within:bg-white/[0.04] focus-within:shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]">
                   <input
                     type="text"
@@ -286,7 +264,9 @@ const AccountPage = () => {
             {/* Pending Requests */}
             <article className="flex-1 rounded-[2.5rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-8 shadow-xl backdrop-blur-xl">
               <div className="flex items-center justify-between border-b border-white/5 pb-5">
-                <h3 className="font-['Fraunces',_serif] text-2xl font-bold text-white">Requests</h3>
+                <h3 className="font-['Fraunces',_serif] text-2xl font-bold text-white">
+                  Requests
+                </h3>
                 <span className="rounded-full bg-fuchsia-500/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-fuchsia-300">
                   {pendingRequests.length} Pending
                 </span>
@@ -295,23 +275,30 @@ const AccountPage = () => {
               <div className="mt-6 space-y-4">
                 {pendingRequests.length > 0 ? (
                   pendingRequests.map((req) => (
-                    <div key={req.id} className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-4 transition hover:bg-white/[0.04]">
+                    <div
+                      key={req.id}
+                      className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-4 transition hover:bg-white/[0.04]"
+                    >
                       <div className="flex items-center gap-3">
                         <Avatar name={req.name} size="h-10 w-10" />
                         <div>
-                          <p className="text-sm font-bold text-[#EDE7DA]">{req.name}</p>
-                          <p className="text-xs font-medium text-slate-500">@{req.username}</p>
+                          <p className="text-sm font-bold text-[#EDE7DA]">
+                            {req.name}
+                          </p>
+                          <p className="text-xs font-medium text-slate-500">
+                            @{req.username}
+                          </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
-                        <button 
+                        <button
                           onClick={() => handleAcceptRequest(req.id, req.name)}
                           className="flex-1 sm:flex-none rounded-xl bg-cyan-500/20 px-4 py-2 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/30 hover:text-cyan-200"
                         >
                           Accept
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDeclineRequest(req.id)}
                           className="flex-1 sm:flex-none rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-slate-400 transition hover:bg-white/10 hover:text-white"
                         >
@@ -325,13 +312,16 @@ const AccountPage = () => {
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-slate-500 mb-4">
                       <FaCheck className="text-xl" />
                     </div>
-                    <p className="font-['Fraunces',_serif] text-lg font-bold text-white">All caught up!</p>
-                    <p className="mt-1 text-sm font-medium text-slate-500">You have no pending follow requests.</p>
+                    <p className="font-['Fraunces',_serif] text-lg font-bold text-white">
+                      All caught up!
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-slate-500">
+                      You have no pending follow requests.
+                    </p>
                   </div>
                 )}
               </div>
             </article>
-
           </section>
         </div>
       </main>

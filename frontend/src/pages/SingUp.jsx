@@ -3,10 +3,10 @@ import { auth } from "../lib/axois.js";
 import { useNavigate } from "react-router";
 import RateLimiterCard from "../components/RateLimiterCard.jsx";
 import { Link } from "react-router";
-import toast from "react-hot-toast";
 import useAuth from "../context/useAuth.jsx";
 import { BeatLoader } from "react-spinners";
 import socket from "../lib/socket.js";
+import { useToast } from "../context/ToastContext.jsx";
 
 const SignUp = () => {
   const dialog = useRef();
@@ -23,7 +23,7 @@ const SignUp = () => {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -40,7 +40,7 @@ const SignUp = () => {
       setUser(res.data.otherDetails);
       setLoading(true);
       navigate("/");
-      toast.success(res.data.message);
+      showToast(res.data.message, res.data.status); // Show toast notification on successful signup
     } catch (err) {
       const status = err.response?.status;
       if (status === 429) {
@@ -51,7 +51,7 @@ const SignUp = () => {
         ErrorCode: err.response?.status,
       });
       if (errors.ErrorCode === 11000) {
-        console.log("User already exists");
+        showToast("Username or Email already exists", "error");
       }
     } finally {
       setLoading(false);
@@ -101,7 +101,7 @@ const SignUp = () => {
                 </label>
                 <div
                   className={`rounded-2xl border px-4 py-3.5 transition-all duration-300 ${
-                    errors.name && errors.name !== "Name is required"
+                    errors.name
                       ? "border-red-500/50 bg-red-500/5"
                       : "border-white/5 bg-white/[0.02] focus-within:border-cyan-500/40 focus-within:bg-white/[0.04] focus-within:shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]"
                   }`}

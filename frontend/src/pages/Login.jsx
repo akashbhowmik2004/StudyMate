@@ -1,11 +1,11 @@
 import { useRef, useState } from "react";
 import { auth } from "../lib/axois.js";
-import toast from "react-hot-toast";
 import { useNavigate, Link } from "react-router";
 import RateLimiterCard from "../components/RateLimiterCard.jsx";
 import useAuth from "../context/useAuth.jsx";
 import { BeatLoader } from "react-spinners";
 import socket from "../lib/socket.js";
+import {useToast} from "../context/ToastContext.jsx";
 
 const Login = () => {
   const dialog = useRef();
@@ -16,6 +16,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+  const { showToast } = useToast(); 
 
   const navigate = useNavigate();
 
@@ -33,13 +34,14 @@ const Login = () => {
       const res = await auth.post("/login", loginData);
       setUser(res.data.otherDetails);
       navigate("/");
-      toast.success(res.data.message);
+      showToast(res.data.message, res.data.status); // Show toast notification on successful login
     } catch (err) {
       const status = err.response.status;
-      const ErrorMessage = err.response.data.message;
-      toast.error(ErrorMessage);
       if (status === 429) {
         dialog.current.open();
+      }
+      if(status === 500) {
+        showToast("Server error. Please try again later.", "error");
       }
       setErrors({
         [err.response.data.field]: err.response.data.message,

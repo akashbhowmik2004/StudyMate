@@ -1,6 +1,5 @@
 import { FiX } from "react-icons/fi";
 import { api } from "../../lib/axois.js";
-import toast from "react-hot-toast";
 import socket from "../../lib/socket.js";
 import ConfirmDialog from "../Common/ConfirmDialog.jsx";
 import useAuth from "../../context/useAuth.jsx";

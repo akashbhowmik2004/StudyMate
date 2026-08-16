@@ -44,16 +44,16 @@ export const updateProfile = async (req, res) => {
     const updates = {};
 
     if (username) {
-      const compareUsername = await User.findOne({username});
-      if(!compareUsername){
+      const compareUsername = await User.findOne({ username });
+      if (!compareUsername) {
         return res.status(400).json({
           success: false,
           field: "username",
           message: "Enter correct username",
         });
       }
-      updates.username = username
-    };
+      updates.username = username;
+    }
     if (newEmail) {
       const existingUser = await User.findOne({ email: newEmail });
 
@@ -134,8 +134,8 @@ export const deleteProfile = async (req, res) => {
       currentPassword,
       existingUser.password,
     );
-    const compareUsername = await User.findOne({username});
-    if(!compareUsername){
+    const compareUsername = await User.findOne({ username });
+    if (!compareUsername) {
       return res.status(400).json({
         success: false,
         field: "username",
@@ -186,6 +186,98 @@ export const deleteProfile = async (req, res) => {
   } catch (err) {
     console.log(err);
 
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const followUser = async (req, res) => {
+  const { id } = req.params;
+  const currentUserId = req.user.id;
+  console;
+  try {
+    if (id === currentUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot follow/unfollow yourself",
+      });
+    }
+    const userToFollow = await User.findById(id);
+    console.log("User to follow:", userToFollow);
+    const currentUser = await User.findById(currentUserId);
+    console.log("Current user:", currentUser);
+    if (!userToFollow) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    const isFollowing = userToFollow.followers.includes(currentUserId);
+    if (isFollowing) {
+      return res.status(400).json({
+        success: false,
+        message: "You are already following this user",
+      });
+    } else {
+      userToFollow.followers.push(currentUserId);
+      currentUser.followings.push(id);
+      await userToFollow.save();
+      await currentUser.save();
+      return res.status(200).json({
+        success: true,
+        message: "User followed successfully",
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const unfollowUser = async (req, res) => {
+  const { id } = req.params;
+  const currentUserId = req.user.id;
+  console;
+  try {
+    if (id === currentUserId) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot follow/unfollow yourself",
+      });
+    }
+    const userToUnfollow = await User.findById(id);
+    console.log("User to unfollow:", userToUnfollow);
+    const currentUser = await User.findById(currentUserId);
+    console.log("Current user:", currentUser);
+    if (!userToUnfollow) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    const isUnfollowing = userToUnfollow.followers.includes(currentUserId);
+    if (!isUnfollowing) {
+      return res.status(400).json({
+        success: false,
+        message: "You are not following this user",
+      });
+    } else {
+      userToUnfollow.followers.pull(currentUserId);
+      currentUser.followings.pull(id);
+      await userToUnfollow.save();
+      await currentUser.save();
+      return res.status(200).json({
+        success: true,
+        message: "User unfollowed successfully",
+      });
+    }
+  } catch (err) {
+    console.log(err);
     res.status(500).json({
       success: false,
       message: "Something went wrong",

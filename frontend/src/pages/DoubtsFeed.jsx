@@ -58,7 +58,7 @@ const DoubtsFeed = () => {
     fetchAllDoubts();
   }, []);
 
-  const handleShare = (doubt) => {
+  const handleShare = () => {
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(`https://studymate.app/doubts/${doubtId}`);
       showToast("Link copied to clipboard!");

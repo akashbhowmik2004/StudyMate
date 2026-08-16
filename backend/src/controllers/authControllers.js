@@ -5,6 +5,18 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const generateProfileId = (name = "US") => {
+  const letters = name
+    .replace(/[^a-zA-Z]/g, "")
+    .toUpperCase()
+    .slice(0, 2)
+    .padEnd(2, "X");
+
+  const numbers = Math.floor(10000 + Math.random() * 90000);
+
+  return `${letters}${numbers}`;
+};
+
 const maxAge = 3 * 24 * 60 * 60;
 //Create a JWT token
 const createToken = (id) => {
@@ -49,11 +61,13 @@ export const signup = async (req, res) => {
 
     const salt = bcrypt.genSaltSync(10);
     const hashPassword = bcrypt.hashSync(password, salt);
-
+    const uniqueId = generateProfileId(name);
     const newUser = new User({
+      name,
       username,
       email,
       password: hashPassword,
+      uniqueId,
     });
 
     await newUser.save();
@@ -145,7 +159,7 @@ export const logout = (req, res) => {
 
 export const verifyUsers = async (req, res) => {
   try {
-    const userData = await User.findById(req.user.id).select("username email");
+    const userData = await User.findById(req.user.id).select("username email name");
     res.status(200).json({
       success: true,
       user: userData,
