@@ -1,5 +1,5 @@
 
-import { FaUser,FaStickyNote,FaRegUserCircle } from "react-icons/fa";
+import { FaUser,FaStickyNote,FaRegUserCircle,FaUserFriends } from "react-icons/fa";
 import { IoIosSettings,IoIosPeople } from "react-icons/io";
 import { MdOutlineDashboard } from "react-icons/md";
 import { RiCalendarScheduleFill } from "react-icons/ri";
@@ -19,6 +19,11 @@ export const menuItems = [
         label: 'Doubts',
         icon: FaUser,
         path: "/doubts"
+    },
+    {
+        label: 'Friends',
+        icon: FaUserFriends,
+        path: "/friends"
     },
     {
         label: 'Community',

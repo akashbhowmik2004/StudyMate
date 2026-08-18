@@ -251,9 +251,9 @@ export const unfollowUser = async (req, res) => {
       });
     }
     const userToUnfollow = await User.findById(id);
-    console.log("User to unfollow:", userToUnfollow);
+    //console.log("User to unfollow:", userToUnfollow);
     const currentUser = await User.findById(currentUserId);
-    console.log("Current user:", currentUser);
+    //console.log("Current user:", currentUser);
     if (!userToUnfollow) {
       return res.status(404).json({
         success: false,

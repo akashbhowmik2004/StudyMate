@@ -10,6 +10,7 @@ const ProfileCard = ({
   setEditUsernameVal,
   setIsEditingUsername,
 }) => {
+  
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-6">
       {/* Avatar with Hover Edit */}
@@ -83,6 +84,7 @@ const ProfileCard = ({
           )}
         </div>
       </div>
+
     </div>
   );
 };

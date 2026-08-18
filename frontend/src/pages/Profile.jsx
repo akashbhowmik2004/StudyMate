@@ -1,15 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  FaCheck,
-  FaCopy,
-  FaUserFriends,
-  FaUserPlus,
-} from "react-icons/fa";
+import { FaCheck, FaCopy, FaUserFriends, FaUserPlus } from "react-icons/fa";
 import StudyMateHeader from "../components/StudyMateHeader.jsx";
-import { useToast } from "../context/ToastContext.jsx"; 
-import{ api} from "../lib/axois.js";
+import { useToast } from "../context/ToastContext.jsx";
+import { api } from "../lib/axois.js";
 import ProfileCard from "../components/Profile/ProfileCard.jsx";
 import useAuth from "../context/useAuth.jsx";
+import UserCard from "../components/Profile/UserCard.jsx";
 
 // --- Reusable Avatar Logic from previous components ---
 const AVATAR_PALETTES = [
@@ -62,25 +58,40 @@ const AccountPage = () => {
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [editUsernameVal, setEditUsernameVal] = useState(profile.username);
   const [followInput, setFollowInput] = useState("");
+  const [followRequestsId, setFollowRequestsId] = useState("");
 
   // --- State: Dummy Data for Requests ---
-  const [pendingRequests, setPendingRequests] = useState([
-    { id: 1, name: "Priya Verma", username: "priya_v" },
-    { id: 2, name: "Rohit Das", username: "rohitd" },
-  ]);
+  const [pendingRequests, setPendingRequests] = useState([]);
   const fetchUserData = async () => {
     try {
       const response = await api.get(`/users/${user._id}`);
       setProfile(response.data.otherDetails);
       setEditUsernameVal(response.data.username);
+
       console.log("Fetched user data:", response.data.otherDetails);
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
   };
+  const fetchPendingRequests = async () => {
+    try {
+      const response = await api.get("/requests");
+      setFollowRequestsId(
+        response.data.requests.map((req) => {
+          console.log("Request ID:", req._id);
+          return req._id;
+        }),
+      );
+      console.log("Fetched pending requests:", response.data.requests);
+      setPendingRequests(response.data.requests);
+    } catch (error) {
+      console.error("Error fetching pending requests:", error);
+    }
+  };
   useEffect(() => {
     fetchUserData();
-  },[user._id])
+    fetchPendingRequests();
+  }, [user._id]);
 
   // --- Handlers ---
   const handleImageUpload = (e) => {
@@ -104,6 +115,7 @@ const AccountPage = () => {
 
   const handleCopyId = () => {
     navigator.clipboard.writeText(profile.uniqueId);
+    console.log(pendingRequests);
     showToast("Unique ID copied to clipboard!");
   };
 
@@ -116,23 +128,25 @@ const AccountPage = () => {
       showToast("You cannot follow yourself!", false);
       return;
     }
-
     showToast(`Follow request sent to ${followInput.toUpperCase()}!`);
     setFollowInput("");
   };
 
-  const handleAcceptRequest = (id, name) => {
-    setPendingRequests((prev) => prev.filter((req) => req.id !== id));
-    setProfile((prev) => ({ ...prev, followers: prev.followers + 1 }));
-    showToast(`You accepted ${name}'s follow request!`);
+  const handleAcceptRequest = async (id, name) => {
+    try {
+      await api.put(`/accept-request/${id}`, { requestId: followRequestsId });
+      setPendingRequests((prev) => prev.filter((req) => req.id !== id));
+      showToast(`You accepted ${name}'s follow request!`);
+    } catch (error) {
+      console.error("Error accepting follow request:", error);
+      showToast("Failed to accept follow request.", false);
+    }
   };
 
   const handleDeclineRequest = (id) => {
     setPendingRequests((prev) => prev.filter((req) => req.id !== id));
     showToast("Follow request declined.", false); // Red toast for decline
   };
-
-
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">
@@ -276,35 +290,15 @@ const AccountPage = () => {
                 {pendingRequests.length > 0 ? (
                   pendingRequests.map((req) => (
                     <div
-                      key={req.id}
+                      key={req.sender._id}
                       className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-4 transition hover:bg-white/[0.04]"
                     >
-                      <div className="flex items-center gap-3">
-                        <Avatar name={req.name} size="h-10 w-10" />
-                        <div>
-                          <p className="text-sm font-bold text-[#EDE7DA]">
-                            {req.name}
-                          </p>
-                          <p className="text-xs font-medium text-slate-500">
-                            @{req.username}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleAcceptRequest(req.id, req.name)}
-                          className="flex-1 sm:flex-none rounded-xl bg-cyan-500/20 px-4 py-2 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/30 hover:text-cyan-200"
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => handleDeclineRequest(req.id)}
-                          className="flex-1 sm:flex-none rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-slate-400 transition hover:bg-white/10 hover:text-white"
-                        >
-                          Decline
-                        </button>
-                      </div>
+                      <UserCard
+                        req={req}
+                        Avatar={Avatar}
+                        handleAcceptRequest={handleAcceptRequest}
+                        handleDeclineRequest={handleDeclineRequest}
+                      />
                     </div>
                   ))
                 ) : (

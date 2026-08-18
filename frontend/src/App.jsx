@@ -10,6 +10,7 @@ import Community from "./pages/Community.jsx";
 import Schedule from "./pages/Schedule.jsx";
 import DoubtsFeed from "./pages/DoubtsFeed.jsx";
 import Profile from "./pages/Profile.jsx";
+import FriendsPage from "./pages/Friends.jsx";
 
 const App = () => {
   return (
@@ -32,6 +33,15 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/friends"
+          element={
+            <ProtectedRoute>
+              <FriendsPage />
+            </ProtectedRoute>
+          }
+        />
+        
         <Route
           path="/notes"
           element={
