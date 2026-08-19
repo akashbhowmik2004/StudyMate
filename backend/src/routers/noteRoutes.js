@@ -7,8 +7,8 @@ const router = Router();
 
 router.post("/",upload.single("file"),validateCreateNote,  createNotes);
 router.get("/", getAllNotes);
-router.get("/:id", getNotes);
 router.get("/", getNotesBySubject);
+router.get("/:id", getNotes);
 router.put("/:id",upload.single("file"),validateEditNote, editNote);
 router.delete("/:id", deleteNote);
 

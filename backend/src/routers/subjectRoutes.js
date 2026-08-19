@@ -4,8 +4,8 @@ import { limiter } from "../middleware/rateLimiter.js";
 const router = Router();
 
 router.get("/",limiter, getAllSubjects);
-router.get("/:id",limiter, getSubject);
 router.post("/", limiter, createSubject);
+router.get("/:id",limiter, getSubject);
 router.delete("/:id", limiter, deleteSubject);
 
 export default router;

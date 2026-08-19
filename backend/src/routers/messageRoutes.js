@@ -3,8 +3,8 @@ import {createMessage, getMessagesByCommunity, deleteMessage} from "../controlle
 
 const router = Router();
 
-router.get("/:communityId", getMessagesByCommunity);
 router.post("/",createMessage );
+router.get("/:communityId", getMessagesByCommunity);
 router.delete("/:id", deleteMessage);
 
 export default router;

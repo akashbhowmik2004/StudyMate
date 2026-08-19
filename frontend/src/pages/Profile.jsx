@@ -119,6 +119,7 @@ const AccountPage = () => {
     showToast("Unique ID copied to clipboard!");
   };
 
+  // --- Handlers for Follow Requests ---
   const handleSendRequest = (e) => {
     e.preventDefault();
     if (!followInput.trim()) return;
@@ -131,11 +132,36 @@ const AccountPage = () => {
     showToast(`Follow request sent to ${followInput.toUpperCase()}!`);
     setFollowInput("");
   };
-
-  const handleAcceptRequest = async (id, name) => {
+  const handleSendRequestByUniqueId = async (e) => {
+    e.preventDefault();
+    if (!followInput.trim()) {
+      showToast("Please enter a unique ID.", false);
+      return;
+    }
     try {
-      await api.put(`/accept-request/${id}`, { requestId: followRequestsId });
-      setPendingRequests((prev) => prev.filter((req) => req.id !== id));
+      const response = await api.post("/send-request-by-unique-id", {
+        uniqueId: followInput.toUpperCase(),
+      });
+      showToast(response.data.message);
+      setFollowInput("");
+    } catch (error) {
+      console.error("Error sending follow request:", error);
+      showToast(
+        error.response?.data?.message || "Failed to send follow request.",
+        false,
+      );
+      //showToast("Failed to send follow request.", false);
+    }
+  };
+  const handleAcceptRequest = async (senderId, requestId, name) => {
+    try {
+      await api.put(`/accept-request/${senderId}`, {
+        requestId: requestId,
+      });
+      setPendingRequests((prev) =>
+        prev.filter((request) => request._id !== requestId),
+      );
+      await fetchUserData();
       showToast(`You accepted ${name}'s follow request!`);
     } catch (error) {
       console.error("Error accepting follow request:", error);
@@ -143,9 +169,17 @@ const AccountPage = () => {
     }
   };
 
-  const handleDeclineRequest = (id) => {
-    setPendingRequests((prev) => prev.filter((req) => req.id !== id));
-    showToast("Follow request declined.", false); // Red toast for decline
+  const handleDeclineRequest = async (senderId, requestId, name) => {
+    try {
+      await api.put(`/reject-request/${senderId}`, {
+        requestId: requestId,
+      });
+      setPendingRequests((prev) => prev.filter((req) => req._id !== requestId));
+      showToast(`You declined ${name}'s follow request.`, false); // Red toast for decline
+    } catch (err) {
+      console.error("Error declining follow request:", err);
+      showToast("Failed to decline follow request.", false);
+    }
   };
 
   return (
@@ -268,6 +302,7 @@ const AccountPage = () => {
                 <button
                   type="submit"
                   disabled={!followInput.trim()}
+                  onClick={handleSendRequestByUniqueId}
                   className="inline-flex h-[54px] shrink-0 items-center justify-center gap-2.5 rounded-2xl bg-cyan-500 px-8 text-sm font-bold text-[#0B0D12] shadow-[0_0_20px_-5px_rgba(34,211,238,0.4)] transition-all hover:bg-cyan-400 disabled:opacity-50 disabled:shadow-none active:scale-95"
                 >
                   <FaUserPlus className="text-sm" /> Send
