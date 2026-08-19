@@ -1,18 +1,23 @@
-import {api} from "../../lib/axois.js";
-import {useToast} from "../../context/ToastContext.jsx";
+import { api } from "../../lib/axois.js";
+import { useToast } from "../../context/ToastContext.jsx";
 const UserCard = ({
   req,
   Avatar,
-  handleAcceptRequest,
   handleDeclineRequest,
   setPendingRequests,
+  fetchUserData,
 }) => {
   const { showToast } = useToast();
-  const handleAcceptRequest2 = async (id, name) => {
+  const handleAcceptRequest = async () => {
     try {
-      await api.put(`/accept-request/${id}`, { requestId: req._id});
-      setPendingRequests((prev) => prev.filter((req) => req.id !== id));
-      showToast(`You accepted ${name}'s follow request!`);
+      await api.put(`/accept-request/${req.sender._id}`, {
+        requestId: req._id,
+      });
+      setPendingRequests((prev) =>
+        prev.filter((request) => request._id !== req._id)
+      );
+      await fetchUserData(); // Fetch updated user data after accepting the request
+      showToast(`You accepted ${req.sender.name}'s follow request!`);
     } catch (error) {
       console.error("Error accepting follow request:", error);
       showToast("Failed to accept follow request.", false);
@@ -33,13 +38,13 @@ const UserCard = ({
 
       <div className="flex items-center gap-2">
         <button
-          onClick={() => handleAcceptRequest(req.id, req.sender.name)}
+          onClick={handleAcceptRequest}
           className="flex-1 sm:flex-none rounded-xl bg-cyan-500/20 px-4 py-2 text-xs font-bold text-cyan-300 transition hover:bg-cyan-500/30 hover:text-cyan-200"
         >
           Accept
         </button>
         <button
-          onClick={() => handleDeclineRequest(req.id)}
+          onClick={() => handleDeclineRequest(req._id)}
           className="flex-1 sm:flex-none rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-bold text-slate-400 transition hover:bg-white/10 hover:text-white"
         >
           Decline

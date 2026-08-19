@@ -41,6 +41,15 @@ export const sendFollowRequest = async (req, res) => {
         message: "Receiver user not found",
       });
     }
+    const user = await User.findById(senderId);
+    // Check if the sender is already following the receiver
+    const isFollowing = user.followings.includes(receiverId);
+    if(isFollowing) {
+      return res.status(400).json({
+        success: false,
+        message: "You are already following this user",
+      });
+    }
     // Check if a follow request already exists
     const existingRequest = await FollowRequest.findOne({
       sender: senderId,
@@ -76,7 +85,7 @@ export const acceptFollowRequest = async (req, res) => {
   const { requestId } = req.body;
   const receiverId = req.user.id;
   try {
-    if(senderId === receiverId) {
+    if (senderId === receiverId) {
       return res.status(400).json({
         success: false,
         message: "You cannot accept a follow request from yourself",
@@ -88,10 +97,11 @@ export const acceptFollowRequest = async (req, res) => {
       status: "pending",
     });
     if (!request) {
-        return res.status(404).json({
-            success: false,
-            message: "Follow request not found or you are not authorized to accept this request",
-        });
+      return res.status(404).json({
+        success: false,
+        message:
+          "Follow request not found or you are not authorized to accept this request",
+      });
     }
     const senderUser = await User.findById(senderId);
     console.log("User to follow:", senderUser);
@@ -126,11 +136,11 @@ export const acceptFollowRequest = async (req, res) => {
 };
 
 export const rejectFollowRequest = async (req, res) => {
-    const { senderId } = req.params;
+  const { senderId } = req.params;
   const { requestId } = req.body;
   const receiverId = req.user.id;
   try {
-    if(senderId === receiverId) {
+    if (senderId === receiverId) {
       return res.status(400).json({
         success: false,
         message: "You cannot accept or reject a follow request from yourself",
@@ -142,10 +152,11 @@ export const rejectFollowRequest = async (req, res) => {
       status: "pending",
     });
     if (!request) {
-        return res.status(404).json({
-            success: false,
-            message: "Follow request not found or you are not authorized to accept this request",
-        });
+      return res.status(404).json({
+        success: false,
+        message:
+          "Follow request not found or you are not authorized to accept this request",
+      });
     }
     const senderUser = await User.findById(senderId);
     console.log("User to follow:", senderUser);
@@ -166,4 +177,4 @@ export const rejectFollowRequest = async (req, res) => {
       message: "Something went wrong",
     });
   }
-}
+};

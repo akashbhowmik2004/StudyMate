@@ -298,6 +298,8 @@ const AccountPage = () => {
                         Avatar={Avatar}
                         handleAcceptRequest={handleAcceptRequest}
                         handleDeclineRequest={handleDeclineRequest}
+                        setPendingRequests={setPendingRequests}
+                        fetchUserData={fetchUserData}
                       />
                     </div>
                   ))
