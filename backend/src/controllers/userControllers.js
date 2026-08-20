@@ -193,6 +193,74 @@ export const deleteProfile = async (req, res) => {
   }
 };
 
+export const findFollowers = async (req, res) => {
+  try{
+    const user = await User.findById(req.user.id);
+    if(!user){
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    const friends = user.followers.map(async (friendId) => {
+      const friendUser = await User.findById(friendId);
+      return {
+        _id: friendUser._id,
+        name: friendUser.name,
+        username: friendUser.username,
+        email: friendUser.email,
+      };
+    });
+    console.log("Friends data:", friends);
+    const friendsData = await Promise.all(friends);
+    console.log("Resolved friends data:", friendsData);
+    res.status(200).json({
+      success: true,
+      data: friendsData,
+    });
+  } catch(err){
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+}
+
+export const findFollowings = async (req, res) => {
+  try{
+    const user = await User.findById(req.user.id);
+    if(!user){
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+    const followings = user.followings.map(async (followingId) => {
+      const followingUser = await User.findById(followingId);
+      return {
+        _id: followingUser._id,
+        name: followingUser.name,
+        username: followingUser.username,
+        email: followingUser.email,
+      };
+    });
+    console.log("Followings data:", followings);
+    const followingsData = await Promise.all(followings);
+    console.log("Resolved followings data:", followingsData);
+    res.status(200).json({
+      success: true,
+      data: followingsData,
+    });
+  } catch(err){
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+}
+
 export const followUser = async (req, res) => {
   const { id } = req.params;
   const currentUserId = req.user.id;

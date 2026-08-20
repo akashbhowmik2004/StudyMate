@@ -1,5 +1,5 @@
-import  { useState } from "react";
-import { FaFire,FaStar, FaTrophy, FaShieldAlt } from "react-icons/fa";
+import { useState } from "react";
+import { FaFire, FaStar, FaTrophy, FaShieldAlt } from "react-icons/fa";
 
 // Dummy data representing the clicked user
 const MOCK_USER = {
@@ -14,23 +14,47 @@ const MOCK_USER = {
     streak: 45, // days active
   },
   badges: [
-    { id: 1, name: "Top Contributor", icon: FaTrophy, color: "text-yellow-400", bg: "bg-yellow-400/10" },
-    { id: 2, name: "Early Bird", icon: FaStar, color: "text-purple-400", bg: "bg-purple-400/10" },
-    { id: 3, name: "Code Guardian", icon: FaShieldAlt, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-    { id: 4, name: "1 Month Streak", icon: FaFire, color: "text-orange-400", bg: "bg-orange-400/10" },
+    {
+      id: 1,
+      name: "Top Contributor",
+      icon: FaTrophy,
+      color: "text-yellow-400",
+      bg: "bg-yellow-400/10",
+    },
+    {
+      id: 2,
+      name: "Early Bird",
+      icon: FaStar,
+      color: "text-purple-400",
+      bg: "bg-purple-400/10",
+    },
+    {
+      id: 3,
+      name: "Code Guardian",
+      icon: FaShieldAlt,
+      color: "text-emerald-400",
+      bg: "bg-emerald-400/10",
+    },
+    {
+      id: 4,
+      name: "1 Month Streak",
+      icon: FaFire,
+      color: "text-orange-400",
+      bg: "bg-orange-400/10",
+    },
   ],
 };
 
 const UserProfileCard = ({ user = MOCK_USER, onClose }) => {
   // Local state for the follow button demonstration
+  
   const [isFollowing, setIsFollowing] = useState(false);
 
   return (
     <div className="w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#131B2F] shadow-2xl shadow-black/50 font-sans relative">
-      
       {/* Optional Close Button (if used as a modal) */}
       {onClose && (
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/20 text-white/50 hover:text-white hover:bg-black/40 transition"
         >
@@ -77,16 +101,26 @@ const UserProfileCard = ({ user = MOCK_USER, onClose }) => {
         {/* Stats Grid */}
         <div className="mb-8 grid grid-cols-4 divide-x divide-white/10 rounded-2xl border border-white/10 bg-white/[0.02] py-4 shadow-inner">
           <div className="flex flex-col items-center justify-center px-2">
-            <span className="text-lg font-bold text-white">{user.stats.posts}</span>
+            <span className="text-lg font-bold text-white">
+              {user.stats.posts}
+            </span>
             <span className="text-xs font-medium text-slate-400">Posts</span>
           </div>
           <div className="flex flex-col items-center justify-center px-2">
-            <span className="text-lg font-bold text-white">{user.stats.followers}</span>
-            <span className="text-xs font-medium text-slate-400">Followers</span>
+            <span className="text-lg font-bold text-white">
+              {user.stats.followers}
+            </span>
+            <span className="text-xs font-medium text-slate-400">
+              Followers
+            </span>
           </div>
           <div className="flex flex-col items-center justify-center px-2">
-            <span className="text-lg font-bold text-white">{user.stats.following}</span>
-            <span className="text-xs font-medium text-slate-400">Following</span>
+            <span className="text-lg font-bold text-white">
+              {user.stats.following}
+            </span>
+            <span className="text-xs font-medium text-slate-400">
+              Following
+            </span>
           </div>
           <div className="flex flex-col items-center justify-center px-2">
             <div className="flex items-center gap-1 text-orange-400">
@@ -106,14 +140,14 @@ const UserProfileCard = ({ user = MOCK_USER, onClose }) => {
             {user.badges.map((badge) => {
               const Icon = badge.icon;
               return (
-                <div 
-                  key={badge.id} 
+                <div
+                  key={badge.id}
                   className="group relative flex flex-col items-center justify-center rounded-2xl border border-white/5 bg-white/[0.02] p-3 transition-colors hover:bg-white/[0.06]"
                 >
                   <div className={`rounded-xl p-2.5 ${badge.bg}`}>
                     <Icon className={`text-xl ${badge.color}`} />
                   </div>
-                  
+
                   {/* Hover Tooltip */}
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 scale-0 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-bold text-white opacity-0 shadow-lg transition-all duration-200 group-hover:scale-100 group-hover:opacity-100">
                     {badge.name}
@@ -125,7 +159,6 @@ const UserProfileCard = ({ user = MOCK_USER, onClose }) => {
             })}
           </div>
         </div>
-        
       </div>
     </div>
   );
