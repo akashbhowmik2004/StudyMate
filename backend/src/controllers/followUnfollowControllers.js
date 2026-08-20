@@ -285,3 +285,26 @@ export const unfollowUser = async (req, res) => {
     });
   }
 }
+
+export const getSentFollowRequests = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const followRequests = await FollowRequest.find({
+      sender: userId,
+      status: "pending",
+    }).populate("receiver", "name username email");
+
+    res.status(200).json({
+      success: true,
+      requests: followRequests,
+    });
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};

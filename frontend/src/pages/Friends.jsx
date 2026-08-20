@@ -1,23 +1,42 @@
 import { useState, useEffect } from "react";
-import { FaUserFriends, FaUserCheck, FaUserPlus } from "react-icons/fa";
+import {
+  FaUserFriends,
+  FaUserCheck,
+  FaUserPlus,
+  FaStopwatch,
+} from "react-icons/fa";
 import StudyMateHeader from "../components/StudyMateHeader";
 import { useToast } from "../context/ToastContext";
 import { api } from "../lib/axois.js";
 
 // Reusable User Card Component
-const UserCard = ({ user, isFollowing, onToggleFollow }) => {
+const UserCard = ({ user, isFollowing, fetchNetworkData, isPending }) => {
   const { showToast } = useToast();
+  console.log("UserCard props:", { user, isFollowing, isPending });
   const handleUnfollowUser = async () => {
     try {
       const userId = user._id || user.id;
-      await api.put(`/unfollow/${userId }`);
-      onToggleFollow(user, true); // Update the parent state
+      await api.put(`/unfollow/${userId}`);
       showToast(`You have unfollowed ${user.name}`, true);
-    }catch (err) {
+      await fetchNetworkData(); // Refresh the network data after unfollowing
+    } catch (err) {
       console.log(err);
       showToast("Failed to unfollow user", false);
     }
-  }
+  };
+  const handleFollowUser = async () => {
+    try {
+      const receiverId = user._id;
+      const response = await api.post(`/send-request/${receiverId}`);
+      console.log("Follow request sent:", response.data);
+      await fetchNetworkData(); // Refresh the network data after following
+      showToast(`Follow request sent to ${user.name}`, true);
+    } catch (err) {
+      console.log(err);
+      showToast("Failed to follow user", false);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-white/[0.02] p-4 transition-all hover:bg-white/[0.04]">
       <div className="flex min-w-0 items-center gap-4">
@@ -47,16 +66,30 @@ const UserCard = ({ user, isFollowing, onToggleFollow }) => {
 
       {/* Action Button */}
       <button
-        onClick={() => {onToggleFollow(user, isFollowing);
-          isFollowing ? handleUnfollowUser() : null;
+        onClick={() => {
+          if (isFollowing) {
+            handleUnfollowUser();
+          } else if (!isPending) {
+            handleFollowUser();
+          }
         }}
         className={`shrink-0 rounded-xl px-4 py-2 text-sm font-bold transition-all duration-300 ${
           isFollowing
             ? "border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 hover:text-white"
-            : "bg-cyan-500 text-black shadow-[0_0_15px_-3px_rgba(34,211,238,0.4)] hover:bg-cyan-400"
+            : isPending
+              ? "cursor-not-allowed border border-yellow-500/20 bg-yellow-500/10 text-yellow-400"
+              : "bg-cyan-500 text-black shadow-[0_0_15px_-3px_rgba(34,211,238,0.4)] hover:bg-cyan-400"
         }`}
       >
-        {isFollowing ? "Unfollow" : "Follow"}
+        {isFollowing ? (
+          "Unfollow"
+        ) : isPending ? (
+          <>
+            Pending <FaStopwatch className="inline ml-1" />
+          </>
+        ) : (
+          "Follow"
+        )}
       </button>
     </div>
   );
@@ -65,6 +98,7 @@ const UserCard = ({ user, isFollowing, onToggleFollow }) => {
 const NetworkPage = () => {
   const [followers, setFollowers] = useState([]);
   const [followings, setFollowings] = useState([]);
+  const [followRequests, setFollowRequests] = useState([]);
   const [discoverUsers, setDiscoverUsers] = useState([]);
   const { showToast } = useToast();
 
@@ -73,10 +107,13 @@ const NetworkPage = () => {
       // Fetch Followers, Followings, and All Users concurrently
       const followersRes = await api.get("/users/followers");
       const followingsRes = await api.get("/users/followings");
+      const getSentFollowRequests = await api.get("/sent-requests");
       console.log("Followers data:", followersRes.data);
       console.log("Followings data:", followingsRes.data);
+      console.log("Sent follow requests data:", getSentFollowRequests.data);
       setFollowers(followersRes.data.data || []);
       setFollowings(followingsRes.data.data || []);
+      setFollowRequests(getSentFollowRequests.data.requests || []);
     } catch (err) {
       console.log(err);
       showToast("Failed to fetch network data", false);
@@ -89,27 +126,15 @@ const NetworkPage = () => {
 
   // Helper to check if a user is in our "Following" list
   const isFollowingUser = (userId) => {
-    return followings.some((u) => (u._id || u.id) === userId);
+    return followings.some((user) => String(user._id) === String(userId));
   };
 
-  // Handle Follow / Unfollow logic
-  const handleToggleFollow = async (user, currentlyFollowing) => {
-    const userId = user._id || user.id;
-
-    try {
-      if (currentlyFollowing) {
-        // Optimistic UI update: Remove from followings
-        setFollowings((prev) => prev.filter((u) => (u._id || u.id) !== userId));
-        // await api.post(`/users/unfollow/${userId}`);
-      } else {
-        // Optimistic UI update: Add to followings
-        setFollowings((prev) => [user, ...prev]);
-        // await api.post(`/users/follow/${userId}`);
-      }
-    } catch (err) {
-      showToast("Action failed, please try again", false);
-      fetchNetworkData();
-    }
+  const isPendingUser = (userId) => {
+    return followRequests.some(
+      (request) =>
+        String(request.receiver?._id) === String(userId) &&
+        request.status === "pending",
+    );
   };
 
   return (
@@ -144,15 +169,17 @@ const NetworkPage = () => {
             ) : (
               <div className="flex flex-col gap-3">
                 {followers.map((follower) => {
+                  const userId = follower._id || follower.id;
                   const isFollowing = isFollowingUser(
-                    follower._id || follower.id
+                    follower._id || follower.id,
                   );
                   return (
                     <UserCard
-                      key={`follower-${follower._id || follower.id}`}
+                      key={`follower-${userId}`}
                       user={follower}
                       isFollowing={isFollowing}
-                      onToggleFollow={handleToggleFollow}
+                      isPending={isPendingUser(userId)}
+                      fetchNetworkData={fetchNetworkData}
                     />
                   );
                 })}
@@ -175,14 +202,18 @@ const NetworkPage = () => {
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {followings.map((following) => (
-                  <UserCard
-                    key={`following-${following._id || following.id}`}
-                    user={following}
-                    isFollowing={true}
-                    onToggleFollow={handleToggleFollow}
-                  />
-                ))}
+                {followings.map((following) => {
+                  const userId = following._id || following.id;
+                  return (
+                    <UserCard
+                      key={`following-${userId}`}
+                      user={following}
+                      isFollowing={true}
+                      isPending={false}
+                      fetchNetworkData={fetchNetworkData}
+                    />
+                  );
+                })}
               </div>
             )}
           </section>
@@ -193,7 +224,9 @@ const NetworkPage = () => {
           <section className="flex flex-col gap-4">
             <div className="mb-4 flex items-center gap-2">
               <FaUserPlus className="text-xl text-cyan-400" />
-              <h2 className="text-2xl font-bold text-white">Find More Friends</h2>
+              <h2 className="text-2xl font-bold text-white">
+                Find More Friends
+              </h2>
             </div>
 
             {discoverUsers.length === 0 ? (
@@ -203,13 +236,15 @@ const NetworkPage = () => {
             ) : (
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {discoverUsers.map((user) => {
-                  const isFollowing = isFollowingUser(user._id || user.id);
+                  const userId = user._id || user.id;
+                  const isFollowing = isFollowingUser(userId);
                   return (
                     <UserCard
-                      key={`discover-${user._id || user.id}`}
+                      key={`discover-${userId}`}
                       user={user}
                       isFollowing={isFollowing}
-                      onToggleFollow={handleToggleFollow}
+                      isPending={isPendingUser(userId)}
+                      fetchNetworkData={fetchNetworkData}
                     />
                   );
                 })}
