@@ -36,6 +36,7 @@ const Login = () => {
       navigate("/");
       showToast(res.data.message, res.data.status); // Show toast notification on successful login
     } catch (err) {
+      showToast(err.response.data.message || "Login failed", false); // Show toast notification on error
       const status = err.response.status;
       if (status === 429) {
         dialog.current.open();

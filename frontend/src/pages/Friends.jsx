@@ -108,9 +108,12 @@ const NetworkPage = () => {
       const followersRes = await api.get("/users/followers");
       const followingsRes = await api.get("/users/followings");
       const getSentFollowRequests = await api.get("/sent-requests");
-      console.log("Followers data:", followersRes.data);
-      console.log("Followings data:", followingsRes.data);
-      console.log("Sent follow requests data:", getSentFollowRequests.data);
+      const discoverUsersRes = await api.get("/users/discover");
+      console.log("Discover Users data:", discoverUsersRes.data.users);
+      setDiscoverUsers(discoverUsersRes.data.users || []);
+      //console.log("Followers data:", followersRes.data);
+      //console.log("Followings data:", followingsRes.data);
+      //console.log("Sent follow requests data:", getSentFollowRequests.data);
       setFollowers(followersRes.data.data || []);
       setFollowings(followingsRes.data.data || []);
       setFollowRequests(getSentFollowRequests.data.requests || []);

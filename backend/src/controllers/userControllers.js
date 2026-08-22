@@ -194,9 +194,9 @@ export const deleteProfile = async (req, res) => {
 };
 
 export const findFollowers = async (req, res) => {
-  try{
+  try {
     const user = await User.findById(req.user.id);
-    if(!user){
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
@@ -218,19 +218,19 @@ export const findFollowers = async (req, res) => {
       success: true,
       data: friendsData,
     });
-  } catch(err){
+  } catch (err) {
     console.log(err);
     res.status(500).json({
       success: false,
       message: "Something went wrong",
     });
   }
-}
+};
 
 export const findFollowings = async (req, res) => {
-  try{
+  try {
     const user = await User.findById(req.user.id);
-    if(!user){
+    if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found",
@@ -252,14 +252,14 @@ export const findFollowings = async (req, res) => {
       success: true,
       data: followingsData,
     });
-  } catch(err){
+  } catch (err) {
     console.log(err);
     res.status(500).json({
       success: false,
       message: "Something went wrong",
     });
   }
-}
+};
 
 export const followUser = async (req, res) => {
   const { id } = req.params;
@@ -344,6 +344,30 @@ export const unfollowUser = async (req, res) => {
         message: "User unfollowed successfully",
       });
     }
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+export const discoverUsers = async (req, res) => {
+  try {
+    const currentUserId = req.user.id;
+    const currentUser = await User.findById(currentUserId);
+    const users = await User.find({
+      _id: {
+        $ne: currentUserId,
+        $nin: currentUser.followings,
+      },
+    }).select("-password -email -followers -followings");
+
+    res.status(200).json({
+      success: true,
+      users: users,
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({
