@@ -11,6 +11,7 @@ import Schedule from "./pages/Schedule.jsx";
 import DoubtsFeed from "./pages/DoubtsFeed.jsx";
 import Profile from "./pages/Profile.jsx";
 import FriendsPage from "./pages/Friends.jsx";
+import UserProfileCard from "./components/Common/UserProfileCard.jsx";
 
 const App = () => {
   return (
@@ -84,6 +85,7 @@ const App = () => {
         />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/user-profile" element={<UserProfileCard/>} />
       </Routes>
     </div>
   );

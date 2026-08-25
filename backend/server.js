@@ -18,6 +18,7 @@ import {createServer} from "node:http";
 import socketHandler from "./src/socket/socket.js";
 import messageRoutes from "./src/routers/messageRoutes.js";
 import followUnfollowRoutes from "./src/routers/followUnfollowRoutes.js";
+import scheduleRoutes from "./src/routers/scheduleRoutes.js";
 
 const app = express();
 const server = createServer(app);
@@ -53,6 +54,7 @@ app.use("/api/notes", requireAuth, noteRoutes);
 app.use("/api/subjects", requireAuth, subjectRoutes);
 app.use("/api/messages", requireAuth, messageRoutes);
 app.use("/api", requireAuth, followUnfollowRoutes);
+app.use("/api/schedule", requireAuth, scheduleRoutes);
 
 await mongoose.connect(process.env["MONGODB_URI"]).then(() => {
   console.log("MongoDB connected successfully");
