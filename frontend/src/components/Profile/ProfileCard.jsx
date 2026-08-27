@@ -9,6 +9,11 @@ const ProfileCard = ({
   handleSaveUsername,
   setEditUsernameVal,
   setIsEditingUsername,
+  isEditingBio,
+  editBioVal,
+  setEditBioVal,
+  setIsEditingBio,
+  handleSaveBio,
 }) => {
   
   return (
@@ -17,7 +22,7 @@ const ProfileCard = ({
       <div className="relative group shrink-0">
         <Avatar
           name={profile?.name || "User"}
-          imageUrl={profile?.imageUrl || null}
+          imageUrl={profile?.profilePicture || null}
           size="h-24 w-24"
           className="shadow-2xl"
         />
@@ -77,6 +82,52 @@ const ProfileCard = ({
               <button
                 onClick={() => setIsEditingUsername(true)}
                 className="opacity-0 group-hover:opacity-100 transition-opacity text-cyan-400 p-1 hover:text-cyan-300"
+              >
+                <FaEdit className="text-sm" />
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Bio Edit */}
+        <div className="mt-4">
+          {isEditingBio ? (
+            <div className="flex w-full items-start gap-2 rounded-xl border border-cyan-500/40 bg-white/[0.02] p-2 shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]">
+              <textarea
+                autoFocus
+                value={editBioVal}
+                onChange={(e) => setEditBioVal(e.target.value)}
+                maxLength={50}
+                placeholder="Add a short bio..."
+                className="w-full resize-none bg-transparent text-sm text-[#EDE7DA] outline-none"
+                rows={2}
+              />
+              <div className="flex flex-col gap-1">
+                <button
+                  onClick={handleSaveBio}
+                  className="rounded-lg bg-cyan-500/20 p-2 text-cyan-300 hover:bg-cyan-500/40 transition"
+                >
+                  <FaCheck className="text-xs" />
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditingBio(false);
+                    setEditBioVal(profile.desc || "");
+                  }}
+                  className="rounded-lg bg-white/5 p-2 text-slate-400 hover:bg-white/10 hover:text-white transition"
+                >
+                  <FaTimes className="text-xs" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="group relative pr-8">
+              <p className="text-sm text-slate-300">
+                {profile?.desc || "No bio added yet."}
+              </p>
+              <button
+                onClick={() => setIsEditingBio(true)}
+                className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity text-cyan-400 p-1 hover:text-cyan-300"
               >
                 <FaEdit className="text-sm" />
               </button>

@@ -4,6 +4,7 @@ import { FaTimes, FaUserMinus, FaSpinner } from "react-icons/fa";
 import { api } from "../../lib/axois.js";
 import useAuth from "../../context/useAuth.jsx";
 import {useToast} from "../../context/ToastContext.jsx";
+import UserProfileCard from "../Common/UserProfileCard.jsx";
 
 const CommunityMemberCard = ({
   setMembersOpen,
@@ -17,6 +18,7 @@ const CommunityMemberCard = ({
   const [confirmingId, setConfirmingId] = useState(null);
   const [removingId, setRemovingId] = useState(null);
   const [canRemoveMembers, setCanRemoveMembers] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const {showToast} = useToast();
 
   useEffect(() => {
@@ -106,11 +108,12 @@ const CommunityMemberCard = ({
               return (
                 <div
                   key={id}
-                  className="group flex items-center gap-4 rounded-2xl px-3 py-3 transition hover:bg-white/[0.04]"
+                  className="group flex items-center gap-4 rounded-2xl px-3 py-3 transition hover:bg-white/[0.04] cursor-pointer"
+                  onClick={() => setSelectedUserId(id)}
                 >
-                  {member?.avatar ? (
+                  {member?.profilePicture ? (
                     <img
-                      src={member.avatar}
+                      src={member.profilePicture}
                       alt={displayName}
                       className="h-11 w-11 shrink-0 rounded-[1rem] object-cover border border-white/10"
                     />
@@ -143,7 +146,7 @@ const CommunityMemberCard = ({
 
                   {canRemoveMembers && !memberIsAdmin && (
                     <button
-                      onClick={() => handleRemoveClick(member)}
+                      onClick={(e) => { e.stopPropagation(); handleRemoveClick(member); }}
                       disabled={isRemoving}
                       className={`flex shrink-0 items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-bold transition ${
                         isConfirming
@@ -166,6 +169,17 @@ const CommunityMemberCard = ({
           )}
         </div>
       </div>
+
+      {selectedUserId && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={(e) => { e.stopPropagation(); setSelectedUserId(null); }}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <UserProfileCard
+              userId={selectedUserId}
+              onClose={() => setSelectedUserId(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 

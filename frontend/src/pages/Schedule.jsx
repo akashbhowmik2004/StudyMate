@@ -39,7 +39,9 @@ const kind = {
 };
 
 const getSessionDurationHours = (session) => {
-  const [startHour, startMinute] = (session.startTime || "").split(":").map(Number);
+  const [startHour, startMinute] = (session.startTime || "")
+    .split(":")
+    .map(Number);
   const [endHour, endMinute] = (session.endTime || "").split(":").map(Number);
   const startMinutes = startHour * 60 + startMinute;
   const endMinutes = endHour * 60 + endMinute;
@@ -140,8 +142,9 @@ export default function Schedule() {
       setWeekStrip((currentWeek) =>
         currentWeek.map((day) => ({
           ...day,
-          sessions: allSessions.filter((session) => session.date === day.fullDate)
-            .length,
+          sessions: allSessions.filter(
+            (session) => session.date === day.fullDate,
+          ).length,
         })),
       );
     } catch (error) {
@@ -166,17 +169,26 @@ export default function Schedule() {
       console.error("Error fetching upcoming sessions:", error);
     }
   };
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     generateWeekStrip();
   }, []);
+  
   useEffect(() => {
-    if (weekStrip.length) {
-      fetchWeekSessions();
-    }
-  }, [weekStrip.length]);
-  useEffect(() => {
-    fetchSessionsForDate(selectedDate);
-  }, [selectedDate]);
+    const loadAll = async () => {
+      if (weekStrip.length && selectedDate) {
+        setLoading(true);
+        await Promise.all([
+          fetchWeekSessions(),
+          fetchSessionsForDate(selectedDate),
+          fetchUpcomingSessions()
+        ]);
+        setLoading(false);
+      }
+    };
+    loadAll();
+  }, [weekStrip.length, selectedDate]);
   useEffect(() => {
     setSessionInputs((prev) => ({
       ...prev,
@@ -220,9 +232,24 @@ export default function Schedule() {
     ...item,
     hours: Math.max(0, Math.round(item.hours)),
   }));
-  const totalWeekHours = integerWeekBreakdown.reduce((sum, w) => sum + w.hours, 0);
-  const groupSessions = weekSessions.filter((session) => session.type === "collab").length;
-  const focusHours = integerWeekBreakdown.find((item) => item.k === "focus")?.hours || 0;
+  const totalWeekHours = integerWeekBreakdown.reduce(
+    (sum, w) => sum + w.hours,
+    0,
+  );
+  const groupSessions = weekSessions.filter(
+    (session) => session.type === "collab",
+  ).length;
+  const focusHours =
+    integerWeekBreakdown.find((item) => item.k === "focus")?.hours || 0;
+
+  if (loading) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] flex items-center justify-center">
+        <div className="text-cyan-400">Loading Schedule...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">
       <div className="relative z-50 flex-none">
@@ -296,7 +323,9 @@ export default function Schedule() {
                     key={w.k}
                     className={`h-full ${kind[w.k].dot} transition-all duration-1000`}
                     style={{
-                      width: totalWeekHours ? `${(w.hours / totalWeekHours) * 100}%` : "0%",
+                      width: totalWeekHours
+                        ? `${(w.hours / totalWeekHours) * 100}%`
+                        : "0%",
                     }}
                   />
                 ))}

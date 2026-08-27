@@ -27,7 +27,7 @@ export const getDoubt = async (req, res) => {
 export const getAllDoubts = async (req, res) => {
   try {
     const doubts = await Doubt.find()
-      .populate("userId", "username")
+      .populate("userId", "username profilePicture name email")
       .sort({ createdAt: -1 });
     const formattedDoubts = doubts.map((doubt) => ({
       ...doubt.toObject(),

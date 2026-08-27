@@ -82,7 +82,7 @@ const DoubtCard = ({
     if (!commentText.trim()) return;
 
     try {
-      const response = await api.post(`comment/doubts/${doubt._id}`, {
+      const response = await api.post(`/comment/doubts/${doubt._id}`, {
         content: commentText,
       });
       setComments((prevComments) => [
@@ -116,7 +116,10 @@ const DoubtCard = ({
           {/* Header Section */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Avatar name={doubt.userId?.username || "Unknown"} />
+              <Avatar 
+                name={doubt.userId?.username || "Unknown"} 
+                src={doubt.userId?.profilePicture} 
+              />
               <div>
                 <p className="text-sm font-bold text-[#EDE7DA]">
                   {doubt.userId?.username || "Unknown"}
@@ -281,6 +284,7 @@ const DoubtCard = ({
               <div className="mt-6 flex items-center gap-3 rounded-2xl bg-white/[0.02] border border-white/5 p-2 transition-colors focus-within:border-cyan-500/30 focus-within:bg-white/[0.04]">
                 <Avatar
                   name={user?.username || "Unknown"}
+                  src={user?.profilePicture}
                   size="h-9 w-9"
                   className="rounded-xl ml-1"
                 />

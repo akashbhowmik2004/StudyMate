@@ -10,6 +10,7 @@ import {
   discoverUsers
 } from "../controllers/userControllers.js";
 import { validateProfile } from "../middleware/validateUser.js";
+import upload from "../middleware/upload.js";
 
 const router = Router();
 
@@ -17,7 +18,7 @@ router.get("/followers", findFollowers);
 router.get("/followings", findFollowings);
 router.get("/discover", discoverUsers);
 router.delete("/deleteprofile", deleteProfile);
-router.patch("/profile", validateProfile, updateProfile);
+router.patch("/profile", upload.single("file"), validateProfile, updateProfile);
 router.get("/:id", getUser);
 router.put("/follow/:id", followUser);
 router.put("/unfollow/:id", unfollowUser);

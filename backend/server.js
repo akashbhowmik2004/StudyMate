@@ -19,6 +19,7 @@ import socketHandler from "./src/socket/socket.js";
 import messageRoutes from "./src/routers/messageRoutes.js";
 import followUnfollowRoutes from "./src/routers/followUnfollowRoutes.js";
 import scheduleRoutes from "./src/routers/scheduleRoutes.js";
+import dashboardRoutes from "./src/routers/dashboardRoutes.js";
 
 const app = express();
 const server = createServer(app);
@@ -55,6 +56,7 @@ app.use("/api/subjects", requireAuth, subjectRoutes);
 app.use("/api/messages", requireAuth, messageRoutes);
 app.use("/api", requireAuth, followUnfollowRoutes);
 app.use("/api/schedule", requireAuth, scheduleRoutes);
+app.use("/api/dashboard", requireAuth, dashboardRoutes);
 
 await mongoose.connect(process.env["MONGODB_URI"]).then(() => {
   console.log("MongoDB connected successfully");

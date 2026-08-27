@@ -4,7 +4,7 @@ import CommunitySidebar from "../components/Community/CommunitySidebar.jsx";
 import CommunityHeader from "../components/Community/CommunityHeader.jsx";
 import MessageFeed from "../components/Community/MessageFeed.jsx";
 import MessageComposer from "../components/Community/MessageComposer.jsx";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "../lib/axois.js";
 import { useToast } from "../context/ToastContext.jsx";
 
@@ -62,6 +62,25 @@ export default function Community() {
       return [];
     }
   };
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCommunityData = async () => {
+      setLoading(true);
+      await Promise.all([getCommunities(), getJoinedCommunities()]);
+      setLoading(false);
+    };
+    loadCommunityData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] flex items-center justify-center">
+        <div className="text-cyan-400">Loading Communities...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">

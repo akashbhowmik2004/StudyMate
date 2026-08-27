@@ -48,7 +48,7 @@ export const findCommunity = async (req, res) => {
   try {
     const community = await Community.findById(id).populate(
       "members",
-      "username",
+      "username profilePicture name email",
     );
     if (!community) {
       return res.status(404).json({

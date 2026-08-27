@@ -1,9 +1,30 @@
+import { useState, useEffect } from "react";
 import { FaTrophy, FaFire } from "react-icons/fa";
 import useAuth from "../../context/useAuth.jsx";
 import { Link } from "react-router";
+import { api } from "../../lib/axois.js";
+
 const DashboardSidebar = ({ Avatar }) => {
   const { user } = useAuth();
-  console.log("User in DashboardSidebar:", user);
+  const [stats, setStats] = useState({ streak: 0, rank: "Top 5%" });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get("/dashboard");
+        if (response.data.success) {
+          setStats({
+            streak: response.data.data.streak?.days || 0,
+            rank: "Top 5%", // Mock rank, or compute if possible
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard stats", err);
+      }
+    };
+    fetchStats();
+  }, []);
+
   return (
     <Link to={"/profile"}>
       <aside className="hidden w-72 shrink-0 lg:block">
@@ -12,6 +33,7 @@ const DashboardSidebar = ({ Avatar }) => {
           <div className="group flex cursor-pointer items-center gap-4 rounded-[2rem] border border-white/5 bg-white/[0.02] p-4 transition hover:border-cyan-500/20 hover:bg-white/[0.04]">
             <Avatar
               name={user.name || "Unknown"}
+              src={user.profilePicture}
               size="h-12 w-12"
               className="rounded-full shadow-lg"
             />
@@ -36,7 +58,7 @@ const DashboardSidebar = ({ Avatar }) => {
                   Rank
                 </p>
                 <p className="font-['Fraunces',_serif] text-xl font-bold text-[#EDE7DA]">
-                  Top 5%
+                  {stats.rank}
                 </p>
               </div>
             </div>
@@ -50,7 +72,7 @@ const DashboardSidebar = ({ Avatar }) => {
                   Streak
                 </p>
                 <p className="font-['Fraunces',_serif] text-xl font-bold text-[#EDE7DA]">
-                  12 Days
+                  {stats.streak} {stats.streak === 1 ? "Day" : "Days"}
                 </p>
               </div>
             </div>

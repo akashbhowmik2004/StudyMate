@@ -26,11 +26,7 @@ const CommunitySidebar = ({
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { showToast } = useToast();
 
-  useEffect(() => {
-    console.log("Created Communities:", communities);
-    getCommunities();
-    getJoinedCommunities();
-  }, []);
+  // Fetching is now handled in Community.jsx
 
   const handleCreateCommunity = async (e) => {
     e.preventDefault();

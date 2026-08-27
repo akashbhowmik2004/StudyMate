@@ -64,8 +64,12 @@ const NavProfileButton = ({userInfo}) => {
                 className="flex h-10 items-center gap-2.5 rounded-full border border-white/10 bg-white/5 pl-1.5 pr-3 text-[#EDE7DA] backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/20 focus:outline-none"
                 type="button"
             >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_-3px_rgba(34,211,238,0.2)]">
-                    <UserCircle size={16} />
+                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_-3px_rgba(34,211,238,0.2)] overflow-hidden">
+                    {account.profilePicture ? (
+                        <img src={account.profilePicture} alt="Profile" className="h-full w-full object-cover" />
+                    ) : (
+                        <UserCircle size={16} />
+                    )}
                 </span>
 
                 <span className="hidden text-sm font-bold md:block">{account.username}</span>

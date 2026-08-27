@@ -14,6 +14,7 @@ export default function Note() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const [activeSubject, setActiveSubject] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchSubjects = async () => {
     try {
@@ -27,12 +28,22 @@ export default function Note() {
     } catch (err) {
       console.log(err);
       toast.error("Failed to fetch subjects");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchSubjects();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] flex items-center justify-center">
+        <div className="text-cyan-400">Loading Subjects...</div>
+      </div>
+    );
+  }
 
   const handleSubjectChange = (e) => {
     setSubject({

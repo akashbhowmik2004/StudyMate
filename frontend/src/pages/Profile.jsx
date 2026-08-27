@@ -51,14 +51,20 @@ const Avatar = ({
 const AccountPage = () => {
   const { showToast } = useToast();
   const fileInputRef = useRef(null);
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   // --- State: Current User Profile ---
   const [profile, setProfile] = useState({});
 
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [editUsernameVal, setEditUsernameVal] = useState(profile.username);
+  
+  const [isEditingBio, setIsEditingBio] = useState(false);
+  const [editBioVal, setEditBioVal] = useState(profile.desc || "");
+  
   const [followInput, setFollowInput] = useState("");
   const [followRequestsId, setFollowRequestsId] = useState("");
+
+  const [loading, setLoading] = useState(true);
 
   // --- State: Dummy Data for Requests ---
   const [pendingRequests, setPendingRequests] = useState([]);
@@ -66,7 +72,8 @@ const AccountPage = () => {
     try {
       const response = await api.get(`/users/${user._id}`);
       setProfile(response.data.otherDetails);
-      setEditUsernameVal(response.data.username);
+      setEditUsernameVal(response.data.otherDetails.username);
+      setEditBioVal(response.data.otherDetails.desc || "");
 
       console.log("Fetched user data:", response.data.otherDetails);
     } catch (error) {
@@ -89,28 +96,80 @@ const AccountPage = () => {
     }
   };
   useEffect(() => {
-    fetchUserData();
-    fetchPendingRequests();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchUserData(), fetchPendingRequests()]);
+      setLoading(false);
+    };
+    loadData();
   }, [user._id]);
 
+  if (loading) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] flex items-center justify-center">
+        <div className="text-cyan-400">Loading Account...</div>
+      </div>
+    );
+  }
+
   // --- Handlers ---
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const localUrl = URL.createObjectURL(file);
-      setProfile((prev) => ({ ...prev, imageUrl: localUrl }));
-      showToast("Profile picture updated successfully!");
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const response = await api.patch("/users/profile", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        if (response.data.success) {
+          setProfile(response.data.user);
+          setUser(response.data.user);
+          showToast("Profile picture updated successfully!");
+        }
+      } catch (error) {
+        console.error("Error uploading image", error);
+        showToast("Failed to upload profile picture.", false);
+      }
     }
   };
 
-  const handleSaveUsername = () => {
+  const handleSaveUsername = async () => {
     if (!editUsernameVal.trim()) {
       showToast("Username cannot be empty", false);
       return;
     }
-    setProfile((prev) => ({ ...prev, username: editUsernameVal.trim() }));
-    setIsEditingUsername(false);
-    showToast("Username updated successfully!");
+    try {
+      const response = await api.patch("/users/profile", { username: editUsernameVal.trim() });
+      if (response.data.success) {
+        setProfile(response.data.user);
+        setUser(response.data.user);
+        setIsEditingUsername(false);
+        showToast("Username updated successfully!");
+      }
+    } catch (error) {
+      console.error("Error saving username", error);
+      showToast(error.response?.data?.message || "Failed to update username.", false);
+    }
+  };
+
+  const handleSaveBio = async () => {
+    if (editBioVal.length > 50) {
+      showToast("Bio cannot exceed 50 characters", false);
+      return;
+    }
+    try {
+      const response = await api.patch("/users/profile", { desc: editBioVal.trim() });
+      if (response.data.success) {
+        setProfile(response.data.user);
+        setUser(response.data.user);
+        setIsEditingBio(false);
+        showToast("Bio updated successfully!");
+      }
+    } catch (error) {
+      console.error("Error saving bio", error);
+      showToast(error.response?.data?.message || "Failed to update bio.", false);
+    }
   };
 
   const handleCopyId = () => {
@@ -220,16 +279,29 @@ const AccountPage = () => {
                 handleSaveUsername={handleSaveUsername}
                 setEditUsernameVal={setEditUsernameVal}
                 setIsEditingUsername={setIsEditingUsername}
+                isEditingBio={isEditingBio}
+                editBioVal={editBioVal}
+                setEditBioVal={setEditBioVal}
+                setIsEditingBio={setIsEditingBio}
+                handleSaveBio={handleSaveBio}
               />
 
               {/* Stats Bar */}
               <div className="mt-8 flex items-center gap-8 border-t border-white/5 pt-6">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    Posts
+                  </p>
+                  <p className="mt-1 font-['Fraunces',_serif] text-2xl font-bold text-white">
+                    {profile.doubtsCount || 0}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
                     Followers
                   </p>
                   <p className="mt-1 font-['Fraunces',_serif] text-2xl font-bold text-white">
-                    {profile.followers?.length}
+                    {profile.followers?.length || 0}
                   </p>
                 </div>
                 <div>
@@ -237,7 +309,7 @@ const AccountPage = () => {
                     Following
                   </p>
                   <p className="mt-1 font-['Fraunces',_serif] text-2xl font-bold text-white">
-                    {profile.followings?.length}
+                    {profile.followings?.length || 0}
                   </p>
                 </div>
               </div>

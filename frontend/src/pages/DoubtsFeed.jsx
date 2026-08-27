@@ -8,7 +8,7 @@ import { useToast } from "../context/ToastContext.jsx";
 import { api } from "../lib/axois.js";
 import ConfirmDialog from "../components/Common/ConfirmDialog.jsx";
 
-const CURRENT_USER = { name: "Akash Bhowmik", username: "akash_b" };
+
 
 const AVATAR_PALETTES = [
   "bg-cyan-500/15 text-cyan-200 border-cyan-500/20",
@@ -28,7 +28,16 @@ const initials = (name) =>
     .join("")
     .toUpperCase();
 
-const Avatar = ({ name, size = "h-10 w-10", className = "" }) => {
+const Avatar = ({ name, size = "h-10 w-10", className = "", src }) => {
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={name}
+        className={`${size} shrink-0 rounded-2xl object-cover border border-white/10 shadow-lg ${className}`}
+      />
+    );
+  }
   return (
     <span
       className={`flex ${size} shrink-0 items-center justify-center rounded-2xl border text-xs font-bold backdrop-blur-md ${paletteFor(
@@ -40,23 +49,41 @@ const Avatar = ({ name, size = "h-10 w-10", className = "" }) => {
   );
 };
 
+import useAuth from "../context/useAuth.jsx";
+
 const DoubtsFeed = () => {
+  const { user: CURRENT_USER } = useAuth();
   const [doubts, setDoubts] = useState([]);
   const { showToast } = useToast();
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [doubtId, setDoubtId] = useState(null);
   
 
+  const [loading, setLoading] = useState(true);
+
   const fetchAllDoubts = async () => {
-    const response = await api.get("/doubts");
-    console.log("Fetched doubts:", response.data);
-    
-    setDoubts(response.data.doubts);
+    try {
+      const response = await api.get("/doubts");
+      console.log("Fetched doubts:", response.data);
+      setDoubts(response.data.doubts);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchAllDoubts();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] flex items-center justify-center">
+        <div className="text-cyan-400">Loading Doubts...</div>
+      </div>
+    );
+  }
 
   const handleShare = () => {
     if (navigator.clipboard?.writeText) {
@@ -112,6 +139,8 @@ const DoubtsFeed = () => {
               setDoubts={setDoubts}
               doubts={doubts}
               fetchAllDoubts={fetchAllDoubts}
+              Avatar={Avatar}
+              currentUser={CURRENT_USER}
             />
 
             <div className="space-y-6">

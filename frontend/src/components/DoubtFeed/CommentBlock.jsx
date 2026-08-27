@@ -9,6 +9,7 @@ const CommentBlock = ({ comment, Avatar, currentUser, onDelete }) => {
       <div className="absolute -left-[27px] top-8 h-full w-px bg-white/5" />
       <Avatar
         name={comment.userId?.username}
+        src={comment.userId?.profilePicture}
         size="h-8 w-8"
         className="rounded-xl ring-4 ring-[#0B0D12]"
       />

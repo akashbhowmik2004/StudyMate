@@ -159,7 +159,7 @@ export const logout = (req, res) => {
 
 export const verifyUsers = async (req, res) => {
   try {
-    const userData = await User.findById(req.user.id).select("username email name");
+    const userData = await User.findById(req.user.id).select("-password");
     res.status(200).json({
       success: true,
       user: userData,

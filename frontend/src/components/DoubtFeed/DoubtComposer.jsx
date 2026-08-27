@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { FaImage, FaTimes } from "react-icons/fa";
 import { api } from "../../lib/axois.js";
 import { useToast } from "../../context/ToastContext.jsx";
-const DoubtComposer = ({ setDoubts, fetchAllDoubts }) => {
+const DoubtComposer = ({ setDoubts, fetchAllDoubts, Avatar, currentUser }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [doubtInput, setDoubtInput] = useState({
     title: "",
@@ -78,6 +78,12 @@ const DoubtComposer = ({ setDoubts, fetchAllDoubts }) => {
 
       <div className="p-6">
         <div className="flex items-start gap-4">
+          <Avatar 
+            name={currentUser?.name || "Unknown"}
+            src={currentUser?.profilePicture}
+            size="h-10 w-10 mt-1"
+            className="rounded-xl ring-2 ring-white/5"
+          />
           <div className="flex-1 w-full min-w-0">
             {!isExpanded ? (
               <div className="mt-2.5">

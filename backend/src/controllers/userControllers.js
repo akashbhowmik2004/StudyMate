@@ -2,6 +2,7 @@ import comment from "../models/comment.js";
 import community from "../models/community.js";
 import doubt from "../models/doubt.js";
 import User from "../models/user.js";
+import FollowRequest from "../models/followRequestSchema.js";
 import bcrypt from "bcrypt";
 
 export const getUser = async (req, res) => {
@@ -16,11 +17,25 @@ export const getUser = async (req, res) => {
       });
     }
     const { password: userPassword, ...otherDetails } = user._doc;
+    
+    // Fetch doubts count for this user
+    const doubtsCount = await doubt.countDocuments({ userId: id });
+    
+    // Check if there is a pending follow request
+    const existingRequest = await FollowRequest.findOne({
+      sender: req.user.id,
+      receiver: id,
+      status: "pending",
+    });
 
     res.status(200).json({
       success: true,
       message: "User found",
-      otherDetails,
+      otherDetails: {
+        ...otherDetails,
+        doubtsCount,
+        isPending: !!existingRequest
+      }
     });
   } catch (err) {
     console.log(err);
@@ -38,10 +53,15 @@ export const updateProfile = async (req, res) => {
     confirmNewPassword,
     username,
     newEmail,
+    desc,
   } = req.body;
 
   try {
     const updates = {};
+
+    if (desc !== undefined) {
+      updates.desc = desc;
+    }
 
     if (username) {
       const compareUsername = await User.findOne({ username });
@@ -67,18 +87,34 @@ export const updateProfile = async (req, res) => {
       updates.email = newEmail;
     }
 
-    const CurrentUser = await User.findById(req.user.id);
-    const comaprePassword = await bcrypt.compare(
-      currentPassword,
-      CurrentUser.password,
-    );
+    if (req.file) {
+      updates.profilePicture = `http://localhost:3000/uploads/${req.file.filename}`;
+    }
 
-    if (!comaprePassword) {
-      return res.status(400).json({
-        success: false,
-        field: "currentPassword",
-        message: "Current password is incorrect",
-      });
+    const CurrentUser = await User.findById(req.user.id);
+
+    // Only require current password if updating sensitive info like email or password
+    if (newPassword || newEmail || currentPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          field: "currentPassword",
+          message: "Current password is required to change email or password",
+        });
+      }
+
+      const comaprePassword = await bcrypt.compare(
+        currentPassword,
+        CurrentUser.password,
+      );
+
+      if (!comaprePassword) {
+        return res.status(400).json({
+          success: false,
+          field: "currentPassword",
+          message: "Current password is incorrect",
+        });
+      }
     }
 
     if (newPassword && confirmNewPassword) {
@@ -94,7 +130,7 @@ export const updateProfile = async (req, res) => {
     }
 
     const user = await User.findByIdAndUpdate(req.user.id, updates, {
-      returnDocument: "after",
+      new: true,
       runValidators: true,
     });
 
@@ -209,6 +245,7 @@ export const findFollowers = async (req, res) => {
         name: friendUser.name,
         username: friendUser.username,
         email: friendUser.email,
+        profilePicture: friendUser.profilePicture,
       };
     });
     console.log("Friends data:", friends);
@@ -243,6 +280,7 @@ export const findFollowings = async (req, res) => {
         name: followingUser.name,
         username: followingUser.username,
         email: followingUser.email,
+        profilePicture: followingUser.profilePicture,
       };
     });
     console.log("Followings data:", followings);

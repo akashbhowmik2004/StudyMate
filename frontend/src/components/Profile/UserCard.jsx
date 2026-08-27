@@ -10,7 +10,7 @@ const UserCard = ({
   return (
     <>
       <div className="flex items-center gap-3">
-        <Avatar name={req.sender.name} size="h-10 w-10" />
+        <Avatar name={req.sender.name} imageUrl={req.sender.profilePicture} size="h-10 w-10" />
         <div>
           <p className="text-sm font-bold text-[#EDE7DA]">{req.sender.name}</p>
           <p className="text-xs font-medium text-slate-500">

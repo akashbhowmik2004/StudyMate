@@ -17,92 +17,26 @@ import {
 import { IoPeople, IoSparkles } from "react-icons/io5";
 import StudyMateHeader from "../components/StudyMateHeader.jsx";
 import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { api } from "../lib/axois.js"; // note: misspelled axois.js
 
-/* ---------------------------------- data --------------------------------- */
-
-const streak = {
-  days: 17,
-  label: "day streak",
-  note: "Longest this semester",
+/* ---------------------------------- icon map --------------------------------- */
+const iconMap = {
+  FaClock: FaClock,
+  FaCalendarAlt: FaCalendarAlt,
+  FaCheckCircle: FaCheckCircle,
+  FaPlus: FaPlus,
+  FaTasks: FaTasks,
+  FaRegCommentDots: FaRegCommentDots,
+  FaFolderOpen: FaFolderOpen,
 };
 
-const focusStats = [
-  { label: "Today", value: "3h 40m", icon: FaClock },
-  { label: "This week", value: "21h 10m", icon: FaCalendarAlt },
-  { label: "Tasks done", value: "26 / 34", icon: FaCheckCircle },
-];
-
-const todaySchedule = [
-  {
-    time: "08:30",
-    end: "09:45",
-    title: "Java Full Stack Revision",
-    type: "Deep Focus",
-  },
-  {
-    time: "11:00",
-    end: "12:00",
-    title: "PostgreSQL Lab Prep",
-    type: "Practice",
-  },
-  {
-    time: "17:30",
-    end: "18:30",
-    title: "Computer Networks Quiz",
-    type: "Review",
-  },
-];
-
-const recentNotes = [
-  {
-    title: "TCP Three-Way Handshake",
-    subject: "Computer Networks",
-    updated: "2h ago",
-    tint: "coral",
-  },
-  {
-    title: "PostgreSQL ER Diagrams",
-    subject: "Database Management",
-    updated: "Yesterday",
-    tint: "mint",
-  },
-  {
-    title: "Leaky Bucket Algorithm",
-    subject: "Computer Networks",
-    updated: "2 days ago",
-    tint: "lav",
-  },
-];
-
-const subjects = [
-  { subject: "Full Stack Development", progress: 76, tint: "coral" },
-  { subject: "Database Management", progress: 64, tint: "mint" },
-  { subject: "Computer Networks", progress: 52, tint: "lav" },
-  { subject: "Java Programming", progress: 83, tint: "amber" },
-];
-
-const joinedCommunities = [
-  {
-    name: "BBIT Tech Club",
-    members: 42,
-    activity: "6 posts today",
-    initials: "BT",
-    tint: "coral",
-  },
-  {
-    name: "DB Study Circle",
-    members: 18,
-    activity: "Live session at 6 PM",
-    initials: "DB",
-    tint: "mint",
-  },
-];
-
+/* ---------------------------------- data --------------------------------- */
 const quickActions = [
-  { label: "Add note", icon: FaPlus },
-  { label: "New task", icon: FaTasks },
-  { label: "Discussion", icon: FaRegCommentDots },
-  { label: "Resources", icon: FaFolderOpen },
+  { label: "Add note", icon: "FaPlus" },
+  { label: "New task", icon: "FaTasks" },
+  { label: "Discussion", icon: "FaRegCommentDots" },
+  { label: "Resources", icon: "FaFolderOpen" },
 ];
 
 const tint = {
@@ -129,9 +63,11 @@ const tint = {
 };
 
 /* --------------------------------- utils --------------------------------- */
-
 function StreakChain({ count }) {
+  if (!count) count = 0;
   const dots = Array.from({ length: count });
+  if (count === 0) return <div className="text-xs text-slate-500">No streak yet</div>;
+  
   return (
     <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
       {dots.map((_, i) => (
@@ -150,8 +86,43 @@ function StreakChain({ count }) {
 }
 
 /* -------------------------------- component ------------------------------- */
-
 export default function Dashboard() {
+  const [data, setData] = useState({
+    streak: { days: 0, label: "day streak", note: "Loading..." },
+    focusStats: [],
+    todaySchedule: [],
+    recentNotes: [],
+    subjects: [],
+    joinedCommunities: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await api.get("/dashboard");
+        if (response.data.success) {
+          setData(response.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, []);
+
+  const { streak, focusStats, todaySchedule, recentNotes, subjects, joinedCommunities } = data;
+
+  if (loading) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] flex items-center justify-center">
+        <div className="text-cyan-400">Loading dashboard...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">
       <div className="relative z-50 flex-none">
@@ -225,11 +196,11 @@ export default function Dashboard() {
             <div className="hidden h-full w-px bg-white/5 sm:block" />
 
             {focusStats.map((s) => {
-              const Icon = s.icon;
+              const Icon = iconMap[s.iconName];
               return (
                 <div key={s.label} className="flex items-center gap-4">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 shadow-[0_0_15px_-3px_rgba(34,211,238,0.2)]">
-                    <Icon className="text-lg" />
+                    {Icon && <Icon className="text-lg" />}
                   </span>
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
@@ -274,7 +245,7 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <p className="mt-2 text-xs font-bold tracking-widest text-slate-500 uppercase">
-                    {item.time} – {item.end}
+                    {item.startTime} – {item.endTime}
                   </p>
                 </div>
               ))}
@@ -430,13 +401,13 @@ export default function Dashboard() {
             </div>
             <div className="flex flex-wrap gap-3">
               {quickActions.map((action) => {
-                const Icon = action.icon;
+                const Icon = iconMap[action.icon];
                 return (
                   <button
                     key={action.label}
                     className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-bold text-[#EDE7DA] transition hover:border-cyan-500/30 hover:bg-cyan-500/10 hover:text-cyan-100"
                   >
-                    <Icon className="text-xs text-cyan-400" />
+                    {Icon && <Icon className="text-xs text-cyan-400" />}
                     {action.label}
                   </button>
                 );

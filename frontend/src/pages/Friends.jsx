@@ -9,8 +9,10 @@ import StudyMateHeader from "../components/StudyMateHeader";
 import { useToast } from "../context/ToastContext";
 import { api } from "../lib/axois.js";
 
+import UserProfileCard from "../components/Common/UserProfileCard";
+
 // Reusable User Card Component
-const UserCard = ({ user, isFollowing, fetchNetworkData, isPending }) => {
+const UserCard = ({ user, isFollowing, fetchNetworkData, isPending, onClick }) => {
   const { showToast } = useToast();
   console.log("UserCard props:", { user, isFollowing, isPending });
   const handleUnfollowUser = async () => {
@@ -26,7 +28,7 @@ const UserCard = ({ user, isFollowing, fetchNetworkData, isPending }) => {
   };
   const handleFollowUser = async () => {
     try {
-      const receiverId = user._id;
+      const receiverId = user._id || user.id;
       const response = await api.post(`/send-request/${receiverId}`);
       console.log("Follow request sent:", response.data);
       await fetchNetworkData(); // Refresh the network data after following
@@ -38,10 +40,19 @@ const UserCard = ({ user, isFollowing, fetchNetworkData, isPending }) => {
   };
 
   return (
-    <div className="flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-white/[0.02] p-4 transition-all hover:bg-white/[0.04]">
+    <div 
+      className="flex items-center justify-between gap-4 rounded-2xl border border-white/5 bg-white/[0.02] p-4 transition-all hover:bg-white/[0.04] cursor-pointer"
+      onClick={() => onClick(user._id || user.id)}
+    >
       <div className="flex min-w-0 items-center gap-4">
         {/* Avatar */}
-        {user.imageUrl ? (
+        {user.profilePicture ? (
+          <img
+            src={user.profilePicture}
+            alt={user.name}
+            className="h-12 w-12 shrink-0 rounded-full border border-white/10 object-cover shadow-lg"
+          />
+        ) : user.imageUrl ? (
           <img
             src={user.imageUrl}
             alt={user.name}
@@ -66,7 +77,8 @@ const UserCard = ({ user, isFollowing, fetchNetworkData, isPending }) => {
 
       {/* Action Button */}
       <button
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           if (isFollowing) {
             handleUnfollowUser();
           } else if (!isPending) {
@@ -100,10 +112,13 @@ const NetworkPage = () => {
   const [followings, setFollowings] = useState([]);
   const [followRequests, setFollowRequests] = useState([]);
   const [discoverUsers, setDiscoverUsers] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { showToast } = useToast();
 
   const fetchNetworkData = async () => {
     try {
+      setLoading(true);
       // Fetch Followers, Followings, and All Users concurrently
       const followersRes = await api.get("/users/followers");
       const followingsRes = await api.get("/users/followings");
@@ -120,6 +135,8 @@ const NetworkPage = () => {
     } catch (err) {
       console.log(err);
       showToast("Failed to fetch network data", false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,15 +144,23 @@ const NetworkPage = () => {
     fetchNetworkData();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] flex items-center justify-center">
+        <div className="text-cyan-400">Loading Network...</div>
+      </div>
+    );
+  }
+
   // Helper to check if a user is in our "Following" list
   const isFollowingUser = (userId) => {
-    return followings.some((user) => String(user._id) === String(userId));
+    return followings.some((user) => String(user._id || user.id) === String(userId));
   };
 
   const isPendingUser = (userId) => {
     return followRequests.some(
       (request) =>
-        String(request.receiver?._id) === String(userId) &&
+        String(request.receiver?._id || request.receiver) === String(userId) &&
         request.status === "pending",
     );
   };
@@ -183,6 +208,7 @@ const NetworkPage = () => {
                       isFollowing={isFollowing}
                       isPending={isPendingUser(userId)}
                       fetchNetworkData={fetchNetworkData}
+                      onClick={setSelectedUserId}
                     />
                   );
                 })}
@@ -214,6 +240,7 @@ const NetworkPage = () => {
                       isFollowing={true}
                       isPending={false}
                       fetchNetworkData={fetchNetworkData}
+                      onClick={setSelectedUserId}
                     />
                   );
                 })}
@@ -248,6 +275,7 @@ const NetworkPage = () => {
                       isFollowing={isFollowing}
                       isPending={isPendingUser(userId)}
                       fetchNetworkData={fetchNetworkData}
+                      onClick={setSelectedUserId}
                     />
                   );
                 })}
@@ -256,6 +284,18 @@ const NetworkPage = () => {
           </section>
         </div>
       </div>
+
+      {selectedUserId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+           <UserProfileCard
+             userId={selectedUserId}
+             onClose={() => setSelectedUserId(null)}
+             onFollowChange={(id, isFollowing) => {
+                fetchNetworkData();
+             }}
+           />
+        </div>
+      )}
     </div>
   );
 };

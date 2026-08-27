@@ -7,7 +7,7 @@ export const getFollowRequests = async (req, res) => {
     const followRequests = await FollowRequest.find({
       receiver: userId,
       status: "pending",
-    }).populate("sender", "name username email");
+    }).populate("sender", "name username email profilePicture");
     res.status(200).json({
       success: true,
       requests: followRequests,
@@ -293,7 +293,7 @@ export const getSentFollowRequests = async (req, res) => {
     const followRequests = await FollowRequest.find({
       sender: userId,
       status: "pending",
-    }).populate("receiver", "name username email");
+    }).populate("receiver", "name username email profilePicture");
 
     res.status(200).json({
       success: true,

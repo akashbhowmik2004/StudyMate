@@ -11,6 +11,9 @@ export const updatedProfileSchema = Joi.object({
     "string.min": "Username must be at least 3 characters long",
     "string.max": "Username cannot exceed 30 characters",
   }),
+  desc: Joi.string().max(50).allow("").messages({
+    "string.max": "Bio cannot exceed 50 characters",
+  }),
 
   email: Joi.string()
     .email({

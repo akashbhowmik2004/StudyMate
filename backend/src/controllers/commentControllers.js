@@ -28,7 +28,7 @@ export const getComment = async (req, res) => {
 export const getAllCommentsForDoubt = async (req, res) => {
   const { id } = req.params;
   try {
-    const comments = await Comment.find({ postId: id }).populate("userId", "username email");
+    const comments = await Comment.find({ postId: id }).populate("userId", "username email profilePicture");
     res.status(200).json({
       success: true,
       comments,
@@ -58,7 +58,7 @@ export const commentDoubt = async (req, res) => {
       text: content,
     });
     await newComment.save();
-    await newComment.populate("userId", "username email");
+    await newComment.populate("userId", "username email profilePicture");
     res.status(201).json({
       success: true,
       message: "Comment successful",
