@@ -7,6 +7,7 @@ import SessionComposer from "../components/Schedule/SessionComposer.jsx";
 import { useState, useEffect } from "react";
 import { api } from "../lib/axois.js";
 import { useToast } from "../context/ToastContext.jsx";
+import Upcomings from "../components/Schedule/Upcomings.jsx";
 
 /* ---------------------------------- data --------------------------------- */
 
@@ -37,6 +38,23 @@ const kind = {
   },
 };
 
+const getSessionDurationHours = (session) => {
+  const [startHour, startMinute] = (session.startTime || "").split(":").map(Number);
+  const [endHour, endMinute] = (session.endTime || "").split(":").map(Number);
+  const startMinutes = startHour * 60 + startMinute;
+  const endMinutes = endHour * 60 + endMinute;
+
+  if (
+    !Number.isFinite(startMinutes) ||
+    !Number.isFinite(endMinutes) ||
+    endMinutes <= startMinutes
+  ) {
+    return 0;
+  }
+
+  return (endMinutes - startMinutes) / 60;
+};
+
 // const weekStrip = [
 //   { day: "Mon", date: 13, sessions: 2 },
 //   { day: "Tue", date: 14, sessions: 1 },
@@ -46,72 +64,6 @@ const kind = {
 //   { day: "Sat", date: 18, sessions: 1 },
 //   { day: "Sun", date: 19, sessions: 0 },
 // ];
-
-const todaySessions = [
-  {
-    time: "07:00",
-    end: "07:30",
-    title: "Morning Recap",
-    subject: "Mathematics",
-    k: "review",
-  },
-  {
-    time: "08:30",
-    end: "09:45",
-    title: "Data Structures Revision",
-    subject: "Algorithms",
-    k: "focus",
-  },
-  {
-    time: "11:00",
-    end: "12:00",
-    title: "Group Doubt Session",
-    subject: "Database Systems",
-    k: "collab",
-  },
-  {
-    time: "14:00",
-    end: "14:45",
-    title: "Flashcard Review",
-    subject: "Database Systems",
-    k: "review",
-  },
-  {
-    time: "17:30",
-    end: "18:30",
-    title: "Operating Systems Quiz Prep",
-    subject: "Operating Systems",
-    k: "practice",
-  },
-];
-
-const weekBreakdown = [
-  { k: "focus", hours: 6.5 },
-  { k: "collab", hours: 3 },
-  { k: "practice", hours: 4.5 },
-  { k: "review", hours: 2 },
-];
-
-const upcoming = [
-  {
-    day: "Fri",
-    title: "Computer Networks Quiz Prep",
-    time: "09:00 – 10:00",
-    k: "practice",
-  },
-  {
-    day: "Fri",
-    title: "Logic League — live session",
-    time: "18:00 – 19:00",
-    k: "collab",
-  },
-  {
-    day: "Sat",
-    title: "Weekly reflection & replan",
-    time: "10:00 – 10:30",
-    k: "review",
-  },
-];
 
 /* -------------------------------- component ------------------------------- */
 
@@ -131,12 +83,14 @@ export default function Schedule() {
   const [sessionInputs, setSessionInputs] = useState({
     title: "",
     subject: "",
-    date: getLocalDate(),
+    date: selectedDate || getLocalDate(),
     startTime: "",
     endTime: "",
     type: "focus",
   });
   const [weekStrip, setWeekStrip] = useState([]);
+  const [upcomingSessions, setUpcomingSessions] = useState([]);
+  const [weekSessions, setWeekSessions] = useState([]);
 
   const generateWeekStrip = () => {
     const today = new Date();
@@ -164,11 +118,35 @@ export default function Schedule() {
         }),
         date: date.getDate(),
         fullDate,
+        sessions: 0,
         today: fullDate === getLocalDate(),
       };
     });
 
     setWeekStrip(week);
+  };
+  const fetchWeekSessions = async () => {
+    try {
+      const sessionsByDate = await Promise.all(
+        weekStrip.map(async (day) => {
+          const response = await api.get(
+            `/schedule/find-session?date=${day.fullDate}`,
+          );
+          return response.data.sessions || [];
+        }),
+      );
+      const allSessions = sessionsByDate.flat();
+      setWeekSessions(allSessions);
+      setWeekStrip((currentWeek) =>
+        currentWeek.map((day) => ({
+          ...day,
+          sessions: allSessions.filter((session) => session.date === day.fullDate)
+            .length,
+        })),
+      );
+    } catch (error) {
+      console.error("Error fetching weekly sessions:", error);
+    }
   };
   const fetchSessionsForDate = async (date) => {
     try {
@@ -179,18 +157,39 @@ export default function Schedule() {
       console.error("Error fetching sessions:", error);
     }
   };
+
+  const fetchUpcomingSessions = async () => {
+    try {
+      const response = await api.get("/schedule/upcoming-sessions");
+      setUpcomingSessions(response.data.sessions);
+    } catch (error) {
+      console.error("Error fetching upcoming sessions:", error);
+    }
+  };
   useEffect(() => {
     generateWeekStrip();
   }, []);
   useEffect(() => {
+    if (weekStrip.length) {
+      fetchWeekSessions();
+    }
+  }, [weekStrip.length]);
+  useEffect(() => {
     fetchSessionsForDate(selectedDate);
   }, [selectedDate]);
-
+  useEffect(() => {
+    setSessionInputs((prev) => ({
+      ...prev,
+      date: selectedDate,
+    }));
+  }, [selectedDate]);
   const onDeleteSession = async (sessionId) => {
     try {
       await api.delete(`/schedule/delete-session/${sessionId}`);
       showToast("Session deleted successfully!", true);
-      fetchSessionsForDate(selectedDate); // Refresh sessions for the selected date
+      await fetchSessionsForDate(selectedDate);
+      await fetchUpcomingSessions();
+      await fetchWeekSessions();
     } catch (error) {
       console.error("Error deleting session:", error);
       showToast("Failed to delete session.", false);
@@ -198,16 +197,32 @@ export default function Schedule() {
   };
   const onToggleComplete = async (sessionId) => {
     try {
-      const data = await api.patch(`/schedule/set-session-completion/${sessionId}`);
+      const data = await api.patch(
+        `/schedule/set-session-completion/${sessionId}`,
+      );
       console.log(data);
       showToast("Session marked as completed!", true);
-      fetchSessionsForDate(selectedDate); 
+      await fetchSessionsForDate(selectedDate);
+      await fetchUpcomingSessions();
+      await fetchWeekSessions();
     } catch (error) {
       console.error("Error marking session as completed:", error);
       showToast(error.response.data.message, false);
     }
-  }
-  const totalWeekHours = weekBreakdown.reduce((sum, w) => sum + w.hours, 0);
+  };
+  const weekBreakdown = Object.keys(kind).map((type) => ({
+    k: type,
+    hours: weekSessions
+      .filter((session) => session.type === type)
+      .reduce((hours, session) => hours + getSessionDurationHours(session), 0),
+  }));
+  const integerWeekBreakdown = weekBreakdown.map((item) => ({
+    ...item,
+    hours: Math.max(0, Math.round(item.hours)),
+  }));
+  const totalWeekHours = integerWeekBreakdown.reduce((sum, w) => sum + w.hours, 0);
+  const groupSessions = weekSessions.filter((session) => session.type === "collab").length;
+  const focusHours = integerWeekBreakdown.find((item) => item.k === "focus")?.hours || 0;
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0B0D12] text-[#EDE7DA] selection:bg-cyan-500/30">
       <div className="relative z-50 flex-none">
@@ -241,7 +256,6 @@ export default function Schedule() {
           {/* Thursday's full timeline */}
           <SessionTimeline
             kind={kind}
-            todaySessions={todaySessions}
             getLocalDate={getLocalDate}
             sessions={sessions}
             selectedDate={selectedDate}
@@ -260,7 +274,9 @@ export default function Schedule() {
               sessionInputs={sessionInputs}
               setSessionInputs={setSessionInputs}
               selectedDate={selectedDate}
-              fetchSessionsForDate={fetchSessionsForDate}     
+              fetchSessionsForDate={fetchSessionsForDate}
+              fetchUpcomingSessions={fetchUpcomingSessions}
+              fetchWeekSessions={fetchWeekSessions}
             />
 
             {/* week breakdown */}
@@ -275,17 +291,19 @@ export default function Schedule() {
               </div>
 
               <div className="mt-6 flex h-3 w-full overflow-hidden rounded-full bg-black/40 shadow-inner">
-                {weekBreakdown.map((w) => (
+                {integerWeekBreakdown.map((w) => (
                   <span
                     key={w.k}
                     className={`h-full ${kind[w.k].dot} transition-all duration-1000`}
-                    style={{ width: `${(w.hours / totalWeekHours) * 100}%` }}
+                    style={{
+                      width: totalWeekHours ? `${(w.hours / totalWeekHours) * 100}%` : "0%",
+                    }}
                   />
                 ))}
               </div>
 
               <div className="mt-6 space-y-3">
-                {weekBreakdown.map((w) => (
+                {integerWeekBreakdown.map((w) => (
                   <div
                     key={w.k}
                     className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 transition hover:bg-white/[0.04]"
@@ -305,34 +323,22 @@ export default function Schedule() {
             </article>
 
             {/* upcoming */}
-            <article className="rounded-[2.5rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-6 backdrop-blur-xl sm:p-8">
-              <h2 className="font-['Fraunces',_serif] text-xl font-bold text-white border-b border-white/5 pb-5">
-                Coming up
-              </h2>
-              <div className="mt-6 space-y-3">
-                {upcoming.map((u) => (
-                  <div
-                    key={u.title}
-                    className="group flex items-center gap-4 rounded-[1.5rem] border border-white/5 bg-white/[0.02] p-4 transition-all hover:bg-white/[0.04]"
-                  >
-                    <span className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:bg-white/10 group-hover:text-white transition-colors">
-                      {u.day}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold text-[#EDE7DA] group-hover:text-white transition-colors">
-                        {u.title}
-                      </p>
-                      <p className="mt-1 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                        {u.time}
-                      </p>
-                    </div>
-                    <span
-                      className={`h-2.5 w-2.5 shrink-0 rounded-full ${kind[u.k].dot} ${kind[u.k].shadow} shadow-[0_0_8px_rgba(255,255,255,0.3)]`}
-                    />
-                  </div>
-                ))}
+            {upcomingSessions.length > 0 ? (
+              <Upcomings
+                kind={kind}
+                weekStrip={weekStrip}
+                upcomingSessions={upcomingSessions}
+              />
+            ) : (
+              <div className="rounded-[2.5rem] border border-white/5 bg-gradient-to-b from-white/[0.04] to-transparent p-6 backdrop-blur-xl sm:p-8">
+                <h2 className="font-['Fraunces',_serif] text-xl font-bold text-white border-b border-white/5 pb-5">
+                  Coming up
+                </h2>
+                <p className="mt-6 text-sm font-medium text-slate-400">
+                  No upcoming sessions.
+                </p>
               </div>
-            </article>
+            )}
           </div>
         </section>
 
@@ -347,7 +353,7 @@ export default function Schedule() {
                 Sessions this week
               </p>
               <p className="mt-1 font-['Fraunces',_serif] text-3xl font-black text-white">
-                14
+                {weekSessions.length}
               </p>
             </div>
           </div>
@@ -360,7 +366,7 @@ export default function Schedule() {
                 Group sessions
               </p>
               <p className="mt-1 font-['Fraunces',_serif] text-3xl font-black text-white">
-                3
+                {groupSessions}
               </p>
             </div>
           </div>
@@ -373,7 +379,7 @@ export default function Schedule() {
                 Focus hours
               </p>
               <p className="mt-1 font-['Fraunces',_serif] text-3xl font-black text-white">
-                6.5h
+                {focusHours}h
               </p>
             </div>
           </div>

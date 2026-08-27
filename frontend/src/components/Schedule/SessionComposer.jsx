@@ -4,9 +4,11 @@ import { useToast } from "../../context/ToastContext.jsx";
 const SessionComposer = ({
   kind,
   setSessions,
-  getLocalDate,
   sessionInputs,
   setSessionInputs,
+  selectedDate,
+  fetchUpcomingSessions,
+  fetchWeekSessions,
 }) => {
   const { showToast } = useToast();
   const handleinputChange = (e) => {
@@ -17,16 +19,26 @@ const SessionComposer = ({
     e.preventDefault();
 
     try {
+      if (!sessionInputs.title || !sessionInputs.subject || !sessionInputs.startTime || !sessionInputs.endTime) {
+        showToast("Please fill in all required fields.", false);
+        return;
+      }
+      if (sessionInputs.endTime <= sessionInputs.startTime) {
+        showToast("End time must be after start time.", false);
+        return;
+      }
       const response = await api.post(
         "/schedule/create-session",
         sessionInputs,
       );
       setSessions((prev) => [...prev, response.data.session]);
       showToast("Session created successfully!", true);
+      await fetchUpcomingSessions();
+      await fetchWeekSessions();
       setSessionInputs({
         title: "",
         subject: "",
-        date: getLocalDate(),
+        date: selectedDate,
         startTime: "",
         endTime: "",
         type: "focus",
@@ -41,7 +53,7 @@ const SessionComposer = ({
       <h2 className="font-['Fraunces',_serif] text-xl font-bold text-white">
         Add a session
       </h2>
-      <form className="mt-6 space-y-4">
+      <form className="mt-6 space-y-4" onSubmit={handlecreateSession}>
         <div className="rounded-2xl border border-white/5 bg-white/[0.02] px-4 py-3.5 transition-all duration-300 focus-within:border-cyan-500/40 focus-within:bg-white/[0.04] focus-within:shadow-[0_0_15px_-3px_rgba(34,211,238,0.15)]">
           <input
             type="text"
@@ -103,7 +115,6 @@ const SessionComposer = ({
 
         <button
           type="submit"
-          onClick={handlecreateSession}
           className="mt-2 inline-flex w-full items-center justify-center gap-2.5 rounded-2xl bg-cyan-500 px-6 py-4 text-sm font-bold text-[#0B0D12] shadow-[0_0_20px_-5px_rgba(34,211,238,0.4)] transition-all hover:-translate-y-0.5 hover:bg-cyan-400 hover:shadow-cyan-400/40 active:scale-95"
         >
           <FaPlus className="text-[11px]" />

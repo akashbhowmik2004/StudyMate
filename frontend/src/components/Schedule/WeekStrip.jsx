@@ -1,6 +1,5 @@
 import {FaChevronLeft, FaChevronRight} from "react-icons/fa";
-const WeekStrip = ({weekStrip, setDate, getLocalDate}) => {
-  console.log(weekStrip);
+const WeekStrip = ({ weekStrip, setDate, getLocalDate }) => {
   return (
     <>
       <button className="hidden sm:flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-[#EDE7DA]/60 transition hover:bg-white/10 hover:text-white">
@@ -17,7 +16,7 @@ const WeekStrip = ({weekStrip, setDate, getLocalDate}) => {
                 ? "border-cyan-500/30 bg-cyan-500/10 shadow-[inset_0_0_20px_rgba(34,211,238,0.15)]"
                 : "border-transparent bg-transparent hover:bg-white/[0.04] hover:border-white/5"
             }`}
-            onClick={() => {setDate(d.fullDate); setActiveDate(true);}}
+            onClick={() => setDate(d.fullDate)}
           >
             <span
               className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${d.today ? "text-cyan-300" : "text-slate-500 group-hover:text-slate-400"}`}
@@ -30,13 +29,13 @@ const WeekStrip = ({weekStrip, setDate, getLocalDate}) => {
               {d.date}
             </span>
             <span className="flex h-1.5 items-center gap-1">
-              {Array.from({ length: Math.min(d.length, 3) }).map((_, i) => (
+              {Array.from({ length: Math.min(d.sessions || 0, 3) }).map((_, i) => (
                 <span
                   key={i}
                   className={`h-1.5 w-1.5 rounded-full ${d.today ? "bg-cyan-400 shadow-[0_0_5px_rgba(34,211,238,0.8)]" : "bg-white/20"}`}
                 />
               ))}
-              {d.sessions === 0 && (
+              {!d.sessions && (
                 <span className="h-1.5 w-1.5 rounded-full bg-transparent" />
               )}
             </span>

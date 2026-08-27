@@ -7,8 +7,8 @@ const SessionTimeline = ({
   sessions,
   selectedDate,
   fetchSessionsForDate,
-  onToggleComplete, // NEW: Function to handle checking/unchecking
-  onDeleteSession,  // NEW: Function to handle deleting
+  onToggleComplete, 
+  onDeleteSession,  
 }) => {
   const d = selectedDate ? selectedDate : getLocalDate();
   const date = new Date(d);
@@ -27,10 +27,11 @@ const SessionTimeline = ({
     sessions.forEach((session) => {
       const [startHour, startMinute] = session.startTime.split(":").map(Number);
       const [endHour, endMinute] = session.endTime.split(":").map(Number);
-      const start = new Date(0, 0, 0, startHour, startMinute);
-      const end = new Date(0, 0, 0, endHour, endMinute);
-      const duration = (end - start) / (1000 * 60);
-      totalDuration += duration;
+      const start = startHour * 60 + startMinute;
+      const end = endHour * 60 + endMinute;
+      if (Number.isFinite(start) && Number.isFinite(end)) {
+        totalDuration += Math.max(0, end - start);
+      }
     });
     const hours = Math.floor(totalDuration / 60);
     const minutes = totalDuration % 60;

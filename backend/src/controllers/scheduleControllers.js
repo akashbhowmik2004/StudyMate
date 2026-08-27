@@ -55,8 +55,10 @@ export const setSessionCompletion = async (req, res) => {
     if (!session) {
       return res.status(404).json({ message: "Session not found" });
     }
-    if(session.completed) {
-      return res.status(400).json({ message: "Session is already marked as completed" });
+    if (session.completed) {
+      return res
+        .status(400)
+        .json({ message: "Session is already marked as completed" });
     }
     session.completed = true;
     await session.save();
@@ -66,6 +68,45 @@ export const setSessionCompletion = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getUpcomingSessions = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const sessions = await Schedule.find({
+      userId,
+      date: { $gte: today },
+      completed: false,
+    }).sort({
+      date: 1,
+      startTime: 1,
+    });
+
+    const now = new Date();
+
+    const upcoming = sessions.filter((session) => {
+      const sessionDateTime = new Date(
+        `${session.date}T${session.startTime}:00`,
+      );
+
+      return sessionDateTime > now;
+    });
+
+    return res.status(200).json({
+      success: true,
+      sessions: upcoming,
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
   }
 };
 
