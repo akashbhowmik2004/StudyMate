@@ -1,4 +1,4 @@
-import {Server} from "socket.io";
+import { Server } from "socket.io";
 import express from "express";
 import authRoutes from "./src/routers/authRoutes.js";
 import mongoose from "mongoose";
@@ -14,12 +14,14 @@ import subjectRoutes from "./src/routers/subjectRoutes.js";
 import { limiter } from "./src/middleware/rateLimiter.js";
 import cors from "cors";
 import path from "path";
-import {createServer} from "node:http";
+import { createServer } from "node:http";
 import socketHandler from "./src/socket/socket.js";
 import messageRoutes from "./src/routers/messageRoutes.js";
 import followUnfollowRoutes from "./src/routers/followUnfollowRoutes.js";
 import scheduleRoutes from "./src/routers/scheduleRoutes.js";
 import dashboardRoutes from "./src/routers/dashboardRoutes.js";
+import requireAdmin from "./src/middleware/adminMiddleware.js";
+import requireStudent from "./src/middleware/studentMiddleware.js";
 
 const app = express();
 const server = createServer(app);
@@ -47,16 +49,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(limiter);
 
 app.use("/auth", authRoutes);
-app.use("/api/users", requireAuth, userRoutes);
-app.use("/api/doubts", requireAuth, doubtRoutes);
-app.use("/api/comment", requireAuth, commentRoutes);
-app.use("/api/communities", requireAuth, communityRoutes);
-app.use("/api/notes", requireAuth, noteRoutes);
-app.use("/api/subjects", requireAuth, subjectRoutes);
-app.use("/api/messages", requireAuth, messageRoutes);
-app.use("/api", requireAuth, followUnfollowRoutes);
-app.use("/api/schedule", requireAuth, scheduleRoutes);
-app.use("/api/dashboard", requireAuth, dashboardRoutes);
+app.use("/api/users", requireAuth, requireStudent, userRoutes);
+app.use("/api/doubts", requireAuth, requireStudent, doubtRoutes);
+app.use("/api/comment", requireAuth, requireStudent, commentRoutes);
+app.use("/api/communities", requireAuth, requireStudent, communityRoutes);
+app.use("/api/notes", requireAuth, requireStudent, noteRoutes);
+app.use("/api/subjects", requireAuth, requireStudent, subjectRoutes);
+app.use("/api/messages", requireAuth, requireStudent, messageRoutes);
+app.use("/api", requireAuth, requireStudent, followUnfollowRoutes);
+app.use("/api/schedule", requireAuth, requireStudent, scheduleRoutes);
+app.use("/api/dashboard", requireAuth, requireStudent, dashboardRoutes);
 
 await mongoose.connect(process.env["MONGODB_URI"]).then(() => {
   console.log("MongoDB connected successfully");

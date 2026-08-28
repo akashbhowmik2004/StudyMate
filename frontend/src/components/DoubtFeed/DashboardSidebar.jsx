@@ -6,9 +6,11 @@ import { api } from "../../lib/axois.js";
 
 const DashboardSidebar = ({ Avatar }) => {
   const { user } = useAuth();
+  
   const [stats, setStats] = useState({ streak: 0, rank: "Top 5%" });
 
   useEffect(() => {
+    console.log("Fetching dashboard stats for user:", user);
     const fetchStats = async () => {
       try {
         const response = await api.get("/dashboard");

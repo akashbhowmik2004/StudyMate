@@ -73,6 +73,7 @@ export const setSessionCompletion = async (req, res) => {
 
 export const getUpcomingSessions = async (req, res) => {
   try {
+    console.log("Fetching upcoming sessions for user:", req.user);
     const userId = req.user.id;
 
     const today = new Date().toISOString().split("T")[0];

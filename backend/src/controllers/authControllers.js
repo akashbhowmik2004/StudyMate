@@ -19,8 +19,8 @@ const generateProfileId = (name = "US") => {
 
 const maxAge = 3 * 24 * 60 * 60;
 //Create a JWT token
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+const createToken = (id, username, isAdmin) => {
+  return jwt.sign({ id, username, isAdmin }, process.env.JWT_SECRET, {
     expiresIn: maxAge,
   });
 };
@@ -68,10 +68,11 @@ export const signup = async (req, res) => {
       email,
       password: hashPassword,
       uniqueId,
+      isAdmin: false,
     });
 
     await newUser.save();
-    const token = createToken(newUser._id);
+    const token = createToken(newUser._id, newUser.username, newUser.isAdmin);
 
     res.cookie("jwt", token, {
       httpOnly: true,
@@ -118,7 +119,7 @@ export const login = async (req, res) => {
         message: "Invalid credential",
       });
     }
-    const token = createToken(user._id, user.username);
+    const token = createToken(user._id, user.username, user.isAdmin);
     res.cookie("jwt", token, {
       httpOnly: true,
       maxAge: maxAge * 1000,

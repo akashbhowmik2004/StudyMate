@@ -33,7 +33,12 @@ const Login = () => {
     try {
       const res = await auth.post("/login", loginData);
       setUser(res.data.otherDetails);
-      navigate("/");
+      console.log("User logged in:", res.data.otherDetails);
+      if(res.data.otherDetails.isAdmin) {
+        navigate("/admin");
+      }else {
+        navigate("/");
+      }
       showToast(res.data.message, res.data.status); // Show toast notification on successful login
     } catch (err) {
       showToast(err.response.data.message || "Login failed", false); // Show toast notification on error
@@ -62,7 +67,6 @@ const Login = () => {
     );
   }
 
-  console.log(errors);
   
   return (
     <>

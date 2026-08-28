@@ -1,3 +1,4 @@
+
 const Upcomings = ({ kind, weekStrip, upcomingSessions }) => {
 
   return (
